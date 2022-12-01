@@ -1,18 +1,18 @@
-import System.Environment
 import Data.List
+import System.Environment
 
 main = do
-    (input:_) <- getArgs
-    contents <- readFile input
-    print . largestAmountCalories . groupInventories . lines $ contents
+  (input : k : _) <- getArgs
+  contents <- readFile input
+  print . largestAmountCaloriesTopK (read k) . groupInventories . lines $ contents
 
 foldInventoryAux :: String -> [[Int]] -> [[Int]]
-foldInventoryAux "" xs     = []:xs
-foldInventoryAux el (x:xs) = (read el : x) : xs
-foldInventoryAux _ []      = []
+foldInventoryAux "" xs = [] : xs
+foldInventoryAux el (x : xs) = (read el : x) : xs
+foldInventoryAux _ [] = []
 
 groupInventories :: [String] -> [[Int]]
 groupInventories = foldr foldInventoryAux []
 
-largestAmountCalories :: [[Int]] -> Int
-largestAmountCalories = maximum . map sum
+largestAmountCaloriesTopK :: Int -> [[Int]] -> Int
+largestAmountCaloriesTopK k = sum . take k . reverse . sort . map sum
