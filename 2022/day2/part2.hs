@@ -11,5 +11,5 @@ readRound :: String -> Round
 readRound roundLine =
   let [elfCode, playerCode] = words roundLine
       Just elfShape = elfShapeFromCode elfCode
-      Just playerShape = playerShapeFromCode playerCode
-   in Round elfShape playerShape
+      Just outcome = outcomeFromCode playerCode
+   in Round elfShape (shapeForOutcome elfShape outcome)

@@ -1,11 +1,16 @@
 module RockPaperScissors
-( Shape(..)
-, Outcome(..)
-, Round(..)
-, elfShapeFromCode
-, playerShapeFromCode
-, totalScore
-) where
+  ( Shape (..),
+    Outcome (..),
+    Round (..),
+    elfShapeFromCode,
+    playerShapeFromCode,
+    outcomeFromCode,
+    shapeForOutcome,
+    totalScore,
+  )
+where
+
+import Data.List
 
 data Shape = Rock | Paper | Scissor deriving (Eq, Show)
 
@@ -31,6 +36,11 @@ roundOutcome elfShape playerShape
   | elfShape == playerShape = Draw
   | otherwise = Lose
 
+shapeForOutcome :: Shape -> Outcome -> Shape
+shapeForOutcome elfShape outcome = playerShape
+  where
+    Just playerShape = find (\playerShape -> roundOutcome elfShape playerShape == outcome) [Rock, Paper, Scissor]
+
 elfShapeFromCode :: String -> Maybe Shape
 elfShapeFromCode "A" = Just Rock
 elfShapeFromCode "B" = Just Paper
@@ -42,6 +52,12 @@ playerShapeFromCode "X" = Just Rock
 playerShapeFromCode "Y" = Just Paper
 playerShapeFromCode "Z" = Just Scissor
 playerShapeFromCode _ = Nothing
+
+outcomeFromCode :: String -> Maybe Outcome
+outcomeFromCode "X" = Just Lose
+outcomeFromCode "Y" = Just Draw
+outcomeFromCode "Z" = Just Win
+outcomeFromCode _ = Nothing
 
 roundScore :: Round -> Int
 roundScore (Round elfShape myShape) = outcomeScore outcome + shapeScore myShape
