@@ -1,10 +1,6 @@
+import ParseAndRun
 import Data.List
 import System.Environment
-
-main = do
-  (input : k : _) <- getArgs
-  contents <- readFile input
-  print . largestAmountCaloriesTopK (read k) . groupInventories . lines $ contents
 
 foldInventoryAux :: String -> [[Int]] -> [[Int]]
 foldInventoryAux "" xs = [] : xs
@@ -16,3 +12,9 @@ groupInventories = foldr foldInventoryAux []
 
 largestAmountCaloriesTopK :: Int -> [[Int]] -> Int
 largestAmountCaloriesTopK k = sum . take k . reverse . sort . map sum
+
+solution :: Int -> [String] -> Int
+solution k = largestAmountCaloriesTopK k . groupInventories 
+
+main :: IO ()
+main = parseAndRun "inputs/day1" (solution 1) (solution 3)
