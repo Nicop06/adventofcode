@@ -1,15 +1,4 @@
-module RockPaperScissors
-  ( Shape (..),
-    Outcome (..),
-    Round (..),
-    elfShapeFromCode,
-    playerShapeFromCode,
-    outcomeFromCode,
-    shapeForOutcome,
-    totalScore,
-  )
-where
-
+import ParseAndRun
 import Data.List
 
 data Shape = Rock | Paper | Scissor deriving (Eq, Show)
@@ -66,3 +55,26 @@ roundScore (Round elfShape myShape) = outcomeScore outcome + shapeScore myShape
 
 totalScore :: [Round] -> Int
 totalScore = sum . map roundScore
+
+readRoundPart1 :: String -> Round
+readRoundPart1 roundLine =
+  let [elfCode, playerCode] = words roundLine
+      Just elfShape = elfShapeFromCode elfCode
+      Just playerShape = playerShapeFromCode playerCode
+   in Round elfShape playerShape
+
+readRoundPart2 :: String -> Round
+readRoundPart2 roundLine =
+  let [elfCode, playerCode] = words roundLine
+      Just elfShape = elfShapeFromCode elfCode
+      Just outcome = outcomeFromCode playerCode
+   in Round elfShape (shapeForOutcome elfShape outcome)
+
+part1 :: [String] -> Int
+part1 = totalScore . map readRoundPart1
+
+part2 :: [String] -> Int
+part2 = totalScore . map readRoundPart2
+
+main :: IO ()
+main = parseAndRun "inputs/day2" part1 part2

@@ -1,12 +1,6 @@
+import ParseAndRun
 import Data.Char
 import Data.List
-import System.Environment
-
-main :: IO ()
-main = do
-  (input : _) <- getArgs
-  contents <- readFile input
-  print $ totalPriority (lines contents)
 
 itemPriority :: Char -> Int
 itemPriority item
@@ -19,5 +13,8 @@ duplicateItem items = head $ c1 `intersect` c2
   where
     (c1, c2) = splitAt (length items `div` 2) items
 
-totalPriority :: [String] -> Int
-totalPriority = sum . map (itemPriority . duplicateItem)
+part1 :: [String] -> Int
+part1 = sum . map (itemPriority . duplicateItem)
+
+main :: IO ()
+main = parseAndRun "inputs/day3" part1 part1
