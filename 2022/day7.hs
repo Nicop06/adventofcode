@@ -6,6 +6,7 @@ import Text.Parsec.String
 -- Data
 
 sizeLimit = 100000
+
 maxCapacity = 70000000 - 30000000
 
 type Name = String
@@ -111,15 +112,17 @@ parseInput = createFileSystem <$> commands <* eof
 
 part1 :: Parser Int
 part1 = maybe 0 sumFolderWithSizeLimit <$> parseInput
-    where sumFolderWithSizeLimit = sum . filter (< sizeLimit) . map snd . allFolderSizes
+  where
+    sumFolderWithSizeLimit = sum . filter (< sizeLimit) . map snd . allFolderSizes
 
 part2 :: Parser Int
 part2 = maybe 0 sizeFolderToDelete <$> parseInput
 
 sizeFolderToDelete :: Inode -> Int
-sizeFolderToDelete root = let folderSizes = map snd $ allFolderSizes root
-                              sizeNeeded = head folderSizes - maxCapacity
-    in minimum $ filter (> sizeNeeded) folderSizes
+sizeFolderToDelete root =
+  let folderSizes = map snd $ allFolderSizes root
+      sizeNeeded = head folderSizes - maxCapacity
+   in minimum $ filter (> sizeNeeded) folderSizes
 
 main :: IO ()
 main = parseAndSolve "inputs/day7" part1 part2
