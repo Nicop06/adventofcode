@@ -1,6 +1,4 @@
 import Control.Monad
-import Data.List (transpose)
-import Data.Maybe (catMaybes)
 import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String
