@@ -17,7 +17,7 @@ parseAndRun input part1 part2 = do
     "part2" -> print . part2 $ lines contents
     _ -> return ()
 
-parseAndSolve :: Show a => FilePath -> Parser a -> Parser a -> IO ()
+parseAndSolve :: Show a => Show b => FilePath -> Parser a -> Parser b -> IO ()
 parseAndSolve input part1 part2 = do
   (part : _) <- getArgs
   case part of

@@ -12,7 +12,7 @@ type Rope = [KnotPosition]
 
 data Direction = U | D | R | L deriving (Show, Read)
 
--- Parser
+-- Helpers
 
 isTouching :: KnotPosition -> KnotPosition -> Bool
 isTouching h t = abs (fst h - fst t) <= 1 && abs (snd h - snd t) <= 1
