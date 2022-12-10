@@ -12,7 +12,7 @@ initialValue = 1
 -- Helpers
 
 executeCycles :: [Int -> Int] -> [Int]
-executeCycles = scanl (flip ($)) initialValue
+executeCycles = init . scanl (flip ($)) initialValue
 
 strengthPerCycles :: [Int] -> [Int]
 strengthPerCycles = zipWith (*) [1 ..]
