@@ -1,5 +1,5 @@
-import Data.List
 import Data.Bifunctor
+import Data.List
 import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String
@@ -8,12 +8,9 @@ import Text.Parsec.String
 
 type KnotPosition = (Int, Int)
 
-data Rope = Rope { getHead :: KnotPosition, getTail :: KnotPosition } deriving Show
+type Rope = [KnotPosition]
 
 data Direction = U | D | R | L deriving (Show, Read)
-
-initialRope :: Rope
-initialRope = Rope (0, 0) (0, 0)
 
 -- Parser
 
@@ -29,32 +26,32 @@ isSameCol h t = snd h == snd t
 moveTowards :: Int -> Int -> Int
 moveTowards x y = x + signum (y - x)
 
-moveTail :: Rope -> Rope
-moveTail rope@(Rope h t)
-    | isTouching h t = rope
-    | isSameRow h t = Rope h (fst t, moveTowards (snd t) (snd h))
-    | isSameCol h t = Rope h (moveTowards (fst t) (fst h), snd t)
-    | otherwise = Rope h (bimap (moveTowards (fst t)) (moveTowards (snd t)) h)
+moveTail :: KnotPosition -> KnotPosition -> KnotPosition
+moveTail h t
+  | isTouching h t = t
+  | isSameRow h t = (fst t, moveTowards (snd t) (snd h))
+  | isSameCol h t = (moveTowards (fst t) (fst h), snd t)
+  | otherwise = bimap (moveTowards (fst t)) (moveTowards (snd t)) h
 
-moveHead :: Direction -> Rope -> Rope
-moveHead U (Rope h t) = Rope (fst h, snd h + 1) t
-moveHead D (Rope h t) = Rope (fst h, snd h - 1) t
-moveHead L (Rope h t) = Rope (fst h - 1, snd h) t
-moveHead R (Rope h t) = Rope (fst h + 1, snd h) t
+moveHead :: Direction -> KnotPosition -> KnotPosition
+moveHead U (x, y) = (x, y + 1)
+moveHead D (x, y) = (x, y - 1)
+moveHead L (x, y) = (x - 1, y)
+moveHead R (x, y) = (x + 1, y)
 
-moveHeadAndTail :: Direction -> Rope -> Rope
-moveHeadAndTail d = moveTail . moveHead d
+moveRope :: Direction -> Rope -> Rope
+moveRope d r = scanl moveTail (moveHead d (head r)) (tail r)
 
-executeMoves :: [Direction] -> [Rope]
-executeMoves d = scanl (flip ($)) initialRope (moveHeadAndTail <$> d)
+executeMoves :: Int -> [Direction] -> [Rope]
+executeMoves knots d = scanl (flip ($)) (replicate knots (0, 0)) (moveRope <$> d)
 
 numTailPositions :: [Rope] -> Int
-numTailPositions = length . nub . map getTail
+numTailPositions = length . nub . map last
 
 -- Parser
 
 direction :: Parser Direction
-direction = read . (:[]) <$> (char 'U' <|> char 'D' <|> char 'L' <|> char 'R')
+direction = read . (: []) <$> (char 'U' <|> char 'D' <|> char 'L' <|> char 'R')
 
 moveCount :: Parser Int
 moveCount = read <$> many1 digit
@@ -66,10 +63,10 @@ input :: Parser [Direction]
 input = concat <$> many1 line
 
 part1 :: Parser Int
-part1 = numTailPositions . executeMoves <$> input
+part1 = numTailPositions . executeMoves 2 <$> input
 
 part2 :: Parser Int
-part2 = numTailPositions . executeMoves <$> input
+part2 = numTailPositions . executeMoves 10 <$> input
 
 main :: IO ()
 main = parseAndSolve "inputs/day9" part1 part2
