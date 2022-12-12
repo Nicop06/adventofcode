@@ -34,7 +34,7 @@ throwItemsR :: Monkey -> [ThrownItem] -> (Monkey, [ThrownItem])
 throwItemsR m@(Monkey _ _ [] _ _) items = (m, items)
 throwItemsR (Monkey i n (item : xs) op test) thrownItems = throwItemsR (Monkey i (n + 1) xs op test) ((toMonkey, newItem) : thrownItems)
   where
-    newItem = op item `div` 3
+    newItem = op item
     toMonkey = test newItem
 
 throwItems :: Monkey -> (Monkey, [ThrownItem])
@@ -72,8 +72,11 @@ numInspectedItems (Monkey _ n _ _ _) = n
 monkeyItems :: Monkey -> [Int]
 monkeyItems (Monkey _ _ items _ _) = items
 
-levelOfMonkeyBusiness :: [Monkey] -> Int
-levelOfMonkeyBusiness = product . take 2 . reverse . sort . map numInspectedItems . fst . processRounds 20
+applyOp :: (Int -> Int) -> Monkey -> Monkey
+applyOp newOp (Monkey i n items op test) = Monkey i n items (newOp . op) test
+
+levelOfMonkeyBusiness :: Int -> [Monkey] -> Int
+levelOfMonkeyBusiness numRounds = product . take 2 . reverse . sort . map numInspectedItems . fst . processRounds numRounds
 
 -- Parser
 
@@ -113,7 +116,8 @@ monkey = Monkey <$> startMonkey <*> return 0 <*> startingItems <*> operationPars
 input :: Parser [Monkey]
 input = many1 monkey <* eof
 
-part1 = levelOfMonkeyBusiness <$> input
+part1 = levelOfMonkeyBusiness 20 . map (applyOp (`div` 3)) <$> input
+part2 = levelOfMonkeyBusiness 10000 <$> input
 
 main :: IO ()
-main = parseAndSolve "inputs/day11" part1 part1
+main = parseAndSolve "inputs/day11" part1 part2
