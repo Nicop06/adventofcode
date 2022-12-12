@@ -9,33 +9,29 @@ import Text.Parsec.String
 
 type MonkeyId = Int
 
-type Item = Int
+type Item = Integer
 
-type Operation = Int -> Int
+type DivisibleBy = Item
 
-type ThrowTest = Int -> Int
+type Operation = Item -> Item
+
+type ThrowTest = Item -> MonkeyId
 
 type ThrownItem = (MonkeyId, Item)
 
-data Monkey = Monkey MonkeyId Int [Item] Operation ThrowTest
+data Monkey = Monkey MonkeyId Int [Item] Operation DivisibleBy MonkeyId MonkeyId
 
 -- Helpers
-
-condition :: (Int -> Bool) -> Int -> Int -> Int -> Int
-condition f vt vf x = if f x then vt else vf
-
-divisibleBy :: Int -> Int -> Bool
-divisibleBy x = (== 0) . (`rem` x)
 
 executeRound :: [Monkey] -> [Monkey]
 executeRound = id
 
 throwItemsR :: Monkey -> [ThrownItem] -> (Monkey, [ThrownItem])
-throwItemsR m@(Monkey _ _ [] _ _) items = (m, items)
-throwItemsR (Monkey i n (item : xs) op test) thrownItems = throwItemsR (Monkey i (n + 1) xs op test) ((toMonkey, newItem) : thrownItems)
+throwItemsR m@(Monkey _ _ [] _ _ _ _) items = (m, items)
+throwItemsR (Monkey i n (item : xs) op by mt mf) thrownItems = throwItemsR (Monkey i (n + 1) xs op by mt mf) ((toMonkey, newItem) : thrownItems)
   where
     newItem = op item
-    toMonkey = test newItem
+    toMonkey = if newItem `rem` by == 0 then mt else mf
 
 throwItems :: Monkey -> (Monkey, [ThrownItem])
 throwItems = flip throwItemsR []
@@ -49,9 +45,9 @@ receivedItems monkeyId ((toMonkey, item) : rs)
     (itemsForMonkey, itemsForOtherMonkeys) = receivedItems monkeyId rs
 
 monkeyWithThrownItems :: Monkey -> [ThrownItem] -> (Monkey, [ThrownItem])
-monkeyWithThrownItems (Monkey i n items op test) thrownItems =
+monkeyWithThrownItems (Monkey i n items op by mt mf) thrownItems =
   let (extraItems, rs) = receivedItems i thrownItems
-   in (Monkey i n (items ++ extraItems) op test, rs)
+   in (Monkey i n (items ++ extraItems) op by mt mf, rs)
 
 processOneRound :: [Monkey] -> [ThrownItem] -> ([Monkey], [ThrownItem])
 processOneRound [] items = ([], items)
@@ -67,16 +63,24 @@ processRounds numRounds m =
    in foldl (flip ($)) (m, []) allRounds
 
 numInspectedItems :: Monkey -> Int
-numInspectedItems (Monkey _ n _ _ _) = n
+numInspectedItems (Monkey _ n _ _ _ _ _) = n
 
-monkeyItems :: Monkey -> [Int]
-monkeyItems (Monkey _ _ items _ _) = items
+monkeyItems :: Monkey -> [Item]
+monkeyItems (Monkey _ _ items _ _ _ _) = items
 
-applyOp :: (Int -> Int) -> Monkey -> Monkey
-applyOp newOp (Monkey i n items op test) = Monkey i n items (newOp . op) test
+monkeyDivisibleBy :: Monkey -> DivisibleBy
+monkeyDivisibleBy (Monkey _ _ _ _ by _ _) = by
+
+applyOp :: (Item -> Item) -> Monkey -> Monkey
+applyOp newOp (Monkey i n items op by mt mf) = Monkey i n items (newOp . op) by mt mf
 
 levelOfMonkeyBusiness :: Int -> [Monkey] -> Int
 levelOfMonkeyBusiness numRounds = product . take 2 . reverse . sort . map numInspectedItems . fst . processRounds numRounds
+
+worryLimiter :: [Monkey] -> [Monkey]
+worryLimiter monkeys = map (applyOp (`rem` divByProduct)) monkeys
+  where
+    divByProduct = product . map monkeyDivisibleBy $ monkeys
 
 -- Parser
 
@@ -89,35 +93,33 @@ startingItems = map read <$> (string "  Starting items: " *> many1 (many1 digit 
 operationParser :: Parser Operation
 operationParser = (string "  Operation: new = old " *> operator <* char ' ') <**> (operatorOnNumber <|> operatorOnSelf)
 
-operatorOnNumber :: Parser ((Int -> Int -> Int) -> Operation)
+operatorOnNumber :: Parser ((Item -> Item -> Item) -> Operation)
 operatorOnNumber = flip ($) . read <$> many1 digit <* newline
 
-operatorOnSelf :: Parser ((Int -> Int -> Int) -> Operation)
+operatorOnSelf :: Parser ((Item -> Item -> Item) -> Operation)
 operatorOnSelf = join <$ string "old" <* newline
 
-operator :: Parser (Int -> Int -> Int)
+operator :: Parser (Item -> Item -> Item)
 operator = ((+) <$ char '+') <|> ((*) <$ char '*')
 
-conditionParser :: Parser (Int -> Bool)
-conditionParser = divisibleBy . read <$> (string "  Test: divisible by " *> many1 digit <* newline)
+conditionParser :: Parser DivisibleBy
+conditionParser = read <$> (string "  Test: divisible by " *> many1 digit <* newline)
 
-resultIfTrue :: Parser Int
+resultIfTrue :: Parser MonkeyId
 resultIfTrue = read <$> (string "    If true: throw to monkey " *> many1 digit <* newline)
 
-resultIfFalse :: Parser Int
+resultIfFalse :: Parser MonkeyId
 resultIfFalse = read <$> (string "    If false: throw to monkey " *> many1 digit <* newline)
 
-throwTestParser :: Parser ThrowTest
-throwTestParser = condition <$> conditionParser <*> resultIfTrue <*> resultIfFalse
-
 monkey :: Parser Monkey
-monkey = Monkey <$> startMonkey <*> return 0 <*> startingItems <*> operationParser <*> throwTestParser <* many newline
+monkey = Monkey <$> startMonkey <*> return 0 <*> startingItems <*> operationParser <*> conditionParser <*> resultIfTrue <*> resultIfFalse <* many newline
 
 input :: Parser [Monkey]
 input = many1 monkey <* eof
 
 part1 = levelOfMonkeyBusiness 20 . map (applyOp (`div` 3)) <$> input
-part2 = levelOfMonkeyBusiness 10000 <$> input
+
+part2 = levelOfMonkeyBusiness 10000 . worryLimiter <$> input
 
 main :: IO ()
 main = parseAndSolve "inputs/day11" part1 part2
