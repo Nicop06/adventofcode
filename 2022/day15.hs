@@ -1,3 +1,4 @@
+import Data.Bifunctor (bimap)
 import Data.List (nub, sort)
 import Data.Maybe (mapMaybe)
 import ParseAndRun
@@ -34,7 +35,7 @@ mergeIntervals :: [Interval] -> [Interval]
 mergeIntervals [] = []
 mergeIntervals [i] = [i]
 mergeIntervals ((min1, max1) : (min2, max2) : rs)
-  | min2 <= max2 = mergeIntervals ((min1, max max1 max2) : rs)
+  | min2 <= max1 + 1 = mergeIntervals ((min1, max max1 max2) : rs)
   | otherwise = (min1, max1) : mergeIntervals ((min2, max2) : rs)
 
 mergedCoveredIntervals :: Int -> [BeaconDetection] -> [Interval]
@@ -43,10 +44,25 @@ mergedCoveredIntervals row = mergeIntervals . sort . coveredIntervalsInRow row
 intervalSize :: Interval -> Int
 intervalSize (min, max) = max - min + 1
 
+numIntervalCovered :: Int -> [BeaconDetection] -> Int
+numIntervalCovered row = sum . map intervalSize . mergedCoveredIntervals row
+
 numPositionsWithoutBeacon :: Int -> [BeaconDetection] -> Int
-numPositionsWithoutBeacon row = (-) <$> numIntervalCovered <*> numBeaconsOnRow
-    where numIntervalCovered = sum . map intervalSize . mergedCoveredIntervals row
-          numBeaconsOnRow = length . nub . filter (==row) . map (snd . snd)
+numPositionsWithoutBeacon row = (-) <$> numIntervalCovered row <*> numBeaconsOnRow
+  where
+    numBeaconsOnRow = length . nub . filter (== row) . map (snd . snd)
+
+clampInterval :: Int -> Int -> Interval -> Interval
+clampInterval from to = bimap (max from) (min to)
+
+distressBeaconRow :: Int -> Int -> [BeaconDetection] -> (Int, [Interval])
+distressBeaconRow min max l = head $ filter ((>1) . length . snd) intervalsForAllRows
+  where
+    mergeAndClamp row = (row, map (clampInterval min max) $ mergedCoveredIntervals row l)
+    intervalsForAllRows = map mergeAndClamp [min .. max]
+
+tuningFrequency :: Int -> [Interval] -> Int
+tuningFrequency row int = row + 4000000 * (snd (head int) + 1)
 
 -- Parser
 
@@ -73,8 +89,8 @@ rowToReport = 2000000
 part1 :: Parser Int
 part1 = numPositionsWithoutBeacon rowToReport <$> parseInput
 
-part2 :: Parser [BeaconDetection]
-part2 = parseInput
+part2 :: Parser Int
+part2 = uncurry tuningFrequency . distressBeaconRow 0 4000000 <$> parseInput
 
 main :: IO ()
 main = parseAndSolve "inputs/day15" part1 part2
