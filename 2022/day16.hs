@@ -13,51 +13,60 @@ data Valve = Valve {valveName :: ValveName, flowRate :: Int, tunnels :: [ValveNa
 
 type Tunnels = Map.Map ValveName Valve
 
-data ValvesState = ValvesState {openValves :: [ValveName], pathHistory :: [(ValveName, Int)], position :: ValveName} deriving (Show)
+data ValvesState = ValvesState {openValves :: [ValveName], position :: ValveName} deriving (Show)
 
-initialState :: ValvesState
-initialState = ValvesState [] [] "AA"
+type CombinedPosition = [ValveName]
+
+data CombinedState = CombinedState [ValveName] [(CombinedPosition, Int)] CombinedPosition deriving (Show)
 
 -- Helpers
 
-currentFlow :: Tunnels -> ValvesState -> Int
-currentFlow t = sum . map (flowRate <$> (t Map.!)) . openValves
+currentFlow :: Tunnels -> [ValveName] -> Int
+currentFlow t = sum . map (flowRate <$> (t Map.!))
 
-bestFlow :: [ValvesState] -> ValvesState
+bestFlow :: [CombinedState] -> CombinedState
 bestFlow = maximumBy (compare `on` totalFlow)
 
-totalFlow :: ValvesState -> Int
+totalFlow :: CombinedState -> Int
 totalFlow = last . scanl1 (+) . reverse . map snd . pathHistory
+  where
+    pathHistory (CombinedState _ h _) = h
 
 allPossibleMoves :: Int -> Tunnels -> ValvesState -> [ValvesState]
 allPossibleMoves m t s =
   let curValve = t Map.! position s
-      nextTunnel = ValvesState (openValves s) nextHistory
-      curFlow = currentFlow t s
-      nextFlow = totalFlow s + m * curFlow
-      nextHistory = (position s, curFlow) : pathHistory s
+      nextTunnel = ValvesState (openValves s)
       nextStates = map nextTunnel (tunnels curValve)
-      stateWithOpenValve = ValvesState (position s : openValves s) nextHistory (position s)
+      stateWithOpenValve = ValvesState (position s : openValves s) (position s)
    in if position s `notElem` openValves s && flowRate curValve > 0
         then stateWithOpenValve : nextStates
         else nextStates
 
-filterBestMoves :: Tunnels -> [ValvesState] -> [ValvesState]
-filterBestMoves t = map bestFlow . groupBy ((==) `on` position) . sortOn position
-
-nextBestMoves :: Tunnels -> Int -> [ValvesState] -> [ValvesState]
-nextBestMoves t m = filterBestMoves t . concatMap (allPossibleMoves m t)
-
-runMoves :: Int -> Tunnels -> [ValvesState]
-runMoves n t = foldl (flip (nextBestMoves t)) [initialState] [n, n - 1 .. 1]
-
-runAndConcatMoves :: Int -> Tunnels -> [[ValvesState]]
-runAndConcatMoves n t = foldl nextStates [[initialState]] [n, n - 1 .. 1]
+allPossibleCombinedMoves :: Int -> Tunnels -> CombinedState -> [CombinedState]
+allPossibleCombinedMoves m t cs@(CombinedState openValves hist []) = [cs]
+allPossibleCombinedMoves m t (CombinedState openValves hist (p : pr)) =
+  let nextStates = allPossibleMoves m t (ValvesState openValves p)
+   in concatMap recAndCombine nextStates
   where
-    nextStates s i = nextBestMoves t i (head s) : s
+    recAndCombine (ValvesState o newp) = map (mergeState newp) $ allPossibleCombinedMoves m t (CombinedState o hist pr)
+    mergeState newp (CombinedState newOpenValves _ newpl) =
+      let nextFlow = currentFlow t openValves
+          nextPos = newp : newpl
+       in CombinedState newOpenValves ((nextPos, nextFlow) : hist) nextPos
 
-bestState :: Int -> Tunnels -> ValvesState
-bestState n = bestFlow . runMoves n
+filterBestMoves :: Tunnels -> [CombinedState] -> [CombinedState]
+filterBestMoves t = map bestFlow . groupBy ((==) `on` state) . sortOn state
+  where
+    state (CombinedState o _ p) = (currentFlow t o, p)
+
+nextBestMoves :: Tunnels -> Int -> [CombinedState] -> [CombinedState]
+nextBestMoves t m = filterBestMoves t . concatMap (allPossibleCombinedMoves m t)
+
+runMoves :: CombinedState -> Int -> Tunnels -> [CombinedState]
+runMoves init n t = foldl (flip (nextBestMoves t)) [init] [n, n - 1 .. 1]
+
+bestState :: CombinedState -> Int -> Tunnels -> CombinedState
+bestState init n = bestFlow . runMoves init n
 
 -- Parser
 
@@ -78,11 +87,15 @@ parseValve = Valve <$> (string "Valve " *> parseName) <*> parseFlow <*> parseTun
 parseInput :: Parser Tunnels
 parseInput = Map.fromList . map ((,) <$> valveName <*> id) <$> many1 parseValve <* eof
 
-part1 :: Parser Int
-part1 = totalFlow . bestState 30 <$> parseInput
+-- part1 :: Parser Int
+part1 = totalFlow . bestState initialState 30 <$> parseInput
+  where
+    initialState = CombinedState [] [] ["AA"]
 
 part2 :: Parser Int
-part2 = part1
+part2 = totalFlow . bestState initialState 26 <$> parseInput
+  where
+    initialState = CombinedState [] [] ["AA", "AA"]
 
 main :: IO ()
 main = parseAndSolve "inputs/day16" part1 part2
