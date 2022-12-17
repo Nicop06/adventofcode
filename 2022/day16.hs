@@ -89,7 +89,7 @@ parseValve = Valve <$> (string "Valve " *> parseName) <*> parseFlow <*> parseTun
 parseInput :: Parser Tunnels
 parseInput = Map.fromList . map ((,) <$> valveName <*> id) <$> many1 parseValve <* eof
 
--- part1 :: Parser Int
+part1 :: Parser Int
 part1 = totalFlow . bestState initialState 30 <$> parseInput
   where
     initialState = CombinedState [] [] ["AA"]
