@@ -32,8 +32,8 @@ totalFlow = last . scanl1 (+) . reverse . map snd . pathHistory
   where
     pathHistory (CombinedState _ h _) = h
 
-allPossibleMoves :: Int -> Tunnels -> ValvesState -> [ValvesState]
-allPossibleMoves m t s =
+allPossibleMoves :: Tunnels -> ValvesState -> [ValvesState]
+allPossibleMoves t s =
   let curValve = t Map.! position s
       nextTunnel = ValvesState (openValves s)
       nextStates = map nextTunnel (tunnels curValve)
@@ -42,28 +42,30 @@ allPossibleMoves m t s =
         then stateWithOpenValve : nextStates
         else nextStates
 
-allPossibleCombinedMoves :: Int -> Tunnels -> CombinedState -> [CombinedState]
-allPossibleCombinedMoves m t cs@(CombinedState openValves hist []) = [cs]
-allPossibleCombinedMoves m t (CombinedState openValves hist (p : pr)) =
-  let nextStates = allPossibleMoves m t (ValvesState openValves p)
+allPossibleCombinedMoves :: Tunnels -> CombinedState -> [CombinedState]
+allPossibleCombinedMoves t cs@(CombinedState openValves hist []) = [cs]
+allPossibleCombinedMoves t (CombinedState openValves hist (p : pr)) =
+  let nextStates = allPossibleMoves t (ValvesState openValves p)
    in concatMap recAndCombine nextStates
   where
-    recAndCombine (ValvesState o newp) = map (mergeState newp) $ allPossibleCombinedMoves m t (CombinedState o hist pr)
+    recAndCombine (ValvesState o newp) = map (mergeState newp) $ allPossibleCombinedMoves t (CombinedState o hist pr)
     mergeState newp (CombinedState newOpenValves _ newpl) =
       let nextFlow = currentFlow t openValves
           nextPos = newp : newpl
        in CombinedState newOpenValves ((nextPos, nextFlow) : hist) nextPos
 
-filterBestMoves :: Tunnels -> [CombinedState] -> [CombinedState]
-filterBestMoves t = map bestFlow . groupBy ((==) `on` state) . sortOn state
+filterBestMoves :: Tunnels -> Int -> [CombinedState] -> [CombinedState]
+filterBestMoves t m = filterLowFlow . map bestFlow . groupBy ((==) `on` state) . sortOn state
   where
     state (CombinedState o _ p) = (currentFlow t o, p)
+    flowEstimation cs@(CombinedState o h _) = m * currentFlow t o + totalFlow cs
+    filterLowFlow s = let best = totalFlow $ bestFlow s in filter ((>=best) . flowEstimation) s
 
 nextBestMoves :: Tunnels -> Int -> [CombinedState] -> [CombinedState]
-nextBestMoves t m = filterBestMoves t . concatMap (allPossibleCombinedMoves m t)
+nextBestMoves t m = filterBestMoves t m . concatMap (allPossibleCombinedMoves t)
 
 runMoves :: CombinedState -> Int -> Tunnels -> [CombinedState]
-runMoves init n t = foldl (flip (nextBestMoves t)) [init] [n, n - 1 .. 1]
+runMoves init n t = foldl (flip $ nextBestMoves t) [init] [n, n - 1 .. 1]
 
 bestState :: CombinedState -> Int -> Tunnels -> CombinedState
 bestState init n = bestFlow . runMoves init n
