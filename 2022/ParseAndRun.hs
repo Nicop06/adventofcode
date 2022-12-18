@@ -1,11 +1,11 @@
 module ParseAndRun
   ( parseAndRun,
     parseAndSolve,
+    parseAndSolveWithActions,
   )
 where
 
 import System.Environment
-import Text.Parsec
 import Text.Parsec.String
 
 parseAndRun :: Show a => FilePath -> ([String] -> a) -> ([String] -> a) -> IO ()
@@ -18,11 +18,14 @@ parseAndRun input part1 part2 = do
     _ -> return ()
 
 parseAndSolve :: Show a => Show b => FilePath -> Parser a -> Parser b -> IO ()
-parseAndSolve input part1 part2 = do
+parseAndSolve = parseAndSolveWithActions print print
+
+parseAndSolveWithActions :: (a -> IO ()) -> (b -> IO ()) -> FilePath -> Parser a -> Parser b -> IO ()
+parseAndSolveWithActions print1 print2 input part1 part2 = do
   (part : _) <- getArgs
   case part of
-    "part1" -> solve part1
-    "part2" -> solve part2
+    "part1" -> solve part1 print1
+    "part2" -> solve part2 print2
     _ -> return ()
   where
-    solve parser = parseFromFile parser input >>= either print print
+    solve parser printSol = parseFromFile parser input >>= either print printSol
