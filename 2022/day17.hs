@@ -22,7 +22,7 @@ type Position = (Int, Int)
 
 type FallingRock = (Position, RockShape)
 
-data CaveState = CaveState {nextShapes :: [(Int, RockShape)], nextJets :: [(Int, Jet)], cave :: Cave, fallingRock :: FallingRock, stepsElapsed :: Int} deriving (Show)
+data CaveState = CaveState {nextShapes :: [(Int, RockShape)], nextJets :: [(Int, Jet)], cave :: Cave, fallingRock :: FallingRock, remainingSteps :: Int, numShapes :: Int, numJets :: Int} deriving (Show)
 
 type CacheState = (Int, Int, RockShape)
 
@@ -36,11 +36,10 @@ initialCave = (-1, [replicate caveWidth Rock])
 
 initState :: Int -> [RockShape] -> [Jet] -> CaveState
 initState numFalling shapes jets =
-  CaveState allShapes allJets initialCave firstFallingRock (numFalling - 1)
+  CaveState allShapes allJets initialCave firstFallingRock numFalling (length shapes) (length jets)
   where
     firstFallingRock = newFallingRock (head shapes)
-    forever = concat . repeat
-    allShapes = take numFalling . tail . concat . repeat $ zip [0..] shapes
+    allShapes = tail . concat . repeat $ zip [0..] shapes
     allJets = concat . repeat $ zip [0..] jets
 
 newFallingRock :: RockShape -> FallingRock
@@ -84,7 +83,7 @@ pushRock JetLeft = fromMaybe <$> id <*> updateRockPosition (first (subtract 1))
 pushRock JetRight = fromMaybe <$> id <*> updateRockPosition (first (+ 1))
 
 updateRockPosition :: (Position -> Position) -> CaveState -> Maybe CaveState
-updateRockPosition f state@(CaveState shapes jets cave r@(p, rs) _) =
+updateRockPosition f state@(CaveState shapes jets cave r@(p, rs) _ _ _) =
   let (x, y) = f p
       newRock = ((x, y), rs)
    in if x < 0 || x + (length . head $ rs) > caveWidth || intersectsWithCave cave newRock
@@ -92,7 +91,7 @@ updateRockPosition f state@(CaveState shapes jets cave r@(p, rs) _) =
         else Just $ state {fallingRock = newRock}
 
 rockFalls :: Cache -> CaveState -> (Cache, CaveState)
-rockFalls cache state@(CaveState shapes jets cave rock steps) =
+rockFalls cache state@(CaveState shapes jets cave rock steps _ _) =
   case updateRockPosition (second (+ 1)) state of
     Just newState -> (cache, newState)
     Nothing ->
@@ -100,35 +99,24 @@ rockFalls cache state@(CaveState shapes jets cave rock steps) =
             { cave = updateCaveHeight $ mergeRockWithCave cave rock,
               fallingRock = newFallingRock (snd $ head shapes),
               nextShapes = tail shapes,
-              stepsElapsed = steps - 1
+              remainingSteps = steps - 1
             } in getOrUpdateCache cache newState
 
 getOrUpdateCache :: Cache -> CaveState -> (Cache, CaveState)
-getOrUpdateCache cache state@(CaveState shapes jets cave _ steps) =
+getOrUpdateCache cache state@(CaveState shapes jets cave _ steps _ _) =
     let cacheState = (fst . head $ shapes, fst . head $ jets, snd cave) in
         case M.lookup cacheState cache of
             Nothing -> (M.insert cacheState (caveRockHeight cave, steps) cache, state)
             Just (height, steps) -> (cache, reduceState state height steps)
 
 reduceState :: CaveState -> Int -> Int -> CaveState
-reduceState (CaveState shapes jets (height, cave) rock steps) cachedHeight cachedSteps =
-    let numElem = fst . last . takeWhile ((/=0) . fst)
-        numShapes = numElem shapes
-        numJets = numElem jets
-        stepsDiff = steps - cachedSteps
+reduceState (CaveState shapes jets cave rock steps numShapes numJets) cachedHeight cachedSteps =
+    let stepsDiff = cachedSteps - steps
         remainingSteps = steps `rem` stepsDiff
         numIterations = steps `div` stepsDiff
-        heightDiff = height - cachedHeight
-        totalHeight = height + numIterations * heightDiff
-        newShapes = skipElems shapes numShapes numIterations
-        newJets = skipElems jets numJets numIterations
-    in CaveState newShapes newJets (totalHeight, cave) rock  steps
-
-skipElems :: [(Int, a)] -> Int -> Int -> [(Int, a)]
-skipElems l numElems numIterations =
-    let curIdx = fst . head $ l
-        newIdx = (curIdx + numIterations + 1) `rem` numElems
-        in dropWhile ((/= newIdx) . fst) l
+        heightDiff = caveRockHeight cave - cachedHeight
+        totalHeight = fst cave + numIterations * heightDiff
+    in CaveState shapes jets (totalHeight, snd cave) rock remainingSteps numShapes numJets
 
 updateCaveHeight :: Cave -> Cave
 updateCaveHeight (height, cave) = let (newCave, rs) = splitAt 50 cave in (height + length rs, newCave)
@@ -137,17 +125,17 @@ caveRockHeight :: Cave -> Int
 caveRockHeight (height, cave) = height + length cave
 
 updateCaveState :: Cache -> CaveState -> (Cache, CaveState)
-updateCaveState cache state@(CaveState shapes jets _ _ _) =
+updateCaveState cache state@(CaveState shapes jets _ _ _ _ _) =
   let newState = pushRock (snd $ head jets) state
    in rockFalls cache $ newState {nextJets = tail jets}
 
-runSimulation :: Cache -> CaveState -> CaveState
+runSimulation :: Cache -> CaveState -> [CaveState]
 runSimulation cache state = case updateCaveState cache state of
-  (cache, newState@(CaveState _ _ _ _ 0)) -> newState
-  (cache, newState) -> runSimulation cache newState
+  (cache, newState@(CaveState _ _ _ _ 0 _ _)) -> [newState]
+  (cache, newState) -> newState : runSimulation cache newState
 
 heightAfterSimulation :: CaveState -> Int
-heightAfterSimulation = caveRockHeight . cave . runSimulation M.empty
+heightAfterSimulation = caveRockHeight . cave . last . runSimulation M.empty
 
 showCave :: RockShape -> [String]
 showCave = map (map caveToChar)
@@ -156,7 +144,7 @@ showCave = map (map caveToChar)
     caveToChar Rock = '#'
 
 showState :: CaveState -> [String]
-showState (CaveState _ jets cave fs@((x, y), shapes) _)
+showState (CaveState _ jets cave fs@((x, y), shapes) _ _ _)
   | y <= 0 = showCave (map (padRow x) shapes ++ replicate (-y) (replicate caveWidth Hole) ++ snd cave) ++ [show (head jets)]
   | otherwise = showCave (snd $ mergeRockWithCave cave fs) ++ [show (head jets)]
 
