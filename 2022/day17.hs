@@ -1,8 +1,8 @@
-import qualified Data.Map.Strict as M
 import Control.Applicative (ZipList (..), getZipList)
 import Data.Bifunctor (first, second)
 import Data.Either (fromRight)
 import Data.List
+import qualified Data.Map.Strict as M
 import Data.Maybe (fromMaybe)
 import ParseAndRun
 import Text.Parsec
@@ -39,8 +39,8 @@ initState numFalling shapes jets =
   CaveState allShapes allJets initialCave firstFallingRock numFalling (length shapes) (length jets)
   where
     firstFallingRock = newFallingRock (head shapes)
-    allShapes = tail . concat . repeat $ zip [0..] shapes
-    allJets = concat . repeat $ zip [0..] jets
+    allShapes = tail . concat . repeat $ zip [0 ..] shapes
+    allJets = concat . repeat $ zip [0 ..] jets
 
 newFallingRock :: RockShape -> FallingRock
 newFallingRock shape = ((2, -3), shape)
@@ -95,28 +95,30 @@ rockFalls cache state@(CaveState shapes jets cave rock steps _ _) =
   case updateRockPosition (second (+ 1)) state of
     Just newState -> (cache, newState)
     Nothing ->
-      let newState = state
-            { cave = updateCaveHeight $ mergeRockWithCave cave rock,
-              fallingRock = newFallingRock (snd $ head shapes),
-              nextShapes = tail shapes,
-              remainingSteps = steps - 1
-            } in getOrUpdateCache cache newState
+      let newState =
+            state
+              { cave = updateCaveHeight $ mergeRockWithCave cave rock,
+                fallingRock = newFallingRock (snd $ head shapes),
+                nextShapes = tail shapes,
+                remainingSteps = steps - 1
+              }
+       in getOrUpdateCache cache newState
 
 getOrUpdateCache :: Cache -> CaveState -> (Cache, CaveState)
 getOrUpdateCache cache state@(CaveState shapes jets cave _ steps _ _) =
-    let cacheState = (fst . head $ shapes, fst . head $ jets, snd cave) in
-        case M.lookup cacheState cache of
-            Nothing -> (M.insert cacheState (caveRockHeight cave, steps) cache, state)
-            Just (height, steps) -> (cache, reduceState state height steps)
+  let cacheState = (fst . head $ shapes, fst . head $ jets, snd cave)
+   in case M.lookup cacheState cache of
+        Nothing -> (M.insert cacheState (caveRockHeight cave, steps) cache, state)
+        Just (height, steps) -> (cache, reduceState state height steps)
 
 reduceState :: CaveState -> Int -> Int -> CaveState
 reduceState (CaveState shapes jets cave rock steps numShapes numJets) cachedHeight cachedSteps =
-    let stepsDiff = cachedSteps - steps
-        remainingSteps = steps `rem` stepsDiff
-        numIterations = steps `div` stepsDiff
-        heightDiff = caveRockHeight cave - cachedHeight
-        totalHeight = fst cave + numIterations * heightDiff
-    in CaveState shapes jets (totalHeight, snd cave) rock remainingSteps numShapes numJets
+  let stepsDiff = cachedSteps - steps
+      remainingSteps = steps `rem` stepsDiff
+      numIterations = steps `div` stepsDiff
+      heightDiff = caveRockHeight cave - cachedHeight
+      totalHeight = fst cave + numIterations * heightDiff
+   in CaveState shapes jets (totalHeight, snd cave) rock remainingSteps numShapes numJets
 
 updateCaveHeight :: Cave -> Cave
 updateCaveHeight (height, cave) = let (newCave, rs) = splitAt 50 cave in (height + length rs, newCave)
@@ -171,7 +173,7 @@ part1 :: [RockShape] -> Parser Int
 part1 rocks = heightAfterSimulation . initState 2022 rocks <$> parseJetPattern
 
 part2 :: [RockShape] -> Parser Int
-part2 rocks = heightAfterSimulation .  initState 1000000000000 rocks <$> parseJetPattern
+part2 rocks = heightAfterSimulation . initState 1000000000000 rocks <$> parseJetPattern
 
 showAllStates :: [CaveState] -> [String]
 showAllStates = intercalate ["-------"] . map showState
