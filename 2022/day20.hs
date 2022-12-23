@@ -1,4 +1,4 @@
-import Data.List (elemIndex)
+import Data.List (elemIndex, findIndex)
 import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String
@@ -13,9 +13,7 @@ type Size = Int
 
 type IndexedCoordinate = (Index, Coordinate)
 
-data Status = Pending | Processed deriving (Show, Eq)
-
-data Zipper = Zipper { left :: [Coordinate], right :: [(Status, Coordinate)] } deriving (Show, Eq)
+decryptionKey = 811589153 :: Int
 
 -- Helpers
 
@@ -28,31 +26,31 @@ insertAt el i ls = let (l, r) = splitAt i ls in l ++ (el : r)
 computeIndex :: Coordinate -> Size -> Index -> Index
 computeIndex c s i = (i + c) `modulo` s
 
-processOneItem :: Zipper -> Zipper
-processOneItem z@(Zipper l []) = z
-processOneItem z@(Zipper l ((st,el):r))
-    | st == Processed = Zipper (l ++ [el]) r
-    | newIndex < lenL = Zipper (insertAt el newIndex l) r
-    | otherwise = Zipper l (insertAt (Processed, el) (newIndex - lenL) r)
-    where totalLen = length l + length r
-          lenL = length l
-          lenR = length r
-          newIndex = computeIndex el totalLen lenL
+performMixingR :: Index -> [IndexedCoordinate] -> [[IndexedCoordinate]]
+performMixingR idx ls
+    | idx == length ls = [ls]
+    | otherwise = ls : performMixingR (idx+1) newList
+    where Just pos = findIndex ((==idx) . fst) ls
+          (l, el:r) = splitAt pos ls
+          pos' = computeIndex (snd el) (length ls - 1) pos
+          newList = if pos' < pos then (insertAt el pos' l) ++ r else l ++ (insertAt el (pos' - pos) r)
 
-performMixing :: [Coordinate] -> [Zipper]
-performMixing = updatePosition . Zipper [] . zip (repeat Pending)
-    where updatePosition z@(Zipper l []) = [z]
-          updatePosition z = z : (updatePosition $ processOneItem z)
+performMixing :: Int -> [Coordinate] -> [[IndexedCoordinate]]
+performMixing times ls = take (times + 1) $ iterate (last . performMixingR 0) (zip [0..] ls)
+{-performMixing times ls = [last . performMixingR 0 $ zip [0..] ls]-}
 
-mixingResult :: [Coordinate] -> [Coordinate]
-mixingResult = left . last . performMixing
+mixingResult :: Int -> [Coordinate] -> [Coordinate]
+mixingResult times = map snd . last . performMixing times
 
-groveCoordinate :: [Coordinate] -> Int
-groveCoordinate ls =
-    let mixed = mixingResult ls
+groveCoordinate :: Int -> [Coordinate] -> Int
+groveCoordinate times ls =
+    let mixed = mixingResult times ls
         len = length ls
         Just zeroIndex = elemIndex 0 mixed
         in sum $ map ((mixed!!) . computeIndex zeroIndex len) [1000, 2000, 3000]
+
+applyDecriptionKey :: [Coordinate] -> [Coordinate]
+applyDecriptionKey = map (*decryptionKey)
 
 -- Parser
 
@@ -63,10 +61,10 @@ parseInput :: Parser [Int]
 parseInput = number `sepEndBy1` newline <* eof
 
 part1 :: Parser Int
-part1 = groveCoordinate <$> parseInput
+part1 = groveCoordinate 1 <$> parseInput
 
-{-part2 :: Parser Int-}
-part2 = parseInput
+part2 :: Parser Int
+part2 = groveCoordinate 10 . applyDecriptionKey <$> parseInput
 
 main :: IO ()
 main = parseAndSolve "inputs/day20" part1 part2
