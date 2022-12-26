@@ -1,9 +1,9 @@
 import Control.Monad
 import Data.List (transpose)
 import Data.Maybe (catMaybes)
+import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String
-import ParseAndRun
 
 -- Data
 
@@ -46,7 +46,7 @@ parseInput = (,) <$> (crateStacks <* stackNum <* newline) <*> sepEndBy moveLine 
 -- Solver
 
 runMove :: (Stack -> Stack) -> [Stack] -> Move -> [Stack]
-runMove f stacks (Move numCrates from to) = 
+runMove f stacks (Move numCrates from to) =
   let fromStack = stacks !! (from - 1)
       toStack = stacks !! (to - 1)
       createsToMove = take numCrates fromStack

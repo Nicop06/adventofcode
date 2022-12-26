@@ -22,13 +22,14 @@ sumStrength l = sum [l !! (i - 1) | i <- cyclesToAdd]
 
 drawPixel :: Int -> Int -> String
 drawPixel cycle sprite
-    | abs (col - sprite) <= 1 = '#' : newRow
-    | otherwise = '.' : newRow
-    where col = cycle `mod` 40
-          newRow = if col == 39 then ['\n'] else ""
+  | abs (col - sprite) <= 1 = '#' : newRow
+  | otherwise = '.' : newRow
+  where
+    col = cycle `mod` 40
+    newRow = if col == 39 then ['\n'] else ""
 
 drawScreen :: [Int] -> String
-drawScreen = concat . zipWith drawPixel [0..]
+drawScreen = concat . zipWith drawPixel [0 ..]
 
 -- Parser
 

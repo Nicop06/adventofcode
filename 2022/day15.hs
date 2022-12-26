@@ -56,7 +56,7 @@ clampInterval :: Int -> Int -> Interval -> Interval
 clampInterval from to = bimap (max from) (min to)
 
 distressBeaconRow :: Int -> Int -> [BeaconDetection] -> (Int, [Interval])
-distressBeaconRow min max l = head $ filter ((>1) . length . snd) intervalsForAllRows
+distressBeaconRow min max l = head $ filter ((> 1) . length . snd) intervalsForAllRows
   where
     mergeAndClamp row = (row, map (clampInterval min max) $ mergedCoveredIntervals row l)
     intervalsForAllRows = map mergeAndClamp [min .. max]

@@ -1,6 +1,6 @@
 import Data.Function
 import Data.List
-import qualified Data.Map.Strict as Map
+import Data.Map.Strict qualified as Map
 import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String
@@ -59,7 +59,7 @@ filterBestMoves t m = filterLowFlow . map bestFlow . groupBy ((==) `on` state) .
   where
     state (CombinedState o _ p) = (currentFlow t o, p)
     flowEstimation cs@(CombinedState o h _) = m * currentFlow t o + totalFlow cs
-    filterLowFlow s = let best = totalFlow $ bestFlow s in filter ((>=best) . flowEstimation) s
+    filterLowFlow s = let best = totalFlow $ bestFlow s in filter ((>= best) . flowEstimation) s
 
 nextBestMoves :: Tunnels -> Int -> [CombinedState] -> [CombinedState]
 nextBestMoves t m = filterBestMoves t m . concatMap (allPossibleCombinedMoves t)
