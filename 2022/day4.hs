@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-import qualified Data.Text as T
+import Data.Text qualified as T
 import ParseAndRun
 
 data Range = Range {start :: Int, end :: Int} deriving (Show)

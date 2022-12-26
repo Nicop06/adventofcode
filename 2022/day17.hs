@@ -2,7 +2,7 @@ import Control.Applicative (ZipList (..), getZipList)
 import Data.Bifunctor (first, second)
 import Data.Either (fromRight)
 import Data.List
-import qualified Data.Map.Strict as M
+import Data.Map.Strict qualified as M
 import Data.Maybe (fromMaybe)
 import ParseAndRun
 import Text.Parsec

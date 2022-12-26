@@ -1,7 +1,7 @@
 import Control.Monad (liftM2)
 import Data.List (nub)
+import Data.Set qualified as Set
 import Data.Tuple (swap)
-import qualified Data.Set as Set
 import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String
@@ -30,7 +30,7 @@ numStoppedSand rocks = length . takeWhile (isFlowing . fst) . tail . scanl simul
   where
     lowestRock = maximum rocks
     initPos = (0, 500)
-    isFlowing sand = sand < lowestRock  && sand /= initPos
+    isFlowing sand = sand < lowestRock && sand /= initPos
     simulateSand (p, rocks) sand@(x, y)
       | sand > lowestRock = (sand, rocks)
       | sandBelow `Set.notMember` rocks = simulateSand (p, rocks) sandBelow
@@ -43,13 +43,13 @@ numStoppedSand rocks = length . takeWhile (isFlowing . fst) . tail . scanl simul
         sandRight = (x + 1, y + 1)
 
 addInfiniteLine :: RockLocations -> RockLocations
-addInfiniteLine rockLocations = 
-    let rocks = Set.toList rockLocations
-        bottomRockHeight = (maximum . map fst $ rocks) + 2
-        leftMost = (minimum . map snd $ rocks) - bottomRockHeight * 2
-        rightMost = (maximum . map snd $ rocks) + bottomRockHeight * 2
-        bottomRocks = rockPath (bottomRockHeight, leftMost) (bottomRockHeight, rightMost)
-        in Set.union (Set.fromList bottomRocks) rockLocations
+addInfiniteLine rockLocations =
+  let rocks = Set.toList rockLocations
+      bottomRockHeight = (maximum . map fst $ rocks) + 2
+      leftMost = (minimum . map snd $ rocks) - bottomRockHeight * 2
+      rightMost = (maximum . map snd $ rocks) + bottomRockHeight * 2
+      bottomRocks = rockPath (bottomRockHeight, leftMost) (bottomRockHeight, rightMost)
+   in Set.union (Set.fromList bottomRocks) rockLocations
 
 -- Parser
 
@@ -66,7 +66,7 @@ part1 :: Parser Int
 part1 = numStoppedSand <$> parseInput
 
 part2 :: Parser Int
-part2 = (+1) . numStoppedSand . addInfiniteLine <$> parseInput
+part2 = (+ 1) . numStoppedSand . addInfiniteLine <$> parseInput
 
 main :: IO ()
 main = parseAndSolve "inputs/day14" part1 part2

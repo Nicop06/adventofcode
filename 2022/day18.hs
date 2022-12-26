@@ -1,4 +1,4 @@
-import qualified Data.Set as S
+import Data.Set qualified as S
 import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String
@@ -58,7 +58,8 @@ canBeReachedByAir set bounds reachableCubes =
     newReachable ->
       any (isOutsideCompound bounds) newReachable
         || canBeReachedByAir newSet bounds (S.fromList newReachable)
-        where newSet = set `S.union` reachableCubes
+      where
+        newSet = set `S.union` reachableCubes
 
 totalExposedSidesWithoutPocket :: Compound -> Int
 totalExposedSidesWithoutPocket c =

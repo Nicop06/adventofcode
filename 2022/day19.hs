@@ -16,7 +16,7 @@ data SimState = SimState {stateResources :: Resources, numOreRobot :: Int, numCl
 -- Helpers
 
 canBuild :: Resources -> SimState -> Bool
-canBuild cost state  =
+canBuild cost state =
   let res = stateResources state
    in getOre cost <= getOre res
         && getClay cost <= getClay res
@@ -105,7 +105,7 @@ updateSimState numSteps blueprint state =
     canAffordToBuild robotType = numStepsToBuild state (robotCost robotType blueprint) <= (numSteps - simulationTime state)
 
 numStepsToBuild :: SimState -> Resources -> Int
-numStepsToBuild state cost = (+1) . maximum $ map numStepsForRes [ClayRobot, OreRobot, ObsidianRobot]
+numStepsToBuild state cost = (+ 1) . maximum $ map numStepsForRes [ClayRobot, OreRobot, ObsidianRobot]
   where
     divOrInf a b
       | b == 0 = maxBound
@@ -118,7 +118,7 @@ robotTypesToConsider numSteps blueprint state =
   where
     allRobotCosts = map (`robotCost` blueprint) [minBound ..]
     remainingTime = numSteps - simulationTime state
-    maxCostForRes getRes = (*remainingTime) . maximum . map getRes $ allRobotCosts
+    maxCostForRes getRes = (* remainingTime) . maximum . map getRes $ allRobotCosts
     resAfterSteps robotType = remainingTime * numRobotOfType robotType state + robotResource robotType (stateResources state)
     tooManyRobots robotType = resAfterSteps robotType >= remainingTime * maxCostForRes (robotResource robotType)
 

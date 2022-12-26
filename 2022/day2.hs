@@ -1,5 +1,5 @@
-import ParseAndRun
 import Data.List
+import ParseAndRun
 
 data Shape = Rock | Paper | Scissor deriving (Eq, Show)
 
