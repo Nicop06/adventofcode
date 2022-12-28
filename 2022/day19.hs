@@ -131,9 +131,13 @@ runSimulation numSteps blueprint states =
   where
     hasFinished = (== numSteps) . simulationTime
 
+maxNumGeode :: Int -> Blueprint -> Int
+maxNumGeode numSteps blueprint =
+  maximum (map (getGeode . stateResources) $ runSimulation numSteps blueprint [initialState])
+
 qualityLevel :: Int -> Blueprint -> Int
 qualityLevel numSteps blueprint =
-  blueprintId blueprint * maximum (map (getGeode . stateResources) $ runSimulation numSteps blueprint [initialState])
+  blueprintId blueprint * maxNumGeode numSteps blueprint
 
 totalQualityLevel :: Int -> [Blueprint] -> [Int]
 totalQualityLevel numSteps = map (qualityLevel numSteps)
@@ -167,12 +171,8 @@ parseAllBlueprints = many1 parseBlueprint <* eof
 part1 :: Parser Int
 part1 = sum . totalQualityLevel 24 <$> parseAllBlueprints
 
--- part1 = do
--- resultSim <- flip (runSimulation 24) [initialState] . head <$> parseAllBlueprints
--- return (head resultSim, last resultSim)
-
-part2 :: Parser Int
-part2 = return 0
+--part2 :: Parser Int
+part2 = product . map (maxNumGeode 32) . take 3 <$> parseAllBlueprints
 
 main :: IO ()
 main = parseAndSolve "inputs/day19" part1 part2
