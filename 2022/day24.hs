@@ -1,6 +1,6 @@
 import Control.Arrow (first, second)
-import Data.Set qualified as S
 import Data.List (nub)
+import Data.Set qualified as S
 import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String
@@ -48,7 +48,7 @@ updateBlizzard :: Size -> Blizzard -> Blizzard
 updateBlizzard (r, c) (Blizzard dir pos) =
   let pos' = move dir pos
       pos'' = if outOfBounds (r, c) pos' then newBlizzard dir pos' else pos'
-      in Blizzard dir pos''
+   in Blizzard dir pos''
   where
     newBlizzard U (-1, y) = (r - 1, y)
     newBlizzard D (r, y) = (0, y)
@@ -79,19 +79,19 @@ runSimulation grid = tail . iterate (updateGridState grid)
 
 goToGoal :: Goal -> Grid -> GridState -> [GridState]
 goToGoal goal grid state = takeUntil hasArrived $ runSimulation grid state
-    where hasArrived state = goalCoord grid goal `elem` possiblePos state
+  where
+    hasArrived state = goalCoord grid goal `elem` possiblePos state
 
 takeUntil :: (a -> Bool) -> [a] -> [a]
 takeUntil f [] = []
 takeUntil f (a : rs) = if f a then [a] else a : takeUntil f rs
 
-goToGoals ::  [Goal] -> Grid -> GridState -> [GridState]
+goToGoals :: [Goal] -> Grid -> GridState -> [GridState]
 goToGoals goals grid state = concat $ tail $ scanl goToGoalAndReset [state] goals
-    where
-        otherGoal Start = End
-        otherGoal End = Start
-        goToGoalAndReset states goal = goToGoal goal grid (resetState grid (otherGoal goal) (last states))
-    
+  where
+    otherGoal Start = End
+    otherGoal End = Start
+    goToGoalAndReset states goal = goToGoal goal grid (resetState grid (otherGoal goal) (last states))
 
 goalCoord :: Grid -> Goal -> Position
 goalCoord grid Start = start grid
@@ -104,16 +104,16 @@ resetState grid goal (GridState blizzards _) = GridState blizzards [goalCoord gr
 
 printGrid :: Grid -> GridState -> [String]
 printGrid (Grid (r, c) start end) (GridState bliz pos) =
-   top : ['#' : [printChar (x, y) | y <- [0 .. (c - 1)]] ++ "#" | x <- [0 .. (r - 1)]] ++ [bot]
+  top : ['#' : [printChar (x, y) | y <- [0 .. (c - 1)]] ++ "#" | x <- [0 .. (r - 1)]] ++ [bot]
   where
     top = (if start `elem` pos then "#E" else "#.") ++ replicate c '#'
     bot = replicate c '#' ++ if end `elem` pos then "E#" else ".#"
     printChar p
       | p `elem` pos = 'E'
-      | otherwise = case filter ((==p) . blizzardPos) bliz of
-        [] -> '.'
-        [b] -> printDirection . blizzardDir $ b
-        lb -> head $ show (length lb)
+      | otherwise = case filter ((== p) . blizzardPos) bliz of
+          [] -> '.'
+          [b] -> printDirection . blizzardDir $ b
+          lb -> head $ show (length lb)
     printDirection U = '^'
     printDirection D = 'v'
     printDirection L = '<'
@@ -138,8 +138,8 @@ part2 = length . uncurry (goToGoals [End, Start, End]) . initialState <$> parseG
 
 debugState :: IO ()
 debugState = do
-    Right (grid, state) <- parseFromFile (initialState <$> parseGrid) "/tmp/testinput"
-    mapM_ putStrLn $ concatMap (printGrid grid) $ goToGoals [End, Start, End] grid state
+  Right (grid, state) <- parseFromFile (initialState <$> parseGrid) "/tmp/testinput"
+  mapM_ putStrLn $ concatMap (printGrid grid) $ goToGoals [End, Start, End] grid state
 
 main :: IO ()
 main = parseAndSolve "inputs/day24" part1 part2
