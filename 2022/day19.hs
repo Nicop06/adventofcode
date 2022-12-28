@@ -33,7 +33,7 @@ initialState =
       numClayRobot = 0,
       numObsidianRobot = 0,
       numGeodeRobot = 0,
-      simulationTime = 1
+      simulationTime = 0
     }
 
 updateResources :: SimState -> SimState
@@ -88,7 +88,7 @@ buildRobotOfType blueprint robotType =
   spendAndBuildRobot . head . dropWhile (not . canBuild cost) . iterate updateResources
   where
     cost = robotCost robotType blueprint
-    spendAndBuildRobot = buildRobot robotType . spendResources cost
+    spendAndBuildRobot = buildRobot robotType . spendResources cost . updateResources
 
 updateUntilTheEnd :: Int -> SimState -> SimState
 updateUntilTheEnd numSteps = head . dropWhile ((< numSteps) . simulationTime) . iterate updateResources
@@ -105,9 +105,10 @@ updateSimState numSteps blueprint state =
     canAffordToBuild robotType = numStepsToBuild state (robotCost robotType blueprint) <= (numSteps - simulationTime state)
 
 numStepsToBuild :: SimState -> Resources -> Int
-numStepsToBuild state cost = (+ 1) . maximum $ map numStepsForRes [ClayRobot, OreRobot, ObsidianRobot]
+numStepsToBuild state cost = maximum $ map numStepsForRes [ClayRobot, OreRobot, ObsidianRobot]
   where
     divOrInf a b
+      | a == 0 = 0
       | b == 0 = maxBound
       | otherwise = ceiling (fromIntegral a / fromIntegral b)
     numStepsForRes robotType = (robotResource robotType cost - robotResource robotType (stateResources state)) `divOrInf` numRobotOfType robotType state
@@ -120,7 +121,7 @@ robotTypesToConsider numSteps blueprint state =
     remainingTime = numSteps - simulationTime state
     maxCostForRes getRes = (* remainingTime) . maximum . map getRes $ allRobotCosts
     resAfterSteps robotType = remainingTime * numRobotOfType robotType state + robotResource robotType (stateResources state)
-    tooManyRobots robotType = resAfterSteps robotType >= remainingTime * maxCostForRes (robotResource robotType)
+    tooManyRobots robotType = resAfterSteps robotType >= maxCostForRes (robotResource robotType)
 
 runSimulation :: Int -> Blueprint -> [SimState] -> [SimState]
 runSimulation numSteps blueprint [] = []
@@ -163,9 +164,8 @@ parseBlueprint = Blueprint <$> (string "Blueprint " *> parseNumber <* string ":"
 parseAllBlueprints :: Parser [Blueprint]
 parseAllBlueprints = many1 parseBlueprint <* eof
 
--- part1 :: Parser Int
--- part1 = sum . totalQualityLevel 24 <$> parseAllBlueprints
-part1 = length . flip (runSimulation 18) [initialState] . head <$> parseAllBlueprints
+part1 :: Parser Int
+part1 = sum . totalQualityLevel 24 <$> parseAllBlueprints
 
 -- part1 = do
 -- resultSim <- flip (runSimulation 24) [initialState] . head <$> parseAllBlueprints
@@ -175,5 +175,5 @@ part2 :: Parser Int
 part2 = return 0
 
 main :: IO ()
--- main = parseAndSolve "inputs/day19" part1 part2
-main = parseAndSolve "/tmp/testinput" part1 part2
+main = parseAndSolve "inputs/day19" part1 part2
+--main = parseAndSolve "inputs/day19_easy" part1 part2
