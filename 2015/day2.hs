@@ -1,5 +1,4 @@
 import Data.List (sort)
-import System.Environment
 import Text.Parsec
 import Text.Parsec.String
 
@@ -19,7 +18,7 @@ wrappingPaperSurface [l, w, h] =
    in smallestSide + sum (map (* 2) sideSurface)
 
 ribbonLength :: [Int] -> Int
-ribbonLength = (+) <$> product <*> (*2) . sum . take 2 . sort
+ribbonLength = (+) <$> product <*> (* 2) . sum . take 2 . sort
 
 part1 :: [[Int]] -> IO ()
 part1 = print . sum . map wrappingPaperSurface
