@@ -12,6 +12,6 @@ part1 :: [Int] -> IO ()
 part1 = print . sum
 
 part2 :: [Int] -> IO ()
-part2 = print . length . takeWhile (>=0) . scanl (+) 0
+part2 = print . length . takeWhile (>= 0) . scanl (+) 0
 
 main = parseInput >>= either print part2
