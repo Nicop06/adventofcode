@@ -1,6 +1,6 @@
 import Crypto.Hash.MD5
 import Data.ByteString.Builder (byteStringHex, toLazyByteString)
-import qualified Data.ByteString.Char8 as B
+import Data.ByteString.Char8 qualified as B
 
 key = "ckczppom"
 
@@ -11,5 +11,6 @@ hashWithKey :: Int -> String
 hashWithKey = md5Hex . (key ++) . show
 
 startsWithZeros :: Int -> IO ()
-startsWithZeros n = print . (+1) . last . takeWhile ((/=start) . take n . hashWithKey) $ [1..]
-    where start = replicate n '0'
+startsWithZeros n = print . (+ 1) . last . takeWhile ((/= start) . take n . hashWithKey) $ [1 ..]
+  where
+    start = replicate n '0'
