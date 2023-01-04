@@ -1,4 +1,4 @@
-import Data.List (groupBy, sortOn)
+import Data.List (groupBy, permutations, sortOn)
 import Data.Map.Strict qualified as M
 import Text.Parsec
 import Text.Parsec.String
@@ -14,18 +14,26 @@ type CityDistance = M.Map City [(City, Distance)]
 -- Helpers
 
 buildCityDistanceMap :: [(City, (City, Distance))] -> CityDistance
-buildCityDistanceMap = M.fromList . map cityPair . groupBy sameCity . sortOn fst
+buildCityDistanceMap = M.fromList . map cityPair . groupBy sameCity . sortOn fst . concatMap reversedDistance
   where
-    reversedDistance (c1, (c2, d)) = (c2, (c1, d))
+    reversedDistance p@(c1, (c2, d)) = [p, (c2, (c1, d))]
     sameCity (c1, _) (c2, _) = c1 == c2
     cityPair cities = (fst . head $ cities, map snd cities)
 
-allPaths :: CityDistance -> [(City, Distance)]
-allPaths distances = map remainingPaths (M.keys distances)
-    where
-        remainingPaths city = case M.lookup city distances of
-            Nothing -> ("a", 2)
-            Just c -> head c
+pathLength :: CityDistance -> [City] -> Int
+pathLength distances = sum . map pairDistance . pathPairs
+  where
+    pairDistance (c1, c2) =
+      let Just distToCity = M.lookup c1 distances
+       in snd . head . filter ((== c2) . fst) $ distToCity
+
+pathPairs :: [City] -> [(City, City)]
+pathPairs [] = []
+pathPairs [a] = []
+pathPairs (a : b : rs) = (a, b) : pathPairs (b : rs)
+
+allPathLength :: CityDistance -> [Int]
+allPathLength distances = map (pathLength distances) . permutations $ M.keys distances
 
 -- Parser
 
@@ -44,5 +52,11 @@ parseCityDistanceMap = buildCityDistanceMap <$> (parseCityDistancePair `sepEndBy
 parseInput :: IO (Either ParseError CityDistance)
 parseInput = parseFromFile (parseCityDistanceMap <* eof) "inputs/day9"
 
+part1 :: CityDistance -> IO ()
+part1 = print . minimum . allPathLength
+
+part2 :: CityDistance -> IO ()
+part2 = print . maximum . allPathLength
+
 main :: IO ()
-main = parseInput >>= either print print
+main = parseInput >>= either print part2
