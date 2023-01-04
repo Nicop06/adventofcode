@@ -71,4 +71,9 @@ parseInput = parseFromFile parseCircuit "inputs/day7"
 part1 :: Circuit -> IO ()
 part1 = print . processCircuit "a"
 
-main = parseInput >>= either print part1
+part2 :: Circuit -> IO ()
+part2 c =
+    let valA = processCircuit "a" c
+        in print $ processCircuit "a" (M.insert "b" (Value (Number valA)) c)
+
+main = parseInput >>= either print part2
