@@ -16,6 +16,7 @@ wrappingPaperSurface [l, w, h] =
   let sideSurface = [l * w, l * h, w * h]
       smallestSide = minimum sideSurface
    in smallestSide + sum (map (* 2) sideSurface)
+wrappingPaperSurface d = error $ "Invalid number of dimensions: " ++ show (length d)
 
 ribbonLength :: [Int] -> Int
 ribbonLength = (+) <$> product <*> (* 2) . sum . take 2 . sort
