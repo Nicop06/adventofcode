@@ -1,0 +1,62 @@
+name:                adventofcode
+version:             0.1.0.0
+github:              "Nicop06/adventofcode"
+license:             BSD3
+author:              "Nicolas Porcel"
+maintainer:          "nicolasporcel06@gmail.com"
+copyright:           "2022 Nicolas Porcel"
+
+extra-source-files:
+- README.md
+
+# Metadata used when publishing your package
+# synopsis:            Solutions for the Advent of Code
+# category:            bin
+
+description: The solution for the adventofcode. See README.md.
+
+dependencies:
+- base >= 4.7 && < 5
+- parsec
+- vector
+- repa
+- cryptohash-md5
+- containers
+- bytestring
+- text
+
+ghc-options:
+- -Wall
+- -Wcompat
+- -Widentities
+- -Wincomplete-record-updates
+- -Wincomplete-uni-patterns
+- -Wmissing-export-lists
+- -Wmissing-home-modules
+- -Wpartial-fields
+- -Wredundant-constraints
+
+library:
+  source-dirs:
+    - "2015"
+    - "2022"
+
+executables:
+  aoc2015:
+    main:                Main.hs
+    source-dirs:         2015/app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - adventofcode
+  aoc2022:
+    main:                Main.hs
+    source-dirs:         2022/app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - adventofcode
