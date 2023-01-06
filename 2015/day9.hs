@@ -29,7 +29,7 @@ pathLength distances = sum . map pairDistance . pathPairs
 
 pathPairs :: [City] -> [(City, City)]
 pathPairs [] = []
-pathPairs [a] = []
+pathPairs [_] = []
 pathPairs (a : b : rs) = (a, b) : pathPairs (b : rs)
 
 allPathLength :: CityDistance -> [Int]

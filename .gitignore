@@ -1,7 +1,2 @@
-*.hi
-*.o
-*.swp
-day[0-9]
-day[0-9][0-9]
-!*/inputs/day[0-9]
-!*/inputs/day[0-9][0-9]
+.stack-work/
+*~
