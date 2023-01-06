@@ -1,5 +1,6 @@
 import Data.List (groupBy, permutations, sortOn)
 import Data.Map.Strict qualified as M
+import Data.Maybe (fromJust)
 import Text.Parsec
 import Text.Parsec.String
 
@@ -23,7 +24,7 @@ totalHappiness :: TablePreferences -> [Person] -> Happiness
 totalHappiness preferences = sum . map amountHappiness . seatingPair
   where
     amountHappiness (p1, p2) =
-      let Just happiness = M.lookup p1 preferences
+      let happiness = fromJust $ M.lookup p1 preferences
        in snd . head . filter ((== p2) . fst) $ happiness
 
 seatingPair :: [Person] -> [(Person, Person)]
@@ -31,7 +32,7 @@ seatingPair l =
   (head l, last l) : (last l, head l) : seatingPairR l
   where
     seatingPairR [] = []
-    seatingPairR [a] = []
+    seatingPairR [_] = []
     seatingPairR (a : b : rs) = (a, b) : (b, a) : seatingPairR (b : rs)
 
 allArrangementHappiness :: TablePreferences -> [Int]
@@ -66,4 +67,4 @@ part2 :: TablePreferences -> IO ()
 part2 = print . maximum . allArrangementHappiness . addMyself
 
 main :: IO ()
-main = parseInput >>= either print part2
+main = parseInput >>= either print (sequence_ . sequenceA [part1, part2])

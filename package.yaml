@@ -24,6 +24,8 @@ dependencies:
 - containers
 - bytestring
 - text
+- aeson
+- scientific
 
 ghc-options:
 - -Wall

@@ -13,4 +13,5 @@ part1 = print . sum
 part2 :: [Int] -> IO ()
 part2 = print . length . takeWhile (>= 0) . scanl (+) 0
 
-main = parseInput >>= either print part2
+main :: IO ()
+main = parseInput >>= either print (sequence_ . sequenceA [part1, part2])

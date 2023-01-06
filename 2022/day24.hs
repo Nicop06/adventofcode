@@ -35,7 +35,7 @@ initialState tiles =
 
 initialBlizzards :: [[Tile]] -> Position -> [Blizzard]
 initialBlizzards [] _ = []
-initialBlizzards ([] : cs) (x, y) = initialBlizzards cs (x + 1, 0)
+initialBlizzards ([] : cs) (x, _) = initialBlizzards cs (x + 1, 0)
 initialBlizzards ((t : rs) : cs) (x, y) = maybeAddBlizzard t (x, y) $ initialBlizzards (rs : cs) (x, y + 1)
   where
     maybeAddBlizzard (Bliz d) p l = Blizzard d p : l
@@ -51,9 +51,9 @@ updateBlizzard (r, c) (Blizzard dir pos) =
    in Blizzard dir pos''
   where
     newBlizzard U (-1, y) = (r - 1, y)
-    newBlizzard D (r, y) = (0, y)
+    newBlizzard D (_, y) = (0, y)
     newBlizzard L (x, -1) = (x, c - 1)
-    newBlizzard R (x, c) = (x, 0)
+    newBlizzard R (x, _) = (x, 0)
     newBlizzard d p = error ("Invalid Blizzard " ++ show (Blizzard d p))
 
 move :: Direction -> Position -> Position
@@ -66,7 +66,7 @@ updatePlayer :: Grid -> [Blizzard] -> Position -> [Position]
 updatePlayer (Grid gridSize start end) blizzards pos = filter isAllowedPos (pos : (move <$> [U, D, L, R] <*> [pos]))
   where
     blizPos = S.fromList $ map blizzardPos blizzards
-    isAllowedPos pos = (not (outOfBounds gridSize pos) || pos == start || pos == end) && pos `S.notMember` blizPos
+    isAllowedPos p = (not (outOfBounds gridSize p) || p == start || p == end) && p `S.notMember` blizPos
 
 updateGridState :: Grid -> GridState -> GridState
 updateGridState grid (GridState blizzards pos) =
@@ -80,10 +80,10 @@ runSimulation grid = tail . iterate (updateGridState grid)
 goToGoal :: Goal -> Grid -> GridState -> [GridState]
 goToGoal goal grid state = takeUntil hasArrived $ runSimulation grid state
   where
-    hasArrived state = goalCoord grid goal `elem` possiblePos state
+    hasArrived s = goalCoord grid goal `elem` possiblePos s
 
 takeUntil :: (a -> Bool) -> [a] -> [a]
-takeUntil f [] = []
+takeUntil _ [] = []
 takeUntil f (a : rs) = if f a then [a] else a : takeUntil f rs
 
 goToGoals :: [Goal] -> Grid -> GridState -> [GridState]
@@ -99,25 +99,6 @@ goalCoord grid End = end grid
 
 resetState :: Grid -> Goal -> GridState -> GridState
 resetState grid goal (GridState blizzards _) = GridState blizzards [goalCoord grid goal]
-
--- Debug
-
-printGrid :: Grid -> GridState -> [String]
-printGrid (Grid (r, c) start end) (GridState bliz pos) =
-  top : ['#' : [printChar (x, y) | y <- [0 .. (c - 1)]] ++ "#" | x <- [0 .. (r - 1)]] ++ [bot]
-  where
-    top = (if start `elem` pos then "#E" else "#.") ++ replicate c '#'
-    bot = replicate c '#' ++ if end `elem` pos then "E#" else ".#"
-    printChar p
-      | p `elem` pos = 'E'
-      | otherwise = case filter ((== p) . blizzardPos) bliz of
-          [] -> '.'
-          [b] -> printDirection . blizzardDir $ b
-          lb -> head $ show (length lb)
-    printDirection U = '^'
-    printDirection D = 'v'
-    printDirection L = '<'
-    printDirection R = '>'
 
 -- Parser
 
@@ -135,11 +116,6 @@ part1 = length . uncurry (goToGoal End) . initialState <$> parseGrid
 
 part2 :: Parser Int
 part2 = length . uncurry (goToGoals [End, Start, End]) . initialState <$> parseGrid
-
-debugState :: IO ()
-debugState = do
-  Right (grid, state) <- parseFromFile (initialState <$> parseGrid) "/tmp/testinput"
-  mapM_ putStrLn $ concatMap (printGrid grid) $ goToGoals [End, Start, End] grid state
 
 main :: IO ()
 main = parseAndSolve "inputs/day24" part1 part2

@@ -40,7 +40,9 @@ initialCoordinate grid =
    in (0, openTile)
 
 gridSize :: Grid -> GridSize
-gridSize grid = let [c, r] = listOfShape . extent $ grid in (r, c)
+gridSize grid = case listOfShape . extent $ grid of
+  [c, r] -> (r, c)
+  _ -> error "Invalid dimension for grid"
 
 initialPlayer :: Grid -> Player
 initialPlayer grid = (initialCoordinate grid, R)
@@ -63,15 +65,15 @@ wrapGrid grid (x, y) = let (r, c) = gridSize grid in (x `modulo` r, y `modulo` c
   where
     modulo a b = let m = a `mod` b in if m < 0 then m + b else m
 
-nextCoord :: Grid -> Direction -> Coordinates -> Coordinates
-nextCoord grid U = first (subtract 1)
-nextCoord grid D = first (+ 1)
-nextCoord grid L = second (subtract 1)
-nextCoord grid R = second (+ 1)
+nextCoord :: Direction -> Coordinates -> Coordinates
+nextCoord U = first (subtract 1)
+nextCoord D = first (+ 1)
+nextCoord L = second (subtract 1)
+nextCoord R = second (+ 1)
 
 nextTile :: Grid -> Player -> Player
 nextTile grid (coord, dir) =
-  let (x, y) = wrapGrid grid $ nextCoord grid dir coord
+  let (x, y) = wrapGrid grid $ nextCoord dir coord
    in case grid ! ix2 x y of
         None -> nextTile grid ((x, y), dir)
         _ -> ((x, y), dir)
@@ -120,7 +122,7 @@ B -> D
 
 nextTileCube :: Grid -> Player -> Player
 nextTileCube grid p@((x, y), dir) =
-  let (x', y') = nextCoord grid dir (x, y)
+  let (x', y') = nextCoord dir (x, y)
    in if isOnTile grid (x', y')
         then ((x', y'), dir)
         else wrapCube

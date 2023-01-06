@@ -1,6 +1,7 @@
 import Control.Applicative ((<**>))
 import Data.Bits
 import Data.Map.Strict qualified as M
+import Data.Maybe (fromJust)
 import Text.Parsec
 import Text.Parsec.String
 
@@ -22,7 +23,7 @@ processCircuit wireName c = fst $ processWireR M.empty (Wire wireName)
       case M.lookup w cache of
         Just val -> (val, cache)
         Nothing ->
-          let Just con = M.lookup w c
+          let con = fromJust $ M.lookup w c
               (val', cache') = processInstruction con
            in (val', M.insert w val' cache')
           where
@@ -34,10 +35,10 @@ processCircuit wireName c = fst $ processWireR M.empty (Wire wireName)
               let (val1, cache1) = processWireR cache w1
                   (val2, cache2) = processWireR cache1 w2
                in (val1 .|. val2, cache2)
-            processInstruction (NOT w) = let (val, cache') = processWireR cache w in (65535 - val, cache')
-            processInstruction (LSHIFT w n) = let (val, cache') = processWireR cache w in (val `shiftL` n, cache')
-            processInstruction (RSHIFT w n) = let (val, cache') = processWireR cache w in (val `shiftR` n, cache')
-            processInstruction (Value w) = processWireR cache w
+            processInstruction (NOT w') = let (val, cache') = processWireR cache w' in (65535 - val, cache')
+            processInstruction (LSHIFT w' n) = let (val, cache') = processWireR cache w' in (val `shiftL` n, cache')
+            processInstruction (RSHIFT w' n) = let (val, cache') = processWireR cache w' in (val `shiftR` n, cache')
+            processInstruction (Value w') = processWireR cache w'
 
 -- Parse
 
@@ -73,7 +74,8 @@ part1 = print . processCircuit "a"
 
 part2 :: Circuit -> IO ()
 part2 c =
-    let valA = processCircuit "a" c
-        in print $ processCircuit "a" (M.insert "b" (Value (Number valA)) c)
+  let valA = processCircuit "a" c
+   in print $ processCircuit "a" (M.insert "b" (Value (Number valA)) c)
 
-main = parseInput >>= either print part2
+main :: IO ()
+main = parseInput >>= either print (sequence_ . sequenceA [part1, part2])

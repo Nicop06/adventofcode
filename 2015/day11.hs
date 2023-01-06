@@ -1,6 +1,7 @@
 import Data.Char (chr, ord)
 import Data.List (group)
 
+password :: String
 password = "hepxcrrq"
 
 nextPassword :: String -> String
@@ -44,4 +45,4 @@ part2 :: IO ()
 part2 = print $ nextValidPassword $ nextValidPassword password
 
 main :: IO ()
-main = part2
+main = sequence_ [part1, part2]

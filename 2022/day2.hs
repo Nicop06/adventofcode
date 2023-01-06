@@ -1,11 +1,12 @@
-import Data.List
+import Data.List (find)
+import Data.Maybe (fromJust)
 import ParseAndRun
 
 data Shape = Rock | Paper | Scissor deriving (Eq, Show)
 
 data Outcome = Lose | Draw | Win deriving (Eq, Show)
 
-data Round = Round {elfShape :: Shape, myShape :: Shape}
+data Round = Round Shape Shape
 
 shapeScore :: Shape -> Int
 shapeScore Rock = 1
@@ -28,7 +29,7 @@ roundOutcome elfShape playerShape
 shapeForOutcome :: Shape -> Outcome -> Shape
 shapeForOutcome elfShape outcome = playerShape
   where
-    Just playerShape = find (\playerShape -> roundOutcome elfShape playerShape == outcome) [Rock, Paper, Scissor]
+    playerShape = fromJust $ find (\ps -> roundOutcome elfShape ps == outcome) [Rock, Paper, Scissor]
 
 elfShapeFromCode :: String -> Maybe Shape
 elfShapeFromCode "A" = Just Rock
@@ -58,16 +59,16 @@ totalScore = sum . map roundScore
 
 readRoundPart1 :: String -> Round
 readRoundPart1 roundLine =
-  let [elfCode, playerCode] = words roundLine
-      Just elfShape = elfShapeFromCode elfCode
-      Just playerShape = playerShapeFromCode playerCode
+  let roundWords = words roundLine
+      elfShape = fromJust $ elfShapeFromCode $ head roundWords
+      playerShape = fromJust $ playerShapeFromCode (roundWords !! 1)
    in Round elfShape playerShape
 
 readRoundPart2 :: String -> Round
 readRoundPart2 roundLine =
-  let [elfCode, playerCode] = words roundLine
-      Just elfShape = elfShapeFromCode elfCode
-      Just outcome = outcomeFromCode playerCode
+  let roundWords = words roundLine
+      elfShape = fromJust $ elfShapeFromCode $ head roundWords
+      outcome = fromJust $ outcomeFromCode (roundWords !! 1)
    in Round elfShape (shapeForOutcome elfShape outcome)
 
 part1 :: [String] -> Int

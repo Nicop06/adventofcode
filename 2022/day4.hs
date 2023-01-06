@@ -13,19 +13,21 @@ overlaps :: Range -> Range -> Bool
 
 parseRange :: T.Text -> Range
 parseRange range =
-  let [start, end] = T.splitOn "-" range
-   in Range (read . T.unpack $ start) (read . T.unpack $ end)
+  case T.splitOn "," range of
+    [start, end] -> Range (read . T.unpack $ start) (read . T.unpack $ end)
+    _ -> error "Range should have a start and end"
 
 parsePair :: T.Text -> (Range, Range)
 parsePair pair =
-  let [elf1, elf2] = T.splitOn "," pair
-   in (parseRange elf1, parseRange elf2)
+  case T.splitOn "," pair of
+    [elf1, elf2] -> (parseRange elf1, parseRange elf2)
+    _ -> error "We should have two elfs"
 
 parseLines :: [String] -> [(Range, Range)]
 parseLines = map (parsePair . T.pack)
 
 countPairToConsider :: ((Range, Range) -> Bool) -> [String] -> Int
-countPairToConsider pairToConsider lines = length $ filter pairToConsider (parseLines lines)
+countPairToConsider pairToConsider l = length $ filter pairToConsider (parseLines l)
 
 part1 :: [String] -> Int
 part1 = countPairToConsider (\(pair1, pair2) -> pair1 `contains` pair2 || pair2 `contains` pair1)

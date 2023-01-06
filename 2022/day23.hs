@@ -1,5 +1,4 @@
 import Control.Arrow (first, second)
-import Data.Bifunctor (bimap)
 import Data.Set qualified as S
 import ParseAndRun
 import Text.Parsec
@@ -29,7 +28,7 @@ isFree elfs dir pos = all (`S.notMember` elfs) posToCheck
   where
     posToCheck
       | dir == N || dir == S = [move E pos, move W pos, pos]
-      | dir == E || dir == W = [move N pos, move S pos, pos]
+      | otherwise = [move N pos, move S pos, pos]
 
 maybeMove :: [Direction] -> Elfs -> Position -> Position
 maybeMove dir elfs pos =
@@ -37,7 +36,7 @@ maybeMove dir elfs pos =
    in case filter (uncurry $ isFree elfs) possiblePos of
         [] -> pos
         [_, _, _, _] -> pos
-        d : rs -> snd d
+        d : _ -> snd d
 
 moveAllElfsOnce :: ([Direction], Elfs) -> ([Direction], Elfs)
 moveAllElfsOnce (dir, elfs) =
@@ -67,14 +66,6 @@ numEmptyGroundTiles :: Elfs -> Int
 numEmptyGroundTiles elfs =
   let ((minX, maxX), (minY, maxY)) = rectangleCovered elfs
    in (maxX - minX + 1) * (maxY - minY + 1) - length elfs
-
-printElfs :: Elfs -> [String]
-printElfs elfs =
-  let ((minX, maxX), (minY, maxY)) = rectangleCovered elfs
-      allPos = [[(x, y) | y <- [minY .. maxY]] | x <- [minX .. maxX]]
-   in map (map elfOrEmpty) allPos
-  where
-    elfOrEmpty pos = if pos `S.member` elfs then '#' else '.'
 
 -- Parser
 

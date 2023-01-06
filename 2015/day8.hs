@@ -51,4 +51,4 @@ part2 :: IO ()
 part2 = parseAndPrint parseNormalString
 
 main :: IO ()
-main = part2
+main = sequence_ [part1, part2]

@@ -1,6 +1,6 @@
 import Control.Applicative ((<**>))
 import Control.Monad
-import Data.List
+import Data.List (sort)
 import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String
@@ -15,16 +15,11 @@ type DivisibleBy = Item
 
 type Operation = Item -> Item
 
-type ThrowTest = Item -> MonkeyId
-
 type ThrownItem = (MonkeyId, Item)
 
 data Monkey = Monkey MonkeyId Int [Item] Operation DivisibleBy MonkeyId MonkeyId
 
 -- Helpers
-
-executeRound :: [Monkey] -> [Monkey]
-executeRound = id
 
 throwItemsR :: Monkey -> [ThrownItem] -> (Monkey, [ThrownItem])
 throwItemsR m@(Monkey _ _ [] _ _ _ _) items = (m, items)
@@ -37,7 +32,7 @@ throwItems :: Monkey -> (Monkey, [ThrownItem])
 throwItems = flip throwItemsR []
 
 receivedItems :: MonkeyId -> [ThrownItem] -> ([Item], [ThrownItem])
-receivedItems monkeyId [] = ([], [])
+receivedItems _ [] = ([], [])
 receivedItems monkeyId ((toMonkey, item) : rs)
   | monkeyId == toMonkey = (item : itemsForMonkey, itemsForOtherMonkeys)
   | otherwise = (itemsForMonkey, (toMonkey, item) : itemsForOtherMonkeys)
@@ -64,9 +59,6 @@ processRounds numRounds m =
 
 numInspectedItems :: Monkey -> Int
 numInspectedItems (Monkey _ n _ _ _ _ _) = n
-
-monkeyItems :: Monkey -> [Item]
-monkeyItems (Monkey _ _ items _ _ _ _) = items
 
 monkeyDivisibleBy :: Monkey -> DivisibleBy
 monkeyDivisibleBy (Monkey _ _ _ _ by _ _) = by
@@ -117,8 +109,10 @@ monkey = Monkey <$> startMonkey <*> return 0 <*> startingItems <*> operationPars
 input :: Parser [Monkey]
 input = many1 monkey <* eof
 
+part1 :: Parser Int
 part1 = levelOfMonkeyBusiness 20 . map (applyOp (`div` 3)) <$> input
 
+part2 :: Parser Int
 part2 = levelOfMonkeyBusiness 10000 . worryLimiter <$> input
 
 main :: IO ()

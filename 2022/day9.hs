@@ -1,5 +1,5 @@
 import Data.Bifunctor
-import Data.List
+import Data.List (nub)
 import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String

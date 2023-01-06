@@ -1,6 +1,5 @@
-import Data.List
+import Data.List (sort)
 import ParseAndRun
-import System.Environment
 
 foldInventoryAux :: String -> [[Int]] -> [[Int]]
 foldInventoryAux "" xs = [] : xs

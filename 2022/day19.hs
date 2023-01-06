@@ -1,4 +1,3 @@
-import Data.List (nub)
 import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String
@@ -110,7 +109,8 @@ numStepsToBuild state cost = maximum $ map numStepsForRes [ClayRobot, OreRobot, 
     divOrInf a b
       | a == 0 = 0
       | b == 0 = maxBound
-      | otherwise = ceiling (fromIntegral a / fromIntegral b)
+      | b == 1 = a
+      | otherwise = (a + 1) `div` b
     numStepsForRes robotType = (robotResource robotType cost - robotResource robotType (stateResources state)) `divOrInf` numRobotOfType robotType state
 
 robotTypesToConsider :: Int -> Blueprint -> SimState -> [RobotType]
@@ -124,7 +124,7 @@ robotTypesToConsider numSteps blueprint state =
     tooManyRobots robotType = resAfterSteps robotType >= maxCostForRes (robotResource robotType)
 
 runSimulation :: Int -> Blueprint -> [SimState] -> [SimState]
-runSimulation numSteps blueprint [] = []
+runSimulation _ _ [] = []
 runSimulation numSteps blueprint states =
   let updatedStates = concatMap (updateSimState numSteps blueprint) states
    in filter hasFinished updatedStates ++ runSimulation numSteps blueprint (filter (not . hasFinished) updatedStates)
@@ -160,7 +160,7 @@ addResource :: Resources -> (Int, String) -> Resources
 addResource res (amount, "ore") = res {getOre = getOre res + amount}
 addResource res (amount, "clay") = res {getClay = getClay res + amount}
 addResource res (amount, "obsidian") = res {getObsidian = getObsidian res + amount}
-addResource res (amount, resType) = error $ "Unknown resource type " ++ resType
+addResource _ (_, resType) = error $ "Unknown resource type " ++ resType
 
 parseBlueprint :: Parser Blueprint
 parseBlueprint = Blueprint <$> (string "Blueprint " *> parseNumber <* string ":") <*> parseRobotCost "ore" <*> parseRobotCost "clay" <*> parseRobotCost "obsidian" <*> parseRobotCost "geode" <* newline

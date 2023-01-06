@@ -1,5 +1,6 @@
 import Data.List (group)
 
+input :: String
 input = "3113322113"
 
 lookAndSay :: String -> String
@@ -15,3 +16,6 @@ part1 = print $ lengthLookAndSay 40
 
 part2 :: IO ()
 part2 = print $ lengthLookAndSay 50
+
+main :: IO ()
+main = sequence_ [part1, part2]
