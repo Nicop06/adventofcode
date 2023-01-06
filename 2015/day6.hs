@@ -49,4 +49,5 @@ part2 ins = print . sum $ foldr followInstruction M.empty (reverse ins)
     adjustLight (TurnOff l) = (,-1) <$> l
     adjustLight (Toggle l) = (,2) <$> l
 
-main = parseInput >>= either print part2
+main :: IO ()
+main = parseInput >>= either print (sequence_ . sequenceA [part1, part2])

@@ -1,6 +1,3 @@
-import Control.Arrow (first, second)
-import Data.List (nub)
-import Data.Set qualified as S
 import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String
@@ -10,7 +7,7 @@ import Text.Parsec.String
 parseSnafu :: String -> Int
 parseSnafu = parseSnafuR 1 . reverse
   where
-    parseSnafuR p [] = 0
+    parseSnafuR _ [] = 0
     parseSnafuR p (d : rd) = (p * parseDigit d) + parseSnafuR (p * 5) rd
 
 parseDigit :: Char -> Int
@@ -19,6 +16,7 @@ parseDigit '1' = 1
 parseDigit '0' = 0
 parseDigit '-' = -1
 parseDigit '=' = -2
+parseDigit d = error ("Invalid digit " ++ [d])
 
 printDigit :: Int -> Char
 printDigit 2 = '2'
@@ -26,6 +24,7 @@ printDigit 1 = '1'
 printDigit 0 = '0'
 printDigit (-1) = '-'
 printDigit (-2) = '='
+printDigit d = error ("Invalid digit " ++ show d)
 
 printSnafu :: Int -> String
 printSnafu = reverse . printSnafuR

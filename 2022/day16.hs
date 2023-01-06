@@ -1,5 +1,5 @@
 import Data.Function
-import Data.List
+import Data.List (maximumBy, groupBy, sortOn)
 import Data.Map.Strict qualified as Map
 import ParseAndRun
 import Text.Parsec
@@ -43,7 +43,7 @@ allPossibleMoves t s =
         else nextStates
 
 allPossibleCombinedMoves :: Tunnels -> CombinedState -> [CombinedState]
-allPossibleCombinedMoves t cs@(CombinedState openValves hist []) = [cs]
+allPossibleCombinedMoves _ cs@(CombinedState _ _ []) = [cs]
 allPossibleCombinedMoves t (CombinedState openValves hist (p : pr)) =
   let nextStates = allPossibleMoves t (ValvesState openValves p)
    in concatMap recAndCombine nextStates
@@ -58,17 +58,17 @@ filterBestMoves :: Tunnels -> Int -> [CombinedState] -> [CombinedState]
 filterBestMoves t m = filterLowFlow . map bestFlow . groupBy ((==) `on` state) . sortOn state
   where
     state (CombinedState o _ p) = (currentFlow t o, p)
-    flowEstimation cs@(CombinedState o h _) = m * currentFlow t o + totalFlow cs
+    flowEstimation cs@(CombinedState o _ _) = m * currentFlow t o + totalFlow cs
     filterLowFlow s = let best = totalFlow $ bestFlow s in filter ((>= best) . flowEstimation) s
 
 nextBestMoves :: Tunnels -> Int -> [CombinedState] -> [CombinedState]
 nextBestMoves t m = filterBestMoves t m . concatMap (allPossibleCombinedMoves t)
 
 runMoves :: CombinedState -> Int -> Tunnels -> [CombinedState]
-runMoves init n t = foldl (flip $ nextBestMoves t) [init] [n, n - 1 .. 1]
+runMoves i n t = foldl (flip $ nextBestMoves t) [i] [n, n - 1 .. 1]
 
 bestState :: CombinedState -> Int -> Tunnels -> CombinedState
-bestState init n = bestFlow . runMoves init n
+bestState i n = bestFlow . runMoves i n
 
 -- Parser
 

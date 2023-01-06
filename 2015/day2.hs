@@ -27,4 +27,5 @@ part1 = print . sum . map wrappingPaperSurface
 part2 :: [[Int]] -> IO ()
 part2 = print . sum . map ribbonLength
 
-main = parseInput >>= either print part2
+main :: IO ()
+main = parseInput >>= either print (sequence_ . sequenceA [part1, part2])

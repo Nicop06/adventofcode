@@ -5,8 +5,10 @@ import Text.Parsec.String
 
 -- Data
 
+sizeLimit :: Int
 sizeLimit = 100000
 
+maxCapacity :: Int
 maxCapacity = 70000000 - 30000000
 
 type Name = String
@@ -30,13 +32,13 @@ inodeName (Folder name _) = name
 
 goUp :: Context -> Maybe Context
 goUp (inode, InodeContext name children : rs) = Just (Folder name (inode : children), rs)
-goUp (inode, []) = Nothing
+goUp (_, []) = Nothing
 
 goDown :: Name -> Context -> Maybe Context
 goDown name (Folder folderName children, ctx) =
-  let (ls, inode : rs) = break ((== name) . inodeName) children
-   in Just (inode, InodeContext folderName (ls ++ rs) : ctx)
-goDown name (file, _) = Nothing
+  let (l, r) = break ((== name) . inodeName) children
+   in Just (head r, InodeContext folderName (l ++ r) : ctx)
+goDown _ (_, _) = Nothing
 
 goToRoot :: Context -> Maybe Context
 goToRoot (inode, []) = Just (inode, [])
@@ -54,7 +56,7 @@ changeNode f (node, ctx) = case f node of
 
 addChild :: Inode -> Inode -> Maybe Inode
 addChild child (Folder name children) = Just $ Folder name (child : children)
-addChild child (File _ _) = Nothing
+addChild _ (File _ _) = Nothing
 
 addFolder :: String -> Inode -> Maybe Inode
 addFolder name = addChild (Folder name [])
@@ -119,8 +121,8 @@ part2 :: Parser Int
 part2 = maybe 0 sizeFolderToDelete <$> parseInput
 
 sizeFolderToDelete :: Inode -> Int
-sizeFolderToDelete root =
-  let folderSizes = map snd $ allFolderSizes root
+sizeFolderToDelete nodeToDelete =
+  let folderSizes = map snd $ allFolderSizes nodeToDelete
       sizeNeeded = head folderSizes - maxCapacity
    in minimum $ filter (> sizeNeeded) folderSizes
 

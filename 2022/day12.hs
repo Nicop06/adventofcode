@@ -1,7 +1,5 @@
 import Control.Applicative as A
-import Control.Monad ((>=>))
 import Data.Char (ord)
-import Data.Map (Map, notMember)
 import Data.Maybe (fromMaybe, mapMaybe)
 import ParseAndRun
 import Text.Parsec as P
@@ -11,15 +9,11 @@ import Text.Parsec.String
 
 data Square = Square Char | Start | End deriving (Show, Eq)
 
-data Direction = Up | Down | Left | Right
-
 type Row = [Square]
 
 type Grid = [Row]
 
 type Position = (Int, Int)
-
-type Distance = Int
 
 type Visited = [Position]
 
@@ -90,17 +84,17 @@ goUp visitor = case above visitor of
   row : a ->
     Just
       visitor
-        { currentSquare = s,
+        { currentSquare = head r,
           currentRow = row,
           position = (x, y - 1),
           above = a,
           below = currentRow visitor : below visitor,
           left = reverse l,
-          right = r
+          right = tail r
         }
     where
       (x, y) = position visitor
-      (l, s : r) = splitAt x row
+      (l, r) = splitAt x row
 
 goDown :: Visitor -> Maybe Visitor
 goDown visitor = case below visitor of
@@ -108,17 +102,17 @@ goDown visitor = case below visitor of
   row : b ->
     Just
       visitor
-        { currentSquare = s,
+        { currentSquare = head r,
           currentRow = row,
           position = (x, y + 1),
           above = currentRow visitor : above visitor,
           below = b,
           left = reverse l,
-          right = r
+          right = tail r
         }
     where
       (x, y) = position visitor
-      (l, s : r) = splitAt x row
+      (l, r) = splitAt x row
 
 goNextRow :: Visitor -> Maybe Visitor
 goNextRow visitor = case below visitor of
@@ -126,17 +120,17 @@ goNextRow visitor = case below visitor of
   row : b ->
     Just
       visitor
-        { currentSquare = s,
+        { currentSquare = head r,
           currentRow = row,
           position = (0, y + 1),
           above = currentRow visitor : above visitor,
           below = b,
           left = l,
-          right = r
+          right = tail r
         }
     where
-      (x, y) = position visitor
-      (l, s : r) = splitAt 0 row
+      (_, y) = position visitor
+      (l, r) = splitAt 0 row
 
 goNext :: Visitor -> Maybe Visitor
 goNext visitor = goRight visitor A.<|> goNextRow visitor

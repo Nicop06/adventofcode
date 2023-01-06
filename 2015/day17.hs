@@ -1,4 +1,3 @@
-import Data.List (sort)
 import Text.Parsec
 import Text.Parsec.String
 
@@ -37,4 +36,4 @@ part2 :: [Capacity] -> IO ()
 part2 = print . length . combinationsWithMinContainers
 
 main :: IO ()
-main = parseInput >>= either print part2
+main = parseInput >>= either print (sequence_ . sequenceA [part1, part2])

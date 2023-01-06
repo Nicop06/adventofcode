@@ -59,4 +59,4 @@ part2 :: CityDistance -> IO ()
 part2 = print . maximum . allPathLength
 
 main :: IO ()
-main = parseInput >>= either print part2
+main = parseInput >>= either print (sequence_ . sequenceA [part1, part2])

@@ -1,5 +1,4 @@
 import Control.Monad (liftM2)
-import Data.List (nub)
 import Data.Set qualified as Set
 import Data.Tuple (swap)
 import ParseAndRun
@@ -31,12 +30,12 @@ numStoppedSand rocks = length . takeWhile (isFlowing . fst) . tail . scanl simul
     lowestRock = maximum rocks
     initPos = (0, 500)
     isFlowing sand = sand < lowestRock && sand /= initPos
-    simulateSand (p, rocks) sand@(x, y)
-      | sand > lowestRock = (sand, rocks)
-      | sandBelow `Set.notMember` rocks = simulateSand (p, rocks) sandBelow
-      | sandLeft `Set.notMember` rocks = simulateSand (p, rocks) sandLeft
-      | sandRight `Set.notMember` rocks = simulateSand (p, rocks) sandRight
-      | otherwise = (sand, Set.insert sand rocks)
+    simulateSand (p, r) sand@(x, y)
+      | sand > lowestRock = (sand, r)
+      | sandBelow `Set.notMember` r = simulateSand (p, r) sandBelow
+      | sandLeft `Set.notMember` r = simulateSand (p, r) sandLeft
+      | sandRight `Set.notMember` r = simulateSand (p, r) sandRight
+      | otherwise = (sand, Set.insert sand r)
       where
         sandBelow = (x + 1, y)
         sandLeft = (x + 1, y - 1)

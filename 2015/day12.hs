@@ -1,16 +1,15 @@
 {-# LANGUAGE OverloadedStrings #-}
 
+import Control.Monad (forM_)
 import Data.Aeson
 import Data.Aeson.KeyMap qualified as KV
-import Data.Maybe (fromJust)
-import Data.Scientific
 
 -- Helpers
 
 sumValues :: Value -> Int
 sumValues (Array v) = sum . fmap sumValues $ v
 sumValues (Object obj) = sum . map (sumValues . snd) $ KV.toList obj
-sumValues (Number n) = floor $ toRealFloat n
+sumValues (Number n) = floor n
 sumValues _ = 0
 
 skipValuesWithRed :: Value -> Value
@@ -36,4 +35,4 @@ part2 :: Value -> IO ()
 part2 = print . sumValues . skipValuesWithRed
 
 main :: IO ()
-main = parseInput >>= part2 . fromJust
+main = parseInput >>= maybe (pure ()) (forM_ [part1, part2] . flip ($))

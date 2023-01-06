@@ -1,6 +1,5 @@
 import Control.Arrow (first, second)
 import Data.List (nub)
-import Data.Tuple (swap)
 import Text.Parsec
 import Text.Parsec.String
 
@@ -22,7 +21,7 @@ move W = second (subtract 1)
 
 visitPlacesRobotSanta :: [Direction] -> [Coordinate]
 visitPlacesRobotSanta d = [fst, snd] <*> scanl moveAndSwap ((0, 0), (0, 0)) d
-    where moveAndSwap (c, c') d = (c', move d c)
+    where moveAndSwap (c, c') d' = (c', move d' c)
 
 visitedPlaces :: [Direction] -> [Coordinate]
 visitedPlaces = scanl (flip move) (0, 0)
@@ -33,4 +32,5 @@ part1 = print . length . nub . visitedPlaces
 part2 :: [Direction] -> IO ()
 part2 = print . length . nub . visitPlacesRobotSanta
 
-main = parseInput >>= either print part2
+main :: IO ()
+main = parseInput >>= either print (sequence_ . sequenceA [part1, part2])

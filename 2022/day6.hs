@@ -1,4 +1,4 @@
-import Data.List
+import Data.List (nub)
 import ParseAndRun
 
 startOfPacket :: Int -> String -> Int
@@ -7,7 +7,7 @@ startOfPacket packetWidth stream
   | startsWithMarker stream = packetWidth
   | otherwise = 1 + startOfPacket packetWidth (drop 1 stream)
   where
-    startsWithMarker stream = (length . nub $ take packetWidth stream) == packetWidth
+    startsWithMarker s = (length . nub $ take packetWidth s) == packetWidth
 
 part1 :: [String] -> Int
 part1 = startOfPacket 4 . head

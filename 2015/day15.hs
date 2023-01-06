@@ -29,6 +29,7 @@ bestScoreWithCalories calories ingredients =
 
 -- Parser
 
+properties :: [String]
 properties = ["capacity", "durability", "flavor", "texture"]
 
 parseName :: Parser String
@@ -59,4 +60,4 @@ part2 :: [Ingredient] -> IO ()
 part2 = print . bestScoreWithCalories 500
 
 main :: IO ()
-main = parseInput >>= either print part2
+main = parseInput >>= either print (sequence_ . sequenceA [part1, part2])

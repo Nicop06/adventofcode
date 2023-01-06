@@ -42,7 +42,7 @@ mergedCoveredIntervals :: Int -> [BeaconDetection] -> [Interval]
 mergedCoveredIntervals row = mergeIntervals . sort . coveredIntervalsInRow row
 
 intervalSize :: Interval -> Int
-intervalSize (min, max) = max - min + 1
+intervalSize (from, to) = to - from + 1
 
 numIntervalCovered :: Int -> [BeaconDetection] -> Int
 numIntervalCovered row = sum . map intervalSize . mergedCoveredIntervals row
@@ -56,10 +56,10 @@ clampInterval :: Int -> Int -> Interval -> Interval
 clampInterval from to = bimap (max from) (min to)
 
 distressBeaconRow :: Int -> Int -> [BeaconDetection] -> (Int, [Interval])
-distressBeaconRow min max l = head $ filter ((> 1) . length . snd) intervalsForAllRows
+distressBeaconRow from to l = head $ filter ((> 1) . length . snd) intervalsForAllRows
   where
-    mergeAndClamp row = (row, map (clampInterval min max) $ mergedCoveredIntervals row l)
-    intervalsForAllRows = map mergeAndClamp [min .. max]
+    mergeAndClamp row = (row, map (clampInterval from to) $ mergedCoveredIntervals row l)
+    intervalsForAllRows = map mergeAndClamp [from .. to]
 
 tuningFrequency :: Int -> [Interval] -> Int
 tuningFrequency row int = row + 4000000 * (snd (head int) + 1)
@@ -84,6 +84,7 @@ parseBeaconDetection = (,) <$> parseSensor <*> parseBeacon <* newline
 parseInput :: Parser [BeaconDetection]
 parseInput = many1 parseBeaconDetection <* eof
 
+rowToReport :: Int
 rowToReport = 2000000
 
 part1 :: Parser Int

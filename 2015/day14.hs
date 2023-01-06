@@ -44,4 +44,4 @@ part2 :: [Reindeer] -> IO ()
 part2 = print . maximum . reindeerScore 2503
 
 main :: IO ()
-main = parseInput >>= either print part2
+main = parseInput >>= either print (sequence_ . sequenceA [part1, part2])

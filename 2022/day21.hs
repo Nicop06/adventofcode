@@ -1,5 +1,5 @@
 import Data.Map.Strict qualified as M
-import Data.Maybe (maybe)
+import Data.Maybe (fromJust)
 import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String
@@ -39,30 +39,33 @@ computeYelling _ (Number n) = Result n
 computeYelling _ Var = Equation id
 computeYelling monkeys (Operation op m1 m2) = operationOrEquation op r1 r2
   where
-    Just y1 = M.lookup m1 monkeys
-    Just y2 = M.lookup m2 monkeys
+    y1 = fromJust $ M.lookup m1 monkeys
+    y2 = fromJust $ M.lookup m2 monkeys
     r1 = computeYelling monkeys y1
     r2 = computeYelling monkeys y2
 
 operationOrEquation :: Op -> Result -> Result -> Result
-operationOrEquation op (Equation e1) (Equation e2) = error "Cannot combine two equations"
+operationOrEquation _ (Equation _) (Equation _) = error "Cannot combine two equations"
 operationOrEquation op (Result r1) (Result r2) = Result $ computeOperation op r1 r2
 operationOrEquation op (Result r) (Equation eq) = Equation (eq . computeReversedOperation LeftOp op r)
 operationOrEquation op (Equation eq) (Result r) = Equation (eq . computeReversedOperation RightOp op r)
 
 computeRoot :: Monkeys -> Int
 computeRoot monkeys =
-  let Just m = M.lookup "root" monkeys
-      Result r = computeYelling monkeys m
-   in r
+  let m = fromJust $ M.lookup "root" monkeys
+   in case computeYelling monkeys m of
+        Result r -> r
+        _ -> error "Invalid yelling result"
 
 computeHumanInput :: Monkeys -> Int
 computeHumanInput monkeys =
   let monkeys' = M.insert "humn" Var monkeys
-      Just (Operation op left right) = M.lookup "root" monkeys'
-      Just ll = M.lookup left monkeys'
-      Just lr = M.lookup right monkeys'
-   in computeEquation (computeYelling monkeys' ll) (computeYelling monkeys' lr)
+   in case M.lookup "root" monkeys' of
+        Just (Operation _ left right) ->
+          let ll = fromJust $ M.lookup left monkeys'
+              lr = fromJust $ M.lookup right monkeys'
+           in computeEquation (computeYelling monkeys' ll) (computeYelling monkeys' lr)
+        y -> error ("Invalid monkey yelling " ++ show y)
 
 computeEquation :: Result -> Result -> Int
 computeEquation (Result n) (Equation eq) = eq n

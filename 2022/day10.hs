@@ -1,12 +1,13 @@
-import Data.List
 import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String
 
 -- Data
 
+cyclesToAdd :: [Int]
 cyclesToAdd = [20, 60, 100, 140, 180, 220]
 
+initialValue :: Int
 initialValue = 1
 
 -- Helpers
@@ -21,11 +22,11 @@ sumStrength :: [Int] -> Int
 sumStrength l = sum [l !! (i - 1) | i <- cyclesToAdd]
 
 drawPixel :: Int -> Int -> String
-drawPixel cycle sprite
+drawPixel c sprite
   | abs (col - sprite) <= 1 = '#' : newRow
   | otherwise = '.' : newRow
   where
-    col = cycle `mod` 40
+    col = c `mod` 40
     newRow = if col == 39 then ['\n'] else ""
 
 drawScreen :: [Int] -> String

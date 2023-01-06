@@ -27,7 +27,7 @@ samples =
 -- Helpers
 
 auntSueMatchesSamples :: (String -> Int -> Int -> Bool) -> AuntSue -> Bool
-auntSueMatchesSamples f (AuntSue id info) = and $ M.intersectionWithKey f info knownSamples
+auntSueMatchesSamples f (AuntSue _ info) = and $ M.intersectionWithKey f info knownSamples
   where
     knownSamples = M.restrictKeys samples (S.fromList $ M.keys info)
 
@@ -60,4 +60,4 @@ part2 = print . auntNumber . head . filter (auntSueMatchesSamples matchProperty)
     matchProperty _ = (==)
 
 main :: IO ()
-main = parseInput >>= either print part2
+main = parseInput >>= either print (sequence_ . sequenceA [part1, part2])

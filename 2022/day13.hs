@@ -1,5 +1,4 @@
 import Data.List (elemIndex, sort)
-import Data.Maybe (fromMaybe)
 import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String

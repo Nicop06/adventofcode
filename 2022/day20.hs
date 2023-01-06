@@ -1,4 +1,5 @@
 import Data.List (elemIndex, findIndex)
+import Data.Maybe (fromJust)
 import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String
@@ -13,7 +14,8 @@ type Size = Int
 
 type IndexedCoordinate = (Index, Coordinate)
 
-decryptionKey = 811589153 :: Int
+decryptionKey :: Int
+decryptionKey = 811589153
 
 -- Helpers
 
@@ -31,10 +33,12 @@ performMixingR idx ls
   | idx == length ls = [ls]
   | otherwise = ls : performMixingR (idx + 1) newList
   where
-    Just pos = findIndex ((== idx) . fst) ls
-    (l, el : r) = splitAt pos ls
+    pos = fromJust $ findIndex ((== idx) . fst) ls
+    (l, r) = splitAt pos ls
+    el = head r
+    rs = tail r
     pos' = computeIndex (snd el) (length ls - 1) pos
-    newList = if pos' < pos then insertAt el pos' l ++ r else l ++ insertAt el (pos' - pos) r
+    newList = if pos' < pos then insertAt el pos' l ++ rs else l ++ insertAt el (pos' - pos) rs
 
 performMixing :: Int -> [Coordinate] -> [[IndexedCoordinate]]
 performMixing times ls = take (times + 1) $ iterate (last . performMixingR 0) (zip [0 ..] ls)
@@ -48,7 +52,7 @@ groveCoordinate :: Int -> [Coordinate] -> Int
 groveCoordinate times ls =
   let mixed = mixingResult times ls
       len = length ls
-      Just zeroIndex = elemIndex 0 mixed
+      zeroIndex = fromJust $ elemIndex 0 mixed
    in sum $ map ((mixed !!) . computeIndex zeroIndex len) [1000, 2000, 3000]
 
 applyDecriptionKey :: [Coordinate] -> [Coordinate]

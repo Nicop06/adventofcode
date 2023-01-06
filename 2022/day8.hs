@@ -1,5 +1,4 @@
-import Control.Monad
-import Data.List
+import Data.List (transpose, zipWith4)
 import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String
@@ -46,9 +45,10 @@ view l el =
 
 scenicScore :: [[Int]] -> Int -> Int -> Int
 scenicScore l row col =
-  let (left, el : right) = splitAt col (getRow l row)
-      (top, _ : bottom) = splitAt row (getCol l col)
-   in view (reverse left) el * view right el * view (reverse top) el * view bottom el
+  let (left, right) = splitAt col (getRow l row)
+      (top, bottom) = splitAt row (getCol l col)
+      el = head right
+   in view (reverse left) el * view (tail right) el * view (reverse top) el * view (tail bottom) el
 
 bestScenicScore :: [[Int]] -> Int
 bestScenicScore l = maximum $ map (uncurry (scenicScore l)) indices

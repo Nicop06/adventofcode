@@ -1,5 +1,5 @@
 import Data.Char
-import Data.List
+import Data.List (intersect)
 import ParseAndRun
 
 itemPriority :: Char -> Int
