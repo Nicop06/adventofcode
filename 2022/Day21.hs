@@ -1,4 +1,5 @@
-module Day21() where
+module Day21(parseInput,part1
+,part2) where
 import Data.Map.Strict qualified as M
 import Data.Maybe (fromJust)
 import ParseAndRun

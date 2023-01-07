@@ -1,4 +1,5 @@
-module Day7() where
+module Day7(parseInput,part1
+,part2) where
 import Control.Monad
 import ParseAndRun
 import Text.Parsec
@@ -113,19 +114,16 @@ commands = concat <$> many prompt
 parseInput :: Parser (Maybe Inode)
 parseInput = createFileSystem <$> commands <* eof
 
-part1 :: Parser Int
-part1 = maybe 0 sumFolderWithSizeLimit <$> parseInput
+part1 :: (Maybe Inode) -> IO ()
+part1 = print . maybe 0 sumFolderWithSizeLimit
   where
     sumFolderWithSizeLimit = sum . filter (< sizeLimit) . map snd . allFolderSizes
 
-part2 :: Parser Int
-part2 = maybe 0 sizeFolderToDelete <$> parseInput
+part2 :: (Maybe Inode) -> IO ()
+part2 = print . maybe 0 sizeFolderToDelete
 
 sizeFolderToDelete :: Inode -> Int
 sizeFolderToDelete nodeToDelete =
   let folderSizes = map snd $ allFolderSizes nodeToDelete
       sizeNeeded = head folderSizes - maxCapacity
    in minimum $ filter (> sizeNeeded) folderSizes
-
---main :: IO ()
---main = parseAndSolve "inputs/day7" part1 part2

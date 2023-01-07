@@ -1,4 +1,5 @@
-module Day18() where
+module Day18(parseInput,part1
+,part2) where
 import Data.Set qualified as S
 import ParseAndRun
 import Text.Parsec
@@ -79,14 +80,14 @@ parseCoordinate = read <$> many1 digit <* optional (char ',')
 parseCube :: Parser Cube
 parseCube = (,,) <$> parseCoordinate <*> parseCoordinate <*> parseCoordinate <* newline
 
-parseCompound :: Parser Compound
-parseCompound = many1 parseCube <* eof
+parseInput :: Parser Compound
+parseInput = many1 parseCube <* eof
 
 part1 :: Parser Int
-part1 = totalExposedSides <$> parseCompound
+part1 = totalExposedSides <$> parseInput
 
 part2 :: Parser Int
-part2 = totalExposedSidesWithoutPocket <$> parseCompound
+part2 = totalExposedSidesWithoutPocket <$> parseInput
 
 --main :: IO ()
 --main = parseAndSolve "inputs/day18" part1 part2

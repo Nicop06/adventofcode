@@ -1,4 +1,5 @@
-module Day24() where
+module Day24(parseInput,part1
+,part2) where
 import Control.Arrow (first, second)
 import Data.List (nub)
 import Data.Set qualified as S
@@ -109,14 +110,14 @@ parseTile = (Open <$ char '.') <|> (Wall <$ char '#') <|> parseBlizzard
 parseBlizzard :: Parser Tile
 parseBlizzard = Bliz <$> ((L <$ char '<') <|> (R <$ char '>') <|> (U <$ char '^') <|> (D <$ char 'v'))
 
-parseGrid :: Parser [[Tile]]
-parseGrid = (many1 parseTile `sepEndBy1` newline) <* eof
+parseInput :: Parser [[Tile]]
+parseInput = (many1 parseTile `sepEndBy1` newline) <* eof
 
 part1 :: Parser Int
-part1 = length . uncurry (goToGoal End) . initialState <$> parseGrid
+part1 = length . uncurry (goToGoal End) . initialState <$> parseInput
 
 part2 :: Parser Int
-part2 = length . uncurry (goToGoals [End, Start, End]) . initialState <$> parseGrid
+part2 = length . uncurry (goToGoals [End, Start, End]) . initialState <$> parseInput
 
 --main :: IO ()
 --main = parseAndSolve "inputs/day24" part1 part2

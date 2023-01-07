@@ -1,4 +1,5 @@
-module Day23() where
+module Day23(parseInput,part1
+,part2) where
 import Control.Arrow (first, second)
 import Data.Set qualified as S
 import ParseAndRun

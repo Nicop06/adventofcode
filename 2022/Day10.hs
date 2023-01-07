@@ -1,4 +1,5 @@
-module Day10 () where
+module Day10 (parseInput,part1
+,part2) where
 
 import ParseAndRun
 import Text.Parsec
@@ -42,14 +43,11 @@ noop = [id] <$ string "noop" <* newline
 addx :: Parser [Int -> Int]
 addx = (\x -> [id, (+ read x)]) <$> (string "addx " *> many1 (digit <|> char '-') <* newline)
 
-input :: Parser [Int -> Int]
-input = concat <$> many1 (addx <|> noop) <* eof
+parseInput :: Parser [Int -> Int]
+parseInput = concat <$> many1 (addx <|> noop) <* eof
 
-part1 :: Parser Int
-part1 = sumStrength . strengthPerCycles . executeCycles <$> input
+part1 :: [Int -> Int] -> IO ()
+part1 = print . sumStrength . strengthPerCycles . executeCycles
 
-part2 :: Parser String
-part2 = drawScreen . executeCycles <$> input
-
---main :: IO ()
---main = parseAndSolve "inputs/day10" part1 part2
+part2 :: [Int -> Int] -> IO ()
+part2 = print . drawScreen . executeCycles

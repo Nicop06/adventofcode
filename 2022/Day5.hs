@@ -1,8 +1,8 @@
-module Day5() where
+module Day5(parseInput,part1
+,part2) where
 import Control.Monad
 import Data.List (transpose)
 import Data.Maybe (catMaybes)
-import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String
 
@@ -59,11 +59,8 @@ runMove f stacks (Move numCrates from to) =
 solve :: (Stack -> Stack) -> ([Stack], [Move]) -> String
 solve f (stacks, moves) = map head $ foldl (runMove f) stacks moves
 
-part1 :: Parser String
-part1 = solve reverse <$> parseInput
+part1 :: ([Stack], [Move]) -> IO ()
+part1 = print . solve reverse
 
-part2 :: Parser String
-part2 = solve id <$> parseInput
-
---main :: IO ()
---main = parseAndSolve "inputs/day5" part1 part2
+part2 :: ([Stack], [Move]) -> IO ()
+part2 = print . solve id

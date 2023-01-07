@@ -1,4 +1,5 @@
-module Day12() where
+module Day12(parseInput,part1
+,part2) where
 import Control.Applicative as A
 import Data.Char (ord)
 import Data.Maybe (fromMaybe, mapMaybe)
@@ -170,14 +171,11 @@ distanceToSquare sq f = distanceToSquareR sq f [] [] . (,) []
 parseSquare :: Parser Square
 parseSquare = Square <$> lower P.<|> Start <$ char 'S' P.<|> End <$ char 'E'
 
-parseGrid :: Parser Grid
-parseGrid = many1 (many1 parseSquare <* newline) <* eof
+parseInput :: Parser Grid
+parseInput = many1 (many1 parseSquare <* newline) <* eof
 
-part1 :: Parser Int
-part1 = length . distanceToSquare End canMove . findSquare Start . startVisiting <$> parseGrid
+part1 :: Grid -> IO ()
+part1 = print . length . distanceToSquare End canMove . findSquare Start . startVisiting
 
-part2 :: Parser Int
-part2 = length . distanceToSquare (Square 'a') (flip canMove) . findSquare End . startVisiting <$> parseGrid
-
---main :: IO ()
---main = parseAndSolve "inputs/day12" part1 part2
+part2 :: Grid -> IO ()
+part2 = print . length . distanceToSquare (Square 'a') (flip canMove) . findSquare End . startVisiting

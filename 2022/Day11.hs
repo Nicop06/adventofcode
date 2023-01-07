@@ -1,4 +1,5 @@
-module Day11() where
+module Day11(parseInput,part1
+,part2) where
 import Control.Applicative ((<**>))
 import Control.Monad
 import Data.List (sort)
@@ -107,14 +108,11 @@ resultIfFalse = read <$> (string "    If false: throw to monkey " *> many1 digit
 monkey :: Parser Monkey
 monkey = Monkey <$> startMonkey <*> return 0 <*> startingItems <*> operationParser <*> conditionParser <*> resultIfTrue <*> resultIfFalse <* many newline
 
-input :: Parser [Monkey]
-input = many1 monkey <* eof
+parseInput :: Parser [Monkey]
+parseInput = many1 monkey <* eof
 
-part1 :: Parser Int
-part1 = levelOfMonkeyBusiness 20 . map (applyOp (`div` 3)) <$> input
+part1 :: [Monkey] -> IO()
+part1 = print . levelOfMonkeyBusiness 20 . map (applyOp (`div` 3))
 
-part2 :: Parser Int
-part2 = levelOfMonkeyBusiness 10000 . worryLimiter <$> input
-
---main :: IO ()
---main = parseAndSolve "inputs/day11" part1 part2
+part2 :: [Monkey] -> IO()
+part2 = print . levelOfMonkeyBusiness 10000 . worryLimiter

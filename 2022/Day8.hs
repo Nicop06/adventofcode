@@ -1,4 +1,5 @@
-module Day8() where
+module Day8(parseInput,part1
+,part2) where
 import Data.List (transpose, zipWith4)
 import ParseAndRun
 import Text.Parsec
@@ -61,14 +62,11 @@ bestScenicScore l = maximum $ map (uncurry (scenicScore l)) indices
 treeLine :: Parser [Int]
 treeLine = many (read . (: []) <$> digit) <* newline
 
-treeGrid :: Parser [[Int]]
-treeGrid = many treeLine <* eof
+parseInput :: Parser [[Int]]
+parseInput = many treeLine <* eof
 
-part1 :: Parser Int
-part1 = numVisibleTrees <$> treeGrid
+part1 :: [[Int]] -> IO ()
+part1 = print . numVisibleTrees
 
-part2 :: Parser Int
-part2 = bestScenicScore <$> treeGrid
-
---main :: IO ()
---main = parseAndSolve "inputs/day8" part1 part2
+part2 :: [[Int]] -> IO ()
+part2 = print . bestScenicScore

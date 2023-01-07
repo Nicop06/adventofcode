@@ -1,6 +1,8 @@
-module Day6() where
+module Day6(parseInput,part1
+,part2) where
 import Data.List (nub)
-import ParseAndRun
+import Text.Parsec
+import Text.Parsec.String
 
 startOfPacket :: Int -> String -> Int
 startOfPacket packetWidth stream
@@ -10,11 +12,11 @@ startOfPacket packetWidth stream
   where
     startsWithMarker s = (length . nub $ take packetWidth s) == packetWidth
 
-part1 :: [String] -> Int
-part1 = startOfPacket 4 . head
+parseInput :: Parser String
+parseInput = many1 alphaNum <* newline <* eof
 
-part2 :: [String] -> Int
-part2 = startOfPacket 14 . head
+part1 :: String -> IO ()
+part1 = print . startOfPacket 4
 
---main :: IO ()
---main = parseAndRun "inputs/day6" part1 part2
+part2 :: String -> IO ()
+part2 = print . startOfPacket 14
