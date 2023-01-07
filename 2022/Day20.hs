@@ -1,5 +1,10 @@
-module Day20(parseInput,part1
-,part2) where
+module Day20
+  ( parseInput,
+    part1,
+    part2,
+  )
+where
+
 import Data.List (elemIndex, findIndex)
 import Data.Maybe (fromJust)
 import Text.Parsec

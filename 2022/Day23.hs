@@ -1,5 +1,10 @@
-module Day23(parseInput,part1
-,part2) where
+module Day23
+  ( parseInput,
+    part1,
+    part2,
+  )
+where
+
 import Control.Arrow (first, second)
 import Data.Set qualified as S
 import Text.Parsec
@@ -79,5 +84,5 @@ parseInput = S.fromList . concat . zipWith (\x -> fmap (x,)) [0 ..] <$> parseRow
 part1 :: Elfs -> IO ()
 part1 = print . numEmptyGroundTiles . moveAllElfs 10
 
-part2 :: Elfs-> IO ()
+part2 :: Elfs -> IO ()
 part2 = print . roundNoMove

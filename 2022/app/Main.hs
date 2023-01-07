@@ -1,14 +1,6 @@
 {-# LANGUAGE ImportQualifiedPost #-}
 
 import Day1 qualified as D1
-import Day2 qualified as D2
-import Day3 qualified as D3
-import Day4 qualified as D4
-import Day5 qualified as D5
-import Day6 qualified as D6
-import Day7 qualified as D7
-import Day8 qualified as D8
-import Day9 qualified as D9
 import Day10 qualified as D10
 import Day11 qualified as D11
 import Day12 qualified as D12
@@ -19,13 +11,20 @@ import Day16 qualified as D16
 import Day17 qualified as D17
 import Day18 qualified as D18
 import Day19 qualified as D19
+import Day2 qualified as D2
 import Day20 qualified as D20
 import Day21 qualified as D21
 import Day22 qualified as D22
 import Day23 qualified as D23
 import Day24 qualified as D24
 import Day25 qualified as D25
-
+import Day3 qualified as D3
+import Day4 qualified as D4
+import Day5 qualified as D5
+import Day6 qualified as D6
+import Day7 qualified as D7
+import Day8 qualified as D8
+import Day9 qualified as D9
 import System.Environment
 import Text.Parsec.String
 

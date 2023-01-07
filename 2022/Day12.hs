@@ -1,5 +1,10 @@
-module Day12(parseInput,part1
-,part2) where
+module Day12
+  ( parseInput,
+    part1,
+    part2,
+  )
+where
+
 import Control.Applicative as A
 import Data.Char (ord)
 import Data.Maybe (fromMaybe, mapMaybe)

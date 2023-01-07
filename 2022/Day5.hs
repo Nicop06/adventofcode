@@ -1,5 +1,10 @@
-module Day5(parseInput,part1
-,part2) where
+module Day5
+  ( parseInput,
+    part1,
+    part2,
+  )
+where
+
 import Control.Monad
 import Data.List (transpose)
 import Data.Maybe (catMaybes)

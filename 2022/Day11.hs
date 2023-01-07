@@ -1,5 +1,10 @@
-module Day11(parseInput,part1
-,part2) where
+module Day11
+  ( parseInput,
+    part1,
+    part2,
+  )
+where
+
 import Control.Applicative ((<**>))
 import Control.Monad
 import Data.List (sort)
@@ -110,8 +115,8 @@ monkey = Monkey <$> startMonkey <*> return 0 <*> startingItems <*> operationPars
 parseInput :: Parser [Monkey]
 parseInput = many1 monkey <* eof
 
-part1 :: [Monkey] -> IO()
+part1 :: [Monkey] -> IO ()
 part1 = print . levelOfMonkeyBusiness 20 . map (applyOp (`div` 3))
 
-part2 :: [Monkey] -> IO()
+part2 :: [Monkey] -> IO ()
 part2 = print . levelOfMonkeyBusiness 10000 . worryLimiter

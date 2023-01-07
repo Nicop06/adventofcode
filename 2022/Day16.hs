@@ -1,7 +1,12 @@
-module Day16(parseInput,part1
-,part2) where
+module Day16
+  ( parseInput,
+    part1,
+    part2,
+  )
+where
+
 import Data.Function
-import Data.List (maximumBy, groupBy, sortOn)
+import Data.List (groupBy, maximumBy, sortOn)
 import Data.Map.Strict qualified as Map
 import Text.Parsec
 import Text.Parsec.String

@@ -1,5 +1,10 @@
-module Day17(parseInput,part1
-,part2) where
+module Day17
+  ( parseInput,
+    part1,
+    part2,
+  )
+where
+
 import Control.Applicative (ZipList (..), getZipList)
 import Data.Bifunctor (first, second)
 import Data.Either (fromRight)
