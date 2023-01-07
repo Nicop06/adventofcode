@@ -28,7 +28,7 @@ solvePart2 (elf1 : elf2 : elf3 : rest) = itemPriority groupItem + solvePart2 res
 solvePart2 _ = 0
 
 parseInput :: Parser [String]
-parseInput = lines <$> many1 anyChar
+parseInput = many1 alphaNum `sepEndBy1` newline <* eof
 
 part1 :: [String] -> IO ()
 part1 = print . sum . map (itemPriority . duplicateItem)

@@ -39,24 +39,6 @@ shapeForOutcome elfShape outcome = playerShape
   where
     playerShape = fromJust $ find (\ps -> roundOutcome elfShape ps == outcome) [Rock, Paper, Scissor]
 
-elfShapeFromCode :: String -> Maybe Shape
-elfShapeFromCode "A" = Just Rock
-elfShapeFromCode "B" = Just Paper
-elfShapeFromCode "C" = Just Scissor
-elfShapeFromCode _ = Nothing
-
-playerShapeFromCode :: String -> Maybe Shape
-playerShapeFromCode "X" = Just Rock
-playerShapeFromCode "Y" = Just Paper
-playerShapeFromCode "Z" = Just Scissor
-playerShapeFromCode _ = Nothing
-
-outcomeFromCode :: String -> Maybe Outcome
-outcomeFromCode "X" = Just Lose
-outcomeFromCode "Y" = Just Draw
-outcomeFromCode "Z" = Just Win
-outcomeFromCode _ = Nothing
-
 roundScore :: Round -> Int
 roundScore (Round elfShape myShape) = outcomeScore outcome + shapeScore myShape
   where
@@ -65,25 +47,24 @@ roundScore (Round elfShape myShape) = outcomeScore outcome + shapeScore myShape
 totalScore :: [Round] -> Int
 totalScore = sum . map roundScore
 
-readRoundPart1 :: String -> Round
-readRoundPart1 roundLine =
-  let roundWords = words roundLine
-      elfShape = fromJust $ elfShapeFromCode $ head roundWords
-      playerShape = fromJust $ playerShapeFromCode (roundWords !! 1)
-   in Round elfShape playerShape
+outcomeForPart2 :: Shape -> Outcome
+outcomeForPart2 Rock = Lose
+outcomeForPart2 Paper = Draw
+outcomeForPart2 Scissor = Win
 
-readRoundPart2 :: String -> Round
-readRoundPart2 roundLine =
-  let roundWords = words roundLine
-      elfShape = fromJust $ elfShapeFromCode $ head roundWords
-      outcome = fromJust $ outcomeFromCode (roundWords !! 1)
-   in Round elfShape (shapeForOutcome elfShape outcome)
+roundForPart2 :: Round -> Round
+roundForPart2 (Round e p) = Round e (shapeForOutcome e $ outcomeForPart2 p)
 
-parseInput :: Parser [String]
-parseInput = lines <$> many1 anyChar
+parseRound :: Parser Round
+parseRound = Round <$> (parseElfCode <* char ' ') <*> parsePlayerCode
+    where parseElfCode = (Rock <$ char 'A') <|> (Paper <$ char 'B') <|> (Scissor <$ char 'C')
+          parsePlayerCode = (Rock <$ char 'X') <|> (Paper <$ char 'Y') <|> (Scissor <$ char 'Z')
 
-part1 :: [String] -> IO ()
-part1 = print . totalScore . map readRoundPart1
+parseInput :: Parser [Round]
+parseInput = parseRound `sepEndBy1` newline <* eof
 
-part2 :: [String] -> IO ()
-part2 = print . totalScore . map readRoundPart2
+part1 :: [Round] -> IO ()
+part1 = print . totalScore
+
+part2 :: [Round] -> IO ()
+part2 = print . totalScore . map roundForPart2
