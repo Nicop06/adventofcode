@@ -1,5 +1,14 @@
+{-# LANGUAGE TupleSections #-}
+
+module Day13
+  ( parseInput,
+    part1,
+    part2,
+  )
+where
+
 import Data.List (groupBy, permutations, sortOn)
-import Data.Map.Strict qualified as M
+import qualified Data.Map.Strict as M
 import Data.Maybe (fromJust)
 import Text.Parsec
 import Text.Parsec.String
@@ -51,20 +60,14 @@ parseHappiness = parseSign <*> (read <$> many1 digit) <* string " happiness unit
   where
     parseSign = (id <$ string "gain ") <|> ((* (-1)) <$ string "lose ")
 
-parsePrefences :: Parser TablePreferences
-parsePrefences = buildPreferences <$> (parsePrefence `sepEndBy1` newline)
+parseInput :: Parser TablePreferences
+parseInput = buildPreferences <$> (parsePrefence `sepEndBy1` newline) <* eof
   where
     parsePrefence = (,) <$> (parsePerson <* string " would ") <*> parseNeighborHappiness
     parseNeighborHappiness = flip (,) <$> parseHappiness <*> (string " by sitting next to " *> parsePerson <* char '.')
-
-parseInput :: IO (Either ParseError TablePreferences)
-parseInput = parseFromFile (parsePrefences <* eof) "inputs/day13"
 
 part1 :: TablePreferences -> IO ()
 part1 = print . maximum . allArrangementHappiness
 
 part2 :: TablePreferences -> IO ()
 part2 = print . maximum . allArrangementHappiness . addMyself
-
-main :: IO ()
-main = parseInput >>= either print (sequence_ . sequenceA [part1, part2])

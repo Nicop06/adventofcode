@@ -1,3 +1,10 @@
+module Day3
+  ( parseInput,
+    part1,
+    part2,
+  )
+where
+
 import Control.Arrow (first, second)
 import Data.List (nub)
 import Text.Parsec
@@ -10,8 +17,8 @@ type Coordinate = (Int, Int)
 parseDirection :: Parser Direction
 parseDirection = (N <$ char '^') <|> (S <$ char 'v') <|> (E <$ char '<') <|> (W <$ char '>')
 
-parseInput :: IO (Either ParseError [Direction])
-parseInput = parseFromFile (many1 parseDirection <* eof) "inputs/day3"
+parseInput :: Parser [Direction]
+parseInput = many1 parseDirection <* eof
 
 move :: Direction -> Coordinate -> Coordinate
 move N = first (+ 1)
@@ -31,6 +38,3 @@ part1 = print . length . nub . visitedPlaces
 
 part2 :: [Direction] -> IO ()
 part2 = print . length . nub . visitPlacesRobotSanta
-
-main :: IO ()
-main = parseInput >>= either print (sequence_ . sequenceA [part1, part2])

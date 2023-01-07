@@ -1,3 +1,10 @@
+module Day2
+  ( parseInput,
+    part1,
+    part2,
+  )
+where
+
 import Data.List (sort)
 import Text.Parsec
 import Text.Parsec.String
@@ -8,8 +15,8 @@ parseNumber = read <$> many1 digit
 parseDimensions :: Parser [Int]
 parseDimensions = parseNumber `sepBy1` char 'x'
 
-parseInput :: IO (Either ParseError [[Int]])
-parseInput = parseFromFile (parseDimensions `sepEndBy1` newline <* eof) "inputs/day2"
+parseInput :: Parser [[Int]]
+parseInput = parseDimensions `sepEndBy1` newline <* eof
 
 wrappingPaperSurface :: [Int] -> Int
 wrappingPaperSurface [l, w, h] =
@@ -26,6 +33,3 @@ part1 = print . sum . map wrappingPaperSurface
 
 part2 :: [[Int]] -> IO ()
 part2 = print . sum . map ribbonLength
-
-main :: IO ()
-main = parseInput >>= either print (sequence_ . sequenceA [part1, part2])

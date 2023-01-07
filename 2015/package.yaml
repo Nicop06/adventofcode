@@ -1,4 +1,4 @@
-name:                adventofcode
+name:                adventofcode2015
 version:             0.1.0.0
 github:              "Nicop06/adventofcode"
 license:             BSD3
@@ -6,14 +6,11 @@ author:              "Nicolas Porcel"
 maintainer:          "nicolasporcel06@gmail.com"
 copyright:           "2022 Nicolas Porcel"
 
-extra-source-files:
-- README.md
-
 # Metadata used when publishing your package
 # synopsis:            Solutions for the Advent of Code
 # category:            bin
 
-description: The solution for the adventofcode. See README.md.
+description: The solution for the adventofcode 2015.
 
 dependencies:
 - base >= 4.7 && < 5
@@ -37,28 +34,23 @@ ghc-options:
 - -Wmissing-home-modules
 - -Wpartial-fields
 - -Wredundant-constraints
+- -Wno-type-defaults
+- -XImportQualifiedPost
 
 library:
   source-dirs:
-    - "2015"
-    - "2022"
+    - .
 
 executables:
   aoc2015:
     main:                Main.hs
-    source-dirs:         2015/app
+    source-dirs:         app
     ghc-options:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - adventofcode
-  aoc2022:
-    main:                Main.hs
-    source-dirs:         2022/app
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
-    dependencies:
-    - adventofcode
+    - adventofcode2015
+    when:
+    - condition: false
+      other-modules: Paths_adventofcode2015

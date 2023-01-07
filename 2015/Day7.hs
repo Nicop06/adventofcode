@@ -1,6 +1,13 @@
+module Day7
+  ( parseInput,
+    part1,
+    part2,
+  )
+where
+
 import Control.Applicative ((<**>))
 import Data.Bits
-import Data.Map.Strict qualified as M
+import qualified Data.Map.Strict as M
 import Data.Maybe (fromJust)
 import Text.Parsec
 import Text.Parsec.String
@@ -63,11 +70,8 @@ parseConnection = parseNot <|> ((parseWire <* char ' ') <**> (((parseAnd <|> par
 parseInstruction :: Parser Instruction
 parseInstruction = flip (,) <$> parseConnection <*> (string "-> " *> parseWireName)
 
-parseCircuit :: Parser Circuit
-parseCircuit = M.fromList <$> (parseInstruction `sepEndBy1` newline <* eof)
-
-parseInput :: IO (Either ParseError Circuit)
-parseInput = parseFromFile parseCircuit "inputs/day7"
+parseInput :: Parser Circuit
+parseInput = M.fromList <$> (parseInstruction `sepEndBy1` newline <* eof)
 
 part1 :: Circuit -> IO ()
 part1 = print . processCircuit "a"
@@ -76,6 +80,3 @@ part2 :: Circuit -> IO ()
 part2 c =
   let valA = processCircuit "a" c
    in print $ processCircuit "a" (M.insert "b" (Value (Number valA)) c)
-
-main :: IO ()
-main = parseInput >>= either print (sequence_ . sequenceA [part1, part2])

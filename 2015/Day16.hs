@@ -1,5 +1,12 @@
-import Data.Map.Strict qualified as M
-import Data.Set qualified as S
+module Day16
+  ( parseInput,
+    part1,
+    part2,
+  )
+where
+
+import qualified Data.Map.Strict as M
+import qualified Data.Set as S
 import Text.Parsec
 import Text.Parsec.String
 
@@ -44,8 +51,8 @@ parseInfo = M.fromList <$> parseOneInfo `sepEndBy1` string ", "
 parseAuntSue :: Parser AuntSue
 parseAuntSue = AuntSue <$> (string "Sue " *> parseNumber <* string ": ") <*> parseInfo
 
-parseInput :: IO (Either ParseError [AuntSue])
-parseInput = parseFromFile (parseAuntSue `sepEndBy1` newline <* eof) "inputs/day16"
+parseInput :: Parser [AuntSue]
+parseInput = parseAuntSue `sepEndBy1` newline <* eof
 
 part1 :: [AuntSue] -> IO ()
 part1 = print . auntNumber . head . filter (auntSueMatchesSamples (const (==)))
@@ -58,6 +65,3 @@ part2 = print . auntNumber . head . filter (auntSueMatchesSamples matchProperty)
     matchProperty "pomeranians" = (<)
     matchProperty "goldfish" = (<)
     matchProperty _ = (==)
-
-main :: IO ()
-main = parseInput >>= either print (sequence_ . sequenceA [part1, part2])

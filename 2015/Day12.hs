@@ -1,8 +1,18 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-import Control.Monad (forM_)
+module Day12
+  ( parseInput,
+    part1,
+    part2,
+  )
+where
+
 import Data.Aeson
 import Data.Aeson.KeyMap qualified as KV
+import Data.Maybe (fromJust)
+import Data.ByteString.Char8 (pack)
+import Text.Parsec
+import Text.Parsec.String
 
 -- Helpers
 
@@ -25,14 +35,11 @@ skipValuesWithRed v = v
 
 -- Parser
 
-parseInput :: IO (Maybe Value)
-parseInput = decodeFileStrict' "inputs/day12"
+parseInput :: Parser Value
+parseInput = fromJust . decodeStrict' . pack <$> many1 anyChar
 
 part1 :: Value -> IO ()
 part1 = print . sumValues
 
 part2 :: Value -> IO ()
 part2 = print . sumValues . skipValuesWithRed
-
-main :: IO ()
-main = parseInput >>= maybe (pure ()) (forM_ [part1, part2] . flip ($))

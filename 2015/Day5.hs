@@ -1,3 +1,10 @@
+module Day5
+  ( parseInput,
+    part1,
+    part2,
+  )
+where
+
 import Data.List (group, isInfixOf)
 import Text.Parsec
 import Text.Parsec.String
@@ -38,8 +45,5 @@ part2 = print . length . filter isNiceStringRevised
 
 -- Parse
 
-parseInput :: IO (Either ParseError [String])
-parseInput = parseFromFile (many1 lower `sepEndBy1` newline <* eof) "inputs/day5"
-
-main :: IO ()
-main = parseInput >>= either print (sequence_ . sequenceA [part1, part2])
+parseInput :: Parser [String]
+parseInput = many1 lower `sepEndBy1` newline <* eof

@@ -1,3 +1,10 @@
+module Day8
+  ( parseInput,
+    part1,
+    part2,
+  )
+where
+
 import Text.Parsec
 import Text.Parsec.String
 
@@ -38,17 +45,17 @@ parseNormalString = many1 parseToken
     parseChar = Character <$> alphaNum
     parseToken = parseBackslash <|> parseQuote <|> parseChar
 
-parseInput :: Parser Literal -> IO (Either ParseError [Literal])
-parseInput parser = parseFromFile (parser `sepEndBy1` newline <* eof) "inputs/day8"
+parseContent :: Parser Literal -> String -> Either ParseError [Literal]
+parseContent parser = parse (parser `sepEndBy1` newline <* eof) ""
 
-parseAndPrint :: Parser Literal -> IO ()
-parseAndPrint parser = parseInput parser >>= either print (print . sum . map numExtraChar)
+parseAndPrint :: Parser Literal -> String -> IO ()
+parseAndPrint parser content = either print (print . sum . map numExtraChar) $ parseContent parser content
 
-part1 :: IO ()
+parseInput :: Parser String
+parseInput = many1 anyChar
+
+part1 :: String -> IO ()
 part1 = parseAndPrint parseEscapedString
 
-part2 :: IO ()
+part2 :: String -> IO ()
 part2 = parseAndPrint parseNormalString
-
-main :: IO ()
-main = sequence_ [part1, part2]
