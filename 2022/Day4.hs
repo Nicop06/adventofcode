@@ -36,8 +36,8 @@ countPairToConsider pairToConsider l = length $ filter pairToConsider (parseLine
 parseInput :: Parser [String]
 parseInput = lines <$> many1 anyChar
 
-part1 :: [String] -> Int
-part1 = countPairToConsider (\(pair1, pair2) -> pair1 `contains` pair2 || pair2 `contains` pair1)
+part1 :: [String] -> IO ()
+part1 = print . countPairToConsider (\(pair1, pair2) -> pair1 `contains` pair2 || pair2 `contains` pair1)
 
-part2 :: [String] -> Int
-part2 = countPairToConsider (uncurry overlaps)
+part2 :: [String] -> IO ()
+part2 = print . countPairToConsider (uncurry overlaps)

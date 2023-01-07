@@ -3,7 +3,6 @@ module Day16(parseInput,part1
 import Data.Function
 import Data.List (maximumBy, groupBy, sortOn)
 import Data.Map.Strict qualified as Map
-import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String
 

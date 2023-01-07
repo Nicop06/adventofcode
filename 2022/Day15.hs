@@ -3,7 +3,6 @@ module Day15(parseInput,part1
 import Data.Bifunctor (bimap)
 import Data.List (nub, sort)
 import Data.Maybe (mapMaybe)
-import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String
 

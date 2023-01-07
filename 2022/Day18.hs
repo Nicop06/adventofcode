@@ -1,7 +1,6 @@
 module Day18(parseInput,part1
 ,part2) where
 import Data.Set qualified as S
-import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String
 
@@ -83,11 +82,8 @@ parseCube = (,,) <$> parseCoordinate <*> parseCoordinate <*> parseCoordinate <* 
 parseInput :: Parser Compound
 parseInput = many1 parseCube <* eof
 
-part1 :: Parser Int
-part1 = totalExposedSides <$> parseInput
+part1 :: Compound -> IO ()
+part1 = print . totalExposedSides
 
-part2 :: Parser Int
-part2 = totalExposedSidesWithoutPocket <$> parseInput
-
---main :: IO ()
---main = parseAndSolve "inputs/day18" part1 part2
+part2 :: Compound -> IO ()
+part2 = print . totalExposedSidesWithoutPocket

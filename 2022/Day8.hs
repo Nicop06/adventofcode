@@ -1,7 +1,6 @@
 module Day8(parseInput,part1
 ,part2) where
 import Data.List (transpose, zipWith4)
-import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String
 

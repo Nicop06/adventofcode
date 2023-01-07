@@ -2,7 +2,6 @@ module Day23(parseInput,part1
 ,part2) where
 import Control.Arrow (first, second)
 import Data.Set qualified as S
-import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String
 
@@ -77,11 +76,8 @@ parseRow = map fst . filter ((== '#') . snd) . zip [0 ..] <$> many1 (char '#' <|
 parseInput :: Parser Elfs
 parseInput = S.fromList . concat . zipWith (\x -> fmap (x,)) [0 ..] <$> parseRow `sepEndBy1` newline <* eof
 
-part1 :: Parser Int
-part1 = numEmptyGroundTiles . moveAllElfs 10 <$> parseInput
+part1 :: Elfs -> IO ()
+part1 = print . numEmptyGroundTiles . moveAllElfs 10
 
-part2 :: Parser Int
-part2 = roundNoMove <$> parseInput
-
---main :: IO ()
---main = parseAndSolve "inputs/day23" part1 part2
+part2 :: Elfs-> IO ()
+part2 = print . roundNoMove

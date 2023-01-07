@@ -3,7 +3,6 @@ module Day24(parseInput,part1
 import Control.Arrow (first, second)
 import Data.List (nub)
 import Data.Set qualified as S
-import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String
 
@@ -113,11 +112,8 @@ parseBlizzard = Bliz <$> ((L <$ char '<') <|> (R <$ char '>') <|> (U <$ char '^'
 parseInput :: Parser [[Tile]]
 parseInput = (many1 parseTile `sepEndBy1` newline) <* eof
 
-part1 :: Parser Int
-part1 = length . uncurry (goToGoal End) . initialState <$> parseInput
+part1 :: [[Tile]] -> IO()
+part1 = print . length . uncurry (goToGoal End) . initialState
 
-part2 :: Parser Int
-part2 = length . uncurry (goToGoals [End, Start, End]) . initialState <$> parseInput
-
---main :: IO ()
---main = parseAndSolve "inputs/day24" part1 part2
+part2 :: [[Tile]] -> IO()
+part2 = print . length . uncurry (goToGoals [End, Start, End]) . initialState
