@@ -118,12 +118,12 @@ commands = concat <$> many prompt
 parseInput :: Parser (Maybe Inode)
 parseInput = createFileSystem <$> commands <* eof
 
-part1 :: (Maybe Inode) -> IO ()
+part1 :: Maybe Inode -> IO ()
 part1 = print . maybe 0 sumFolderWithSizeLimit
   where
     sumFolderWithSizeLimit = sum . filter (< sizeLimit) . map snd . allFolderSizes
 
-part2 :: (Maybe Inode) -> IO ()
+part2 :: Maybe Inode -> IO ()
 part2 = print . maybe 0 sizeFolderToDelete
 
 sizeFolderToDelete :: Inode -> Int

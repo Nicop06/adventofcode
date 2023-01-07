@@ -19,7 +19,7 @@ data Valve = Valve {valveName :: ValveName, flowRate :: Int, tunnels :: [ValveNa
 
 type Tunnels = Map.Map ValveName Valve
 
-data ValvesState = ValvesState {openValves :: [ValveName], position :: ValveName} deriving (Show)
+data ValvesState = ValvesState {getOpenValves :: [ValveName], position :: ValveName} deriving (Show)
 
 type CombinedPosition = [ValveName]
 
@@ -41,10 +41,10 @@ totalFlow = last . scanl1 (+) . reverse . map snd . pathHistory
 allPossibleMoves :: Tunnels -> ValvesState -> [ValvesState]
 allPossibleMoves t s =
   let curValve = t Map.! position s
-      nextTunnel = ValvesState (openValves s)
+      nextTunnel = ValvesState (getOpenValves s)
       nextStates = map nextTunnel (tunnels curValve)
-      stateWithOpenValve = ValvesState (position s : openValves s) (position s)
-   in if position s `notElem` openValves s && flowRate curValve > 0
+      stateWithOpenValve = ValvesState (position s : getOpenValves s) (position s)
+   in if position s `notElem` getOpenValves s && flowRate curValve > 0
         then stateWithOpenValve : nextStates
         else nextStates
 

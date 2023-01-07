@@ -17,7 +17,13 @@ type Crate = Char
 
 type Stack = [Crate]
 
-data Move = Move {numCrates :: Int, from :: Int, to :: Int} deriving (Show)
+type NumCrates = Int
+
+type From = Int
+
+type To = Int
+
+data Move = Move NumCrates From To deriving (Show)
 
 -- Parser
 
