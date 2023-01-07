@@ -21,11 +21,11 @@ type Size = (Int, Int)
 
 data Direction = U | D | L | R deriving (Show, Eq)
 
-data Blizzard = Blizzard {blizzardDir :: Direction, blizzardPos :: Position} deriving (Show)
+data Blizzard = Blizzard {blizzardDir :: Direction, getBlizzardPos :: Position} deriving (Show)
 
-data GridState = GridState {blizzards :: [Blizzard], possiblePos :: [Position]} deriving (Show)
+data GridState = GridState {getBlizzards :: [Blizzard], getPossiblePos :: [Position]} deriving (Show)
 
-data Grid = Grid {gridSize :: Size, start :: Position, end :: Position}
+data Grid = Grid {getGridSize :: Size, getStart :: Position, getEnd :: Position}
 
 data Goal = Start | End
 
@@ -71,12 +71,12 @@ move R = second (+ 1)
 updatePlayer :: Grid -> [Blizzard] -> Position -> [Position]
 updatePlayer (Grid gridSize start end) blizzards pos = filter isAllowedPos (pos : (move <$> [U, D, L, R] <*> [pos]))
   where
-    blizPos = S.fromList $ map blizzardPos blizzards
+    blizPos = S.fromList $ map getBlizzardPos blizzards
     isAllowedPos p = (not (outOfBounds gridSize p) || p == start || p == end) && p `S.notMember` blizPos
 
 updateGridState :: Grid -> GridState -> GridState
 updateGridState grid (GridState blizzards pos) =
-  let blizzards' = map (updateBlizzard (gridSize grid)) blizzards
+  let blizzards' = map (updateBlizzard (getGridSize grid)) blizzards
       pos' = concatMap (updatePlayer grid blizzards') pos
    in GridState blizzards' (nub pos')
 
@@ -86,7 +86,7 @@ runSimulation grid = tail . iterate (updateGridState grid)
 goToGoal :: Goal -> Grid -> GridState -> [GridState]
 goToGoal goal grid state = takeUntil hasArrived $ runSimulation grid state
   where
-    hasArrived s = goalCoord grid goal `elem` possiblePos s
+    hasArrived s = goalCoord grid goal `elem` getPossiblePos s
 
 takeUntil :: (a -> Bool) -> [a] -> [a]
 takeUntil _ [] = []
@@ -100,8 +100,8 @@ goToGoals goals grid state = concat $ tail $ scanl goToGoalAndReset [state] goal
     goToGoalAndReset states goal = goToGoal goal grid (resetState grid (otherGoal goal) (last states))
 
 goalCoord :: Grid -> Goal -> Position
-goalCoord grid Start = start grid
-goalCoord grid End = end grid
+goalCoord grid Start = getStart grid
+goalCoord grid End = getEnd grid
 
 resetState :: Grid -> Goal -> GridState -> GridState
 resetState grid goal (GridState blizzards _) = GridState blizzards [goalCoord grid goal]

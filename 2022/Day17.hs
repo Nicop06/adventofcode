@@ -7,7 +7,6 @@ where
 
 import Control.Applicative (ZipList (..), getZipList)
 import Data.Bifunctor (first, second)
-import Data.Either (fromRight)
 import Data.Map.Strict qualified as M
 import Data.Maybe (fromMaybe)
 import Text.Parsec
@@ -27,7 +26,7 @@ type Position = (Int, Int)
 
 type FallingRock = (Position, RockShape)
 
-data CaveState = CaveState {nextShapes :: [(Int, RockShape)], nextJets :: [(Int, Jet)], cave :: Cave, fallingRock :: FallingRock, remainingSteps :: Int, numShapes :: Int, numJets :: Int} deriving (Show)
+data CaveState = CaveState {getNextShapes :: [(Int, RockShape)], getNextJets :: [(Int, Jet)], getCave :: Cave, getFallingRock :: FallingRock, getRemainingSteps :: Int, getNumShapes :: Int, getNumJets :: Int} deriving (Show)
 
 type CacheState = (Int, Int, RockShape)
 
@@ -88,7 +87,7 @@ updateRockPosition f state@(CaveState _ _ cave (p, rs) _ _ _) =
       newRock = ((x, y), rs)
    in if x < 0 || x + (length . head $ rs) > caveWidth || intersectsWithCave cave newRock
         then Nothing
-        else Just $ state {fallingRock = newRock}
+        else Just $ state {getFallingRock = newRock}
 
 rockFalls :: Cache -> CaveState -> (Cache, CaveState)
 rockFalls cache state@(CaveState shapes _ cave rock steps _ _) =
@@ -97,10 +96,10 @@ rockFalls cache state@(CaveState shapes _ cave rock steps _ _) =
     Nothing ->
       let newState =
             state
-              { cave = updateCaveHeight $ mergeRockWithCave cave rock,
-                fallingRock = newFallingRock (snd $ head shapes),
-                nextShapes = tail shapes,
-                remainingSteps = steps - 1
+              { getCave = updateCaveHeight $ mergeRockWithCave cave rock,
+                getFallingRock = newFallingRock (snd $ head shapes),
+                getNextShapes = tail shapes,
+                getRemainingSteps = steps - 1
               }
        in getOrUpdateCache cache newState
 
@@ -129,7 +128,7 @@ caveRockHeight (height, cave) = height + length cave
 updateCaveState :: Cache -> CaveState -> (Cache, CaveState)
 updateCaveState cache state@(CaveState _ jets _ _ _ _ _) =
   let newState = pushRock (snd $ head jets) state
-   in rockFalls cache $ newState {nextJets = tail jets}
+   in rockFalls cache $ newState {getNextJets = tail jets}
 
 runSimulation :: Cache -> CaveState -> [CaveState]
 runSimulation cache state = case updateCaveState cache state of
@@ -137,7 +136,7 @@ runSimulation cache state = case updateCaveState cache state of
   (cache', newState) -> newState : runSimulation cache' newState
 
 heightAfterSimulation :: CaveState -> Int
-heightAfterSimulation = caveRockHeight . cave . last . runSimulation M.empty
+heightAfterSimulation = caveRockHeight . getCave . last . runSimulation M.empty
 
 -- Parser
 
