@@ -9,25 +9,22 @@ import Data.List (sort)
 import Text.Parsec
 import Text.Parsec.String
 
-foldInventoryAux :: String -> [[Int]] -> [[Int]]
-foldInventoryAux "" xs = [] : xs
-foldInventoryAux el (x : xs) = (read el : x) : xs
-foldInventoryAux _ [] = []
-
-groupInventories :: [String] -> [[Int]]
-groupInventories = foldr foldInventoryAux []
+type Inventory = [Int]
 
 largestAmountCaloriesTopK :: Int -> [[Int]] -> Int
 largestAmountCaloriesTopK k = sum . take k . reverse . sort . map sum
 
-solution :: Int -> [String] -> Int
-solution k = largestAmountCaloriesTopK k . groupInventories
+parseNumber :: Parser Int
+parseNumber = read <$> many1 digit
 
-parseInput :: Parser [String]
-parseInput = lines <$> many1 anyChar
+parseInventory :: Parser Inventory
+parseInventory = parseNumber `sepEndBy1` newline
 
-part1 :: [String] -> IO ()
-part1 = print . solution 1
+parseInput :: Parser [Inventory]
+parseInput = parseInventory `sepEndBy1` newline <* eof
 
-part2 :: [String] -> IO ()
-part2 = print . solution 3
+part1 :: [Inventory] -> IO ()
+part1 = print . largestAmountCaloriesTopK 1
+
+part2 :: [Inventory] -> IO ()
+part2 = print . largestAmountCaloriesTopK 3
