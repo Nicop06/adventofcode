@@ -37,6 +37,7 @@ ghc-options:
 - -Wno-type-defaults
 - -XImportQualifiedPost
 - -XTupleSections
+- -XTypeOperators
 
 library:
   source-dirs:

@@ -9,6 +9,7 @@ import Day14 qualified as D14
 import Day15 qualified as D15
 import Day16 qualified as D16
 import Day17 qualified as D17
+import Day18 qualified as D18
 import Day2 qualified as D2
 import Day3 qualified as D3
 import Day4 qualified as D4
@@ -38,6 +39,7 @@ runDay 14 = parseAndRun 14 D14.parseInput [D14.part1, D14.part2]
 runDay 15 = parseAndRun 15 D15.parseInput [D15.part1, D15.part2]
 runDay 16 = parseAndRun 16 D16.parseInput [D16.part1, D16.part2]
 runDay 17 = parseAndRun 17 D17.parseInput [D17.part1, D17.part2]
+runDay 18 = parseAndRun 18 D18.parseInput [D18.part1, D18.part2]
 runDay _ = return ()
 
 parseAndRun :: Int -> Parser a -> [a -> IO ()] -> IO ()
