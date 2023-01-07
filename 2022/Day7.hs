@@ -1,3 +1,4 @@
+module Day7() where
 import Control.Monad
 import ParseAndRun
 import Text.Parsec
@@ -126,5 +127,5 @@ sizeFolderToDelete nodeToDelete =
       sizeNeeded = head folderSizes - maxCapacity
    in minimum $ filter (> sizeNeeded) folderSizes
 
-main :: IO ()
-main = parseAndSolve "inputs/day7" part1 part2
+--main :: IO ()
+--main = parseAndSolve "inputs/day7" part1 part2

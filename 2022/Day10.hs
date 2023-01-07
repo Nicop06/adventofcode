@@ -1,3 +1,5 @@
+module Day10 () where
+
 import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String
@@ -49,5 +51,5 @@ part1 = sumStrength . strengthPerCycles . executeCycles <$> input
 part2 :: Parser String
 part2 = drawScreen . executeCycles <$> input
 
-main :: IO ()
-main = parseAndSolve "inputs/day10" part1 part2
+--main :: IO ()
+--main = parseAndSolve "inputs/day10" part1 part2

@@ -1,3 +1,4 @@
+module Day21() where
 import Data.Map.Strict qualified as M
 import Data.Maybe (fromJust)
 import ParseAndRun
@@ -110,5 +111,5 @@ part1 = computeRoot <$> parseInput
 part2 :: Parser Int
 part2 = computeHumanInput <$> parseInput
 
-main :: IO ()
-main = parseAndSolve "inputs/day21" part1 part2
+--main :: IO ()
+--main = parseAndSolve "inputs/day21" part1 part2

@@ -1,3 +1,4 @@
+module Day3() where
 import Data.Char
 import Data.List (intersect)
 import ParseAndRun
@@ -22,5 +23,5 @@ part2 (elf1 : elf2 : elf3 : rest) = itemPriority groupItem + part2 rest
     groupItem = head (elf1 `intersect` elf2 `intersect` elf3)
 part2 _ = 0
 
-main :: IO ()
-main = parseAndRun "inputs/day3" part1 part2
+--main :: IO ()
+--main = parseAndRun "inputs/day3" part1 part2

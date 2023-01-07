@@ -1,3 +1,4 @@
+module Day11() where
 import Control.Applicative ((<**>))
 import Control.Monad
 import Data.List (sort)
@@ -115,5 +116,5 @@ part1 = levelOfMonkeyBusiness 20 . map (applyOp (`div` 3)) <$> input
 part2 :: Parser Int
 part2 = levelOfMonkeyBusiness 10000 . worryLimiter <$> input
 
-main :: IO ()
-main = parseAndSolve "inputs/day11" part1 part2
+--main :: IO ()
+--main = parseAndSolve "inputs/day11" part1 part2

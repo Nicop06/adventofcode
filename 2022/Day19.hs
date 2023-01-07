@@ -1,3 +1,4 @@
+module Day19() where
 import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String
@@ -174,5 +175,5 @@ part1 = sum . totalQualityLevel 24 <$> parseAllBlueprints
 part2 :: Parser Int
 part2 = product . map (maxNumGeode 32) . take 3 <$> parseAllBlueprints
 
-main :: IO ()
-main = parseAndSolve "inputs/day19" part1 part2
+--main :: IO ()
+--main = parseAndSolve "inputs/day19" part1 part2

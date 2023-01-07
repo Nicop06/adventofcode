@@ -1,3 +1,4 @@
+module Day8() where
 import Data.List (transpose, zipWith4)
 import ParseAndRun
 import Text.Parsec
@@ -69,5 +70,5 @@ part1 = numVisibleTrees <$> treeGrid
 part2 :: Parser Int
 part2 = bestScenicScore <$> treeGrid
 
-main :: IO ()
-main = parseAndSolve "inputs/day8" part1 part2
+--main :: IO ()
+--main = parseAndSolve "inputs/day8" part1 part2

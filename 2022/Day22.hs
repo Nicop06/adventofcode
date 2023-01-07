@@ -1,3 +1,4 @@
+module Day22() where
 import Control.Arrow (first, second)
 import Data.Array.Repa (Array, DIM2, extent, ix2, (!))
 import Data.Array.Repa.Repr.Vector (V, fromListVector)
@@ -167,5 +168,5 @@ part1 = password . last . uncurry (followPath nextTile) <$> parseInput
 part2 :: Parser Int
 part2 = password . last . uncurry (followPath nextTileCube) <$> parseInput
 
-main :: IO ()
-main = parseAndSolve "inputs/day22" part1 part2
+--main :: IO ()
+--main = parseAndSolve "inputs/day22" part1 part2

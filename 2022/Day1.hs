@@ -1,5 +1,13 @@
+module Day1
+  ( parseInput,
+    part1,
+    part2,
+  )
+where
+
 import Data.List (sort)
-import ParseAndRun
+import Text.Parsec
+import Text.Parsec.String
 
 foldInventoryAux :: String -> [[Int]] -> [[Int]]
 foldInventoryAux "" xs = [] : xs
@@ -15,5 +23,11 @@ largestAmountCaloriesTopK k = sum . take k . reverse . sort . map sum
 solution :: Int -> [String] -> Int
 solution k = largestAmountCaloriesTopK k . groupInventories
 
-main :: IO ()
-main = parseAndRun "inputs/day1" (solution 1) (solution 3)
+parseInput :: Parser [String]
+parseInput = lines <$> many1 anyChar
+
+part1 :: [String] -> IO ()
+part1 = print . solution 1
+
+part2 :: [String] -> IO ()
+part2 = print . solution 3

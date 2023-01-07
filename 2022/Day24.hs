@@ -1,3 +1,4 @@
+module Day24() where
 import Control.Arrow (first, second)
 import Data.List (nub)
 import Data.Set qualified as S
@@ -117,5 +118,5 @@ part1 = length . uncurry (goToGoal End) . initialState <$> parseGrid
 part2 :: Parser Int
 part2 = length . uncurry (goToGoals [End, Start, End]) . initialState <$> parseGrid
 
-main :: IO ()
-main = parseAndSolve "inputs/day24" part1 part2
+--main :: IO ()
+--main = parseAndSolve "inputs/day24" part1 part2

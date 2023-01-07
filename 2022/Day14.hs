@@ -1,3 +1,4 @@
+module Day14() where
 import Control.Monad (liftM2)
 import Data.Set qualified as Set
 import Data.Tuple (swap)
@@ -67,5 +68,5 @@ part1 = numStoppedSand <$> parseInput
 part2 :: Parser Int
 part2 = (+ 1) . numStoppedSand . addInfiniteLine <$> parseInput
 
-main :: IO ()
-main = parseAndSolve "inputs/day14" part1 part2
+--main :: IO ()
+--main = parseAndSolve "inputs/day14" part1 part2
