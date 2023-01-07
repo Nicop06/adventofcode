@@ -1,4 +1,5 @@
-module Day17() where
+module Day17(parseInput,part1
+,part2) where
 import Control.Applicative (ZipList (..), getZipList)
 import Data.Bifunctor (first, second)
 import Data.Either (fromRight)
@@ -142,24 +143,20 @@ rockParser = (Rock <$ char '#') <|> (Hole <$ char '.')
 rockShapeParser :: Parser RockShape
 rockShapeParser = many1 (many1 rockParser <* newline)
 
-parseAllRocks :: IO [RockShape]
-parseAllRocks = fmap (fromRight []) parseRocks
-  where
-    parseRocks = parseFromFile (rockShapeParser `sepBy` newline <* eof) "inputs/day17_rocks"
+parseAllRocks :: Parser [RockShape]
+parseAllRocks = rockShapeParser `sepEndBy` newline
 
 parseJetPattern :: Parser [Jet]
-parseJetPattern = many1 (jetLeft <|> jetRight) <* newline <* eof
+parseJetPattern = many1 (jetLeft <|> jetRight)
   where
     jetLeft = JetLeft <$ char '<'
     jetRight = JetRight <$ char '>'
 
-part1 :: [RockShape] -> Parser Int
-part1 rocks = heightAfterSimulation . initState 2022 rocks <$> parseJetPattern
+parseInput :: Parser ([RockShape], [Jet])
+parseInput = (,) <$> (parseAllRocks <* newline) <*> parseJetPattern <* newline <* eof
 
-part2 :: [RockShape] -> Parser Int
-part2 rocks = heightAfterSimulation . initState 1000000000000 rocks <$> parseJetPattern
+part1 :: ([RockShape], [Jet]) -> IO ()
+part1 = print . heightAfterSimulation . uncurry (initState 2022)
 
---main :: IO ()
---main = do
-  --rocks <- parseAllRocks
-  --parseAndSolve "inputs/day17" (part1 rocks) (part2 rocks)
+part2 :: ([RockShape], [Jet]) -> IO ()
+part2 = print . heightAfterSimulation . uncurry (initState 1000000000000)

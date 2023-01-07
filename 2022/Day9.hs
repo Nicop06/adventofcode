@@ -1,4 +1,5 @@
-module Day9() where
+module Day9(parseInput,part1
+,part2) where
 import Data.Bifunctor
 import Data.List (nub)
 import ParseAndRun
@@ -60,14 +61,11 @@ moveCount = read <$> many1 digit
 line :: Parser [Direction]
 line = flip replicate <$> direction <* char ' ' <*> moveCount <* newline
 
-input :: Parser [Direction]
-input = concat <$> many1 line
+parseInput :: Parser [Direction]
+parseInput = concat <$> many1 line
 
-part1 :: Parser Int
-part1 = numTailPositions . executeMoves 2 <$> input
+part1 :: [Direction] -> IO ()
+part1 = print . numTailPositions . executeMoves 2
 
-part2 :: Parser Int
-part2 = numTailPositions . executeMoves 10 <$> input
-
---main :: IO ()
---main = parseAndSolve "inputs/day9" part1 part2
+part2 :: [Direction] -> IO ()
+part2 = print . numTailPositions . executeMoves 10

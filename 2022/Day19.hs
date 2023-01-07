@@ -1,4 +1,5 @@
-module Day19() where
+module Day19(parseInput,part1
+,part2) where
 import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String
@@ -166,14 +167,14 @@ addResource _ (_, resType) = error $ "Unknown resource type " ++ resType
 parseBlueprint :: Parser Blueprint
 parseBlueprint = Blueprint <$> (string "Blueprint " *> parseNumber <* string ":") <*> parseRobotCost "ore" <*> parseRobotCost "clay" <*> parseRobotCost "obsidian" <*> parseRobotCost "geode" <* newline
 
-parseAllBlueprints :: Parser [Blueprint]
-parseAllBlueprints = many1 parseBlueprint <* eof
+parseInput :: Parser [Blueprint]
+parseInput = many1 parseBlueprint <* eof
 
 part1 :: Parser Int
-part1 = sum . totalQualityLevel 24 <$> parseAllBlueprints
+part1 = sum . totalQualityLevel 24 <$> parseInput
 
 part2 :: Parser Int
-part2 = product . map (maxNumGeode 32) . take 3 <$> parseAllBlueprints
+part2 = product . map (maxNumGeode 32) . take 3 <$> parseInput
 
 --main :: IO ()
 --main = parseAndSolve "inputs/day19" part1 part2

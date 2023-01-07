@@ -1,9 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Day4() where
+module Day4(parseInput, part1
+, part2) where
 
 import Data.Text qualified as T
-import ParseAndRun
+import Text.Parsec
+import Text.Parsec.String
 
 data Range = Range {start :: Int, end :: Int} deriving (Show)
 
@@ -31,11 +33,11 @@ parseLines = map (parsePair . T.pack)
 countPairToConsider :: ((Range, Range) -> Bool) -> [String] -> Int
 countPairToConsider pairToConsider l = length $ filter pairToConsider (parseLines l)
 
+parseInput :: Parser [String]
+parseInput = lines <$> many1 anyChar
+
 part1 :: [String] -> Int
 part1 = countPairToConsider (\(pair1, pair2) -> pair1 `contains` pair2 || pair2 `contains` pair1)
 
 part2 :: [String] -> Int
 part2 = countPairToConsider (uncurry overlaps)
-
---main :: IO ()
---main = parseAndRun (T.unpack "inputs/day4") part1 part2

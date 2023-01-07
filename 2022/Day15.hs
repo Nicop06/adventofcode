@@ -1,4 +1,5 @@
-module Day15() where
+module Day15(parseInput,part1
+,part2) where
 import Data.Bifunctor (bimap)
 import Data.List (nub, sort)
 import Data.Maybe (mapMaybe)
@@ -88,11 +89,8 @@ parseInput = many1 parseBeaconDetection <* eof
 rowToReport :: Int
 rowToReport = 2000000
 
-part1 :: Parser Int
-part1 = numPositionsWithoutBeacon rowToReport <$> parseInput
+part1 :: [BeaconDetection] -> IO ()
+part1 = print . numPositionsWithoutBeacon rowToReport
 
-part2 :: Parser Int
-part2 = uncurry tuningFrequency . distressBeaconRow 0 4000000 <$> parseInput
-
---main :: IO ()
---main = parseAndSolve "inputs/day15" part1 part2
+part2 :: [BeaconDetection] -> IO ()
+part2 = print . uncurry tuningFrequency . distressBeaconRow 0 4000000

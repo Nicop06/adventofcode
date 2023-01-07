@@ -1,4 +1,5 @@
-module Day22() where
+module Day22(parseInput,part1
+,part2) where
 import Control.Arrow (first, second)
 import Data.Array.Repa (Array, DIM2, extent, ix2, (!))
 import Data.Array.Repa.Repr.Vector (V, fromListVector)

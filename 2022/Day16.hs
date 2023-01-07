@@ -1,4 +1,5 @@
-module Day16() where
+module Day16(parseInput,part1
+,part2) where
 import Data.Function
 import Data.List (maximumBy, groupBy, sortOn)
 import Data.Map.Strict qualified as Map
@@ -90,15 +91,12 @@ parseValve = Valve <$> (string "Valve " *> parseName) <*> parseFlow <*> parseTun
 parseInput :: Parser Tunnels
 parseInput = Map.fromList . map ((,) <$> valveName <*> id) <$> many1 parseValve <* eof
 
-part1 :: Parser Int
-part1 = totalFlow . bestState initialState 30 <$> parseInput
+part1 :: Tunnels -> IO ()
+part1 = print . totalFlow . bestState initialState 30
   where
     initialState = CombinedState [] [] ["AA"]
 
-part2 :: Parser Int
-part2 = totalFlow . bestState initialState 26 <$> parseInput
+part2 :: Tunnels -> IO ()
+part2 = print . totalFlow . bestState initialState 26
   where
     initialState = CombinedState [] [] ["AA", "AA"]
-
---main :: IO ()
---main = parseAndSolve "inputs/day16" part1 part2

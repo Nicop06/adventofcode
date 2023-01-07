@@ -1,4 +1,5 @@
-module Day25() where
+module Day25(parseInput,part1
+,part2) where
 import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String

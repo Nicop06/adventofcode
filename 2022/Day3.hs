@@ -1,7 +1,14 @@
-module Day3() where
+module Day3
+  ( parseInput,
+    part1,
+    part2,
+  )
+where
+
 import Data.Char
 import Data.List (intersect)
-import ParseAndRun
+import Text.Parsec
+import Text.Parsec.String
 
 itemPriority :: Char -> Int
 itemPriority item
@@ -14,14 +21,17 @@ duplicateItem items = head $ c1 `intersect` c2
   where
     (c1, c2) = splitAt (length items `div` 2) items
 
-part1 :: [String] -> Int
-part1 = sum . map (itemPriority . duplicateItem)
-
-part2 :: [String] -> Int
-part2 (elf1 : elf2 : elf3 : rest) = itemPriority groupItem + part2 rest
+solvePart2 :: [String] -> Int
+solvePart2 (elf1 : elf2 : elf3 : rest) = itemPriority groupItem + solvePart2 rest
   where
     groupItem = head (elf1 `intersect` elf2 `intersect` elf3)
-part2 _ = 0
+solvePart2 _ = 0
 
---main :: IO ()
---main = parseAndRun "inputs/day3" part1 part2
+parseInput :: Parser [String]
+parseInput = lines <$> many1 anyChar
+
+part1 :: [String] -> IO ()
+part1 = print . sum . map (itemPriority . duplicateItem)
+
+part2 :: [String] -> IO ()
+part2 = print . solvePart2

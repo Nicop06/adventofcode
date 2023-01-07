@@ -1,4 +1,5 @@
-module Day14() where
+module Day14(parseInput,part1
+,part2) where
 import Control.Monad (liftM2)
 import Data.Set qualified as Set
 import Data.Tuple (swap)
@@ -62,11 +63,8 @@ parsePath = createPath <$> parsePosition `sepBy1` string " -> " <* newline
 parseInput :: Parser RockLocations
 parseInput = Set.fromList . map swap . concat <$> many1 parsePath <* eof
 
-part1 :: Parser Int
-part1 = numStoppedSand <$> parseInput
+part1 :: RockLocations -> IO ()
+part1 = print . numStoppedSand
 
-part2 :: Parser Int
-part2 = (+ 1) . numStoppedSand . addInfiniteLine <$> parseInput
-
---main :: IO ()
---main = parseAndSolve "inputs/day14" part1 part2
+part2 :: RockLocations -> IO ()
+part2 = print . (+ 1) . numStoppedSand . addInfiniteLine

@@ -1,7 +1,14 @@
-module Day2() where
+module Day2
+  ( parseInput,
+    part1,
+    part2,
+  )
+where
+
 import Data.List (find)
 import Data.Maybe (fromJust)
-import ParseAndRun
+import Text.Parsec
+import Text.Parsec.String
 
 data Shape = Rock | Paper | Scissor deriving (Eq, Show)
 
@@ -72,11 +79,11 @@ readRoundPart2 roundLine =
       outcome = fromJust $ outcomeFromCode (roundWords !! 1)
    in Round elfShape (shapeForOutcome elfShape outcome)
 
-part1 :: [String] -> Int
-part1 = totalScore . map readRoundPart1
+parseInput :: Parser [String]
+parseInput = lines <$> many1 anyChar
 
-part2 :: [String] -> Int
-part2 = totalScore . map readRoundPart2
+part1 :: [String] -> IO ()
+part1 = print . totalScore . map readRoundPart1
 
---main :: IO ()
---main = parseAndRun "inputs/day2" part1 part2
+part2 :: [String] -> IO ()
+part2 = print . totalScore . map readRoundPart2
