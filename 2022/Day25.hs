@@ -1,6 +1,5 @@
 module Day25(parseInput,part1
 ,part2) where
-import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String
 
@@ -47,11 +46,8 @@ parseFuelAmount = parseSnafu <$> many1 (char '2' <|> char '1' <|> char '0' <|> c
 parseInput :: Parser [Int]
 parseInput = parseFuelAmount `sepEndBy1` newline <* eof
 
-part1 :: Parser String
-part1 = printSnafu . sum <$> parseInput
+part1 :: [Int] -> IO ()
+part1 = print . printSnafu . sum
 
-part2 :: Parser Int
-part2 = return 0
-
---main :: IO ()
---main = parseAndSolveWithActions putStrLn print "inputs/day25" part1 part2
+part2 :: [Int] -> IO ()
+part2 = print . return 0

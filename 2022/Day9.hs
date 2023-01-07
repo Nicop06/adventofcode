@@ -2,7 +2,6 @@ module Day9(parseInput,part1
 ,part2) where
 import Data.Bifunctor
 import Data.List (nub)
-import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String
 

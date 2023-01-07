@@ -5,7 +5,6 @@ import Data.Bifunctor (first, second)
 import Data.Either (fromRight)
 import Data.Map.Strict qualified as M
 import Data.Maybe (fromMaybe)
-import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String
 

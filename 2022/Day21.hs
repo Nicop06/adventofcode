@@ -2,7 +2,6 @@ module Day21(parseInput,part1
 ,part2) where
 import Data.Map.Strict qualified as M
 import Data.Maybe (fromJust)
-import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String
 
@@ -106,11 +105,8 @@ parseMonkey = (,) <$> (monkeyId <* string ": ") <*> monkeyYelling
 parseInput :: Parser Monkeys
 parseInput = M.fromList <$> parseMonkey `sepEndBy1` newline <* eof
 
-part1 :: Parser Int
-part1 = computeRoot <$> parseInput
+part1 :: Monkeys-> IO ()
+part1 = print . computeRoot
 
-part2 :: Parser Int
-part2 = computeHumanInput <$> parseInput
-
---main :: IO ()
---main = parseAndSolve "inputs/day21" part1 part2
+part2 :: Monkeys-> IO ()
+part2 = print . computeHumanInput

@@ -3,7 +3,6 @@ module Day11(parseInput,part1
 import Control.Applicative ((<**>))
 import Control.Monad
 import Data.List (sort)
-import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String
 

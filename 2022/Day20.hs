@@ -2,7 +2,6 @@ module Day20(parseInput,part1
 ,part2) where
 import Data.List (elemIndex, findIndex)
 import Data.Maybe (fromJust)
-import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String
 
@@ -68,11 +67,8 @@ number = read <$> many1 (char '-' <|> digit)
 parseInput :: Parser [Int]
 parseInput = number `sepEndBy1` newline <* eof
 
-part1 :: Parser Int
-part1 = groveCoordinate 1 <$> parseInput
+part1 :: [Int] -> IO ()
+part1 = print . groveCoordinate 1
 
-part2 :: Parser Int
-part2 = groveCoordinate 10 . applyDecriptionKey <$> parseInput
-
---main :: IO ()
---main = parseAndSolve "inputs/day20" part1 part2
+part2 :: [Int] -> IO ()
+part2 = print . groveCoordinate 10 . applyDecriptionKey

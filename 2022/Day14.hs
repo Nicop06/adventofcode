@@ -3,7 +3,6 @@ module Day14(parseInput,part1
 import Control.Monad (liftM2)
 import Data.Set qualified as Set
 import Data.Tuple (swap)
-import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String
 

@@ -4,7 +4,6 @@ import Control.Arrow (first, second)
 import Data.Array.Repa (Array, DIM2, extent, ix2, (!))
 import Data.Array.Repa.Repr.Vector (V, fromListVector)
 import Data.Array.Repa.Shape (listOfShape)
-import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String
 
@@ -163,11 +162,8 @@ parsePath = many1 ((NumberOftiles . read <$> many1 digit) <|> (TurnRight <$ char
 parseInput :: Parser (Grid, Path)
 parseInput = (,) <$> parseGrid <*> parsePath <* eof
 
-part1 :: Parser Int
-part1 = password . last . uncurry (followPath nextTile) <$> parseInput
+part1 :: (Grid, Path) -> IO ()
+part1 = print . password . last . uncurry (followPath nextTile)
 
-part2 :: Parser Int
-part2 = password . last . uncurry (followPath nextTileCube) <$> parseInput
-
---main :: IO ()
---main = parseAndSolve "inputs/day22" part1 part2
+part2 :: (Grid, Path) -> IO ()
+part2 = print . password . last . uncurry (followPath nextTileCube)

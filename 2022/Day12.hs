@@ -3,7 +3,6 @@ module Day12(parseInput,part1
 import Control.Applicative as A
 import Data.Char (ord)
 import Data.Maybe (fromMaybe, mapMaybe)
-import ParseAndRun
 import Text.Parsec as P
 import Text.Parsec.String
 

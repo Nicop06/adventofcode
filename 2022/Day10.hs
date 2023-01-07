@@ -1,7 +1,6 @@
 module Day10 (parseInput,part1
 ,part2) where
 
-import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String
 
@@ -50,4 +49,4 @@ part1 :: [Int -> Int] -> IO ()
 part1 = print . sumStrength . strengthPerCycles . executeCycles
 
 part2 :: [Int -> Int] -> IO ()
-part2 = print . drawScreen . executeCycles
+part2 = mapM_ putStrLn . lines . drawScreen . executeCycles

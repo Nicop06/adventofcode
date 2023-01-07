@@ -1,7 +1,6 @@
 module Day13(parseInput,part1
 ,part2) where
 import Data.List (elemIndex, sort)
-import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String
 
