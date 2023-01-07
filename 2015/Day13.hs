@@ -1,5 +1,3 @@
-{-# LANGUAGE TupleSections #-}
-
 module Day13
   ( parseInput,
     part1,
