@@ -1,5 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
+module Day4() where
+
 import Data.Text qualified as T
 import ParseAndRun
 
@@ -35,5 +37,5 @@ part1 = countPairToConsider (\(pair1, pair2) -> pair1 `contains` pair2 || pair2 
 part2 :: [String] -> Int
 part2 = countPairToConsider (uncurry overlaps)
 
-main :: IO ()
-main = parseAndRun (T.unpack "inputs/day4") part1 part2
+--main :: IO ()
+--main = parseAndRun (T.unpack "inputs/day4") part1 part2

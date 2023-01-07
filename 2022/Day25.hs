@@ -1,3 +1,4 @@
+module Day25() where
 import ParseAndRun
 import Text.Parsec
 import Text.Parsec.String
@@ -51,5 +52,5 @@ part1 = printSnafu . sum <$> parseInput
 part2 :: Parser Int
 part2 = return 0
 
-main :: IO ()
-main = parseAndSolveWithActions putStrLn print "inputs/day25" part1 part2
+--main :: IO ()
+--main = parseAndSolveWithActions putStrLn print "inputs/day25" part1 part2

@@ -1,3 +1,4 @@
+module Day16() where
 import Data.Function
 import Data.List (maximumBy, groupBy, sortOn)
 import Data.Map.Strict qualified as Map
@@ -99,5 +100,5 @@ part2 = totalFlow . bestState initialState 26 <$> parseInput
   where
     initialState = CombinedState [] [] ["AA", "AA"]
 
-main :: IO ()
-main = parseAndSolve "inputs/day16" part1 part2
+--main :: IO ()
+--main = parseAndSolve "inputs/day16" part1 part2

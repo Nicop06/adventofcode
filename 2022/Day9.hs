@@ -1,3 +1,4 @@
+module Day9() where
 import Data.Bifunctor
 import Data.List (nub)
 import ParseAndRun
@@ -68,5 +69,5 @@ part1 = numTailPositions . executeMoves 2 <$> input
 part2 :: Parser Int
 part2 = numTailPositions . executeMoves 10 <$> input
 
-main :: IO ()
-main = parseAndSolve "inputs/day9" part1 part2
+--main :: IO ()
+--main = parseAndSolve "inputs/day9" part1 part2

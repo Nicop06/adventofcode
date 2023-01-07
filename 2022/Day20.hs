@@ -1,3 +1,4 @@
+module Day20() where
 import Data.List (elemIndex, findIndex)
 import Data.Maybe (fromJust)
 import ParseAndRun
@@ -72,5 +73,5 @@ part1 = groveCoordinate 1 <$> parseInput
 part2 :: Parser Int
 part2 = groveCoordinate 10 . applyDecriptionKey <$> parseInput
 
-main :: IO ()
-main = parseAndSolve "inputs/day20" part1 part2
+--main :: IO ()
+--main = parseAndSolve "inputs/day20" part1 part2

@@ -1,0 +1,85 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.35.0.
+--
+-- see: https://github.com/sol/hpack
+
+name:           adventofcode2022
+version:        0.1.0.0
+description:    The solution packageor the adventofcode 2022.
+homepage:       https://github.com/Nicop06/adventofcode#readme
+bug-reports:    https://github.com/Nicop06/adventofcode/issues
+author:         Nicolas Porcel
+maintainer:     nicolasporcel06@gmail.com
+copyright:      2022 Nicolas Porcel
+license:        BSD3
+build-type:     Simple
+
+source-repository head
+  type: git
+  location: https://github.com/Nicop06/adventofcode
+
+library
+  exposed-modules:
+      Day1
+      Day10
+      Day11
+      Day12
+      Day13
+      Day14
+      Day15
+      Day16
+      Day17
+      Day18
+      Day19
+      Day2
+      Day20
+      Day21
+      Day22
+      Day23
+      Day24
+      Day25
+      Day3
+      Day4
+      Day5
+      Day6
+      Day7
+      Day8
+      Day9
+      ParseAndRun
+  other-modules:
+      Paths_adventofcode2022
+  hs-source-dirs:
+      ./
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -Wno-type-defaults -XImportQualifiedPost -XTupleSections
+  build-depends:
+      aeson
+    , base >=4.7 && <5
+    , bytestring
+    , containers
+    , cryptohash-md5
+    , parsec
+    , repa
+    , scientific
+    , text
+    , vector
+  default-language: Haskell2010
+
+executable aoc2022
+  main-is: Main.hs
+  hs-source-dirs:
+      app
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -Wno-type-defaults -XImportQualifiedPost -XTupleSections -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      adventofcode2022
+    , aeson
+    , base >=4.7 && <5
+    , bytestring
+    , containers
+    , cryptohash-md5
+    , parsec
+    , repa
+    , scientific
+    , text
+    , vector
+  default-language: Haskell2010

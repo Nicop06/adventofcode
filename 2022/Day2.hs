@@ -1,3 +1,4 @@
+module Day2() where
 import Data.List (find)
 import Data.Maybe (fromJust)
 import ParseAndRun
@@ -77,5 +78,5 @@ part1 = totalScore . map readRoundPart1
 part2 :: [String] -> Int
 part2 = totalScore . map readRoundPart2
 
-main :: IO ()
-main = parseAndRun "inputs/day2" part1 part2
+--main :: IO ()
+--main = parseAndRun "inputs/day2" part1 part2

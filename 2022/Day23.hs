@@ -1,3 +1,4 @@
+module Day23() where
 import Control.Arrow (first, second)
 import Data.Set qualified as S
 import ParseAndRun
@@ -81,5 +82,5 @@ part1 = numEmptyGroundTiles . moveAllElfs 10 <$> parseInput
 part2 :: Parser Int
 part2 = roundNoMove <$> parseInput
 
-main :: IO ()
-main = parseAndSolve "inputs/day23" part1 part2
+--main :: IO ()
+--main = parseAndSolve "inputs/day23" part1 part2

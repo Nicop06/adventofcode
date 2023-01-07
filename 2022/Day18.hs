@@ -1,3 +1,4 @@
+module Day18() where
 import Data.Set qualified as S
 import ParseAndRun
 import Text.Parsec
@@ -87,5 +88,5 @@ part1 = totalExposedSides <$> parseCompound
 part2 :: Parser Int
 part2 = totalExposedSidesWithoutPocket <$> parseCompound
 
-main :: IO ()
-main = parseAndSolve "inputs/day18" part1 part2
+--main :: IO ()
+--main = parseAndSolve "inputs/day18" part1 part2

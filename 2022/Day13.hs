@@ -1,3 +1,4 @@
+module Day13() where
 import Data.List (elemIndex, sort)
 import ParseAndRun
 import Text.Parsec
@@ -70,5 +71,5 @@ part1 = sum . pairsInRightOrder <$> parseInput
 part2 :: Parser Int
 part2 = product . dividerIndices . allPackets <$> parseInput
 
-main :: IO ()
-main = parseAndSolve "inputs/day13" part1 part2
+--main :: IO ()
+--main = parseAndSolve "inputs/day13" part1 part2

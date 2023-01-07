@@ -1,3 +1,4 @@
+module Day12() where
 import Control.Applicative as A
 import Data.Char (ord)
 import Data.Maybe (fromMaybe, mapMaybe)
@@ -178,5 +179,5 @@ part1 = length . distanceToSquare End canMove . findSquare Start . startVisiting
 part2 :: Parser Int
 part2 = length . distanceToSquare (Square 'a') (flip canMove) . findSquare End . startVisiting <$> parseGrid
 
-main :: IO ()
-main = parseAndSolve "inputs/day12" part1 part2
+--main :: IO ()
+--main = parseAndSolve "inputs/day12" part1 part2

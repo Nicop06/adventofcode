@@ -1,3 +1,4 @@
+module Day5() where
 import Control.Monad
 import Data.List (transpose)
 import Data.Maybe (catMaybes)
@@ -64,5 +65,5 @@ part1 = solve reverse <$> parseInput
 part2 :: Parser String
 part2 = solve id <$> parseInput
 
-main :: IO ()
-main = parseAndSolve "inputs/day5" part1 part2
+--main :: IO ()
+--main = parseAndSolve "inputs/day5" part1 part2

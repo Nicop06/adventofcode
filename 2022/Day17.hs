@@ -1,3 +1,4 @@
+module Day17() where
 import Control.Applicative (ZipList (..), getZipList)
 import Data.Bifunctor (first, second)
 import Data.Either (fromRight)
@@ -158,7 +159,7 @@ part1 rocks = heightAfterSimulation . initState 2022 rocks <$> parseJetPattern
 part2 :: [RockShape] -> Parser Int
 part2 rocks = heightAfterSimulation . initState 1000000000000 rocks <$> parseJetPattern
 
-main :: IO ()
-main = do
-  rocks <- parseAllRocks
-  parseAndSolve "inputs/day17" (part1 rocks) (part2 rocks)
+--main :: IO ()
+--main = do
+  --rocks <- parseAllRocks
+  --parseAndSolve "inputs/day17" (part1 rocks) (part2 rocks)
