@@ -17,7 +17,7 @@ overlaps :: Range -> Range -> Bool
 
 parseRange :: T.Text -> Range
 parseRange range =
-  case T.splitOn "," range of
+  case T.splitOn "-" range of
     [start, end] -> Range (read . T.unpack $ start) (read . T.unpack $ end)
     _ -> error "Range should have a start and end"
 

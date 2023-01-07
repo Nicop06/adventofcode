@@ -46,7 +46,6 @@ library
       Day7
       Day8
       Day9
-      ParseAndRun
   other-modules:
       Paths_adventofcode2022
   hs-source-dirs:
