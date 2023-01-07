@@ -1,5 +1,10 @@
-module Day14(parseInput,part1
-,part2) where
+module Day14
+  ( parseInput,
+    part1,
+    part2,
+  )
+where
+
 import Control.Monad (liftM2)
 import Data.Set qualified as Set
 import Data.Tuple (swap)

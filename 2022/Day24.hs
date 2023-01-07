@@ -1,5 +1,10 @@
-module Day24(parseInput,part1
-,part2) where
+module Day24
+  ( parseInput,
+    part1,
+    part2,
+  )
+where
+
 import Control.Arrow (first, second)
 import Data.List (nub)
 import Data.Set qualified as S
@@ -112,8 +117,8 @@ parseBlizzard = Bliz <$> ((L <$ char '<') <|> (R <$ char '>') <|> (U <$ char '^'
 parseInput :: Parser [[Tile]]
 parseInput = (many1 parseTile `sepEndBy1` newline) <* eof
 
-part1 :: [[Tile]] -> IO()
+part1 :: [[Tile]] -> IO ()
 part1 = print . length . uncurry (goToGoal End) . initialState
 
-part2 :: [[Tile]] -> IO()
+part2 :: [[Tile]] -> IO ()
 part2 = print . length . uncurry (goToGoals [End, Start, End]) . initialState

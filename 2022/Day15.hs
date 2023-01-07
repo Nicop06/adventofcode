@@ -1,5 +1,10 @@
-module Day15(parseInput,part1
-,part2) where
+module Day15
+  ( parseInput,
+    part1,
+    part2,
+  )
+where
+
 import Data.Bifunctor (bimap)
 import Data.List (nub, sort)
 import Data.Maybe (mapMaybe)

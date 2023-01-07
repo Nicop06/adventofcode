@@ -1,5 +1,10 @@
-module Day21(parseInput,part1
-,part2) where
+module Day21
+  ( parseInput,
+    part1,
+    part2,
+  )
+where
+
 import Data.Map.Strict qualified as M
 import Data.Maybe (fromJust)
 import Text.Parsec
@@ -105,8 +110,8 @@ parseMonkey = (,) <$> (monkeyId <* string ": ") <*> monkeyYelling
 parseInput :: Parser Monkeys
 parseInput = M.fromList <$> parseMonkey `sepEndBy1` newline <* eof
 
-part1 :: Monkeys-> IO ()
+part1 :: Monkeys -> IO ()
 part1 = print . computeRoot
 
-part2 :: Monkeys-> IO ()
+part2 :: Monkeys -> IO ()
 part2 = print . computeHumanInput

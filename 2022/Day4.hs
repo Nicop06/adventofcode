@@ -1,7 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Day4(parseInput, part1
-, part2) where
+module Day4
+  ( parseInput,
+    part1,
+    part2,
+  )
+where
 
 import Data.Text qualified as T
 import Text.Parsec

@@ -1,5 +1,10 @@
-module Day18(parseInput,part1
-,part2) where
+module Day18
+  ( parseInput,
+    part1,
+    part2,
+  )
+where
+
 import Data.Set qualified as S
 import Text.Parsec
 import Text.Parsec.String

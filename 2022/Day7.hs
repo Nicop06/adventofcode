@@ -1,5 +1,10 @@
-module Day7(parseInput,part1
-,part2) where
+module Day7
+  ( parseInput,
+    part1,
+    part2,
+  )
+where
+
 import Control.Monad
 import Text.Parsec
 import Text.Parsec.String
