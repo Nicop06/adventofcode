@@ -1,5 +1,13 @@
+module Day9
+  ( parseInput,
+    part1,
+    part2,
+  )
+where
+
 import Data.List (groupBy, permutations, sortOn)
 import Data.Map.Strict qualified as M
+import Data.Maybe (fromJust)
 import Text.Parsec
 import Text.Parsec.String
 
@@ -24,7 +32,7 @@ pathLength :: CityDistance -> [City] -> Int
 pathLength distances = sum . map pairDistance . pathPairs
   where
     pairDistance (c1, c2) =
-      let Just distToCity = M.lookup c1 distances
+      let distToCity = fromJust $ M.lookup c1 distances
        in snd . head . filter ((== c2) . fst) $ distToCity
 
 pathPairs :: [City] -> [(City, City)]
@@ -43,20 +51,14 @@ parseCity = many1 alphaNum
 parseDistance :: Parser Distance
 parseDistance = read <$> many1 digit
 
-parseCityDistanceMap :: Parser CityDistance
-parseCityDistanceMap = buildCityDistanceMap <$> (parseCityDistancePair `sepEndBy1` newline)
+parseInput :: Parser CityDistance
+parseInput = buildCityDistanceMap <$> (parseCityDistancePair `sepEndBy1` newline) <* eof
   where
     parseCityDistancePair = (,) <$> parseCity <*> parseCityDistance
     parseCityDistance = (,) <$> (string " to " *> parseCity) <*> (string " = " *> parseDistance)
-
-parseInput :: IO (Either ParseError CityDistance)
-parseInput = parseFromFile (parseCityDistanceMap <* eof) "inputs/day9"
 
 part1 :: CityDistance -> IO ()
 part1 = print . minimum . allPathLength
 
 part2 :: CityDistance -> IO ()
 part2 = print . maximum . allPathLength
-
-main :: IO ()
-main = parseInput >>= either print (sequence_ . sequenceA [part1, part2])

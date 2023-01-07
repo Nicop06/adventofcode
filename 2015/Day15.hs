@@ -1,3 +1,10 @@
+module Day15
+  ( parseInput,
+    part1,
+    part2,
+  )
+where
+
 import Control.Monad (replicateM)
 import Data.List (transpose)
 import Text.Parsec
@@ -50,14 +57,11 @@ parseCalories = string "calories " *> parseNumber
 parseIngredient :: Parser Ingredient
 parseIngredient = Ingredient <$> (parseName <* string ": ") <*> parseProperties <*> parseCalories
 
-parseInput :: IO (Either ParseError [Ingredient])
-parseInput = parseFromFile (parseIngredient `sepEndBy1` newline <* eof) "inputs/day15"
+parseInput :: Parser [Ingredient]
+parseInput = parseIngredient `sepEndBy1` newline <* eof
 
 part1 :: [Ingredient] -> IO ()
 part1 = print . bestScore
 
 part2 :: [Ingredient] -> IO ()
 part2 = print . bestScoreWithCalories 500
-
-main :: IO ()
-main = parseInput >>= either print (sequence_ . sequenceA [part1, part2])

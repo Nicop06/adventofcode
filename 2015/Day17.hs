@@ -1,3 +1,10 @@
+module Day17
+  ( parseInput,
+    part1,
+    part2,
+  )
+where
+
 import Text.Parsec
 import Text.Parsec.String
 
@@ -26,14 +33,11 @@ combinationsWithMinContainers capacities =
 parseCapacity :: Parser Capacity
 parseCapacity = read <$> many1 digit
 
-parseInput :: IO (Either ParseError [Capacity])
-parseInput = parseFromFile (parseCapacity `sepEndBy1` newline <* eof) "inputs/day17"
+parseInput :: Parser [Capacity]
+parseInput = parseCapacity `sepEndBy1` newline <* eof
 
 part1 :: [Capacity] -> IO ()
 part1 = print . length . allCombinations
 
 part2 :: [Capacity] -> IO ()
 part2 = print . length . combinationsWithMinContainers
-
-main :: IO ()
-main = parseInput >>= either print (sequence_ . sequenceA [part1, part2])

@@ -1,5 +1,14 @@
-import Data.Map.Strict qualified as M
-import Data.Set qualified as S
+{-# LANGUAGE TupleSections #-}
+
+module Day6
+  ( parseInput,
+    part1,
+    part2,
+  )
+where
+
+import qualified Data.Map.Strict as M
+import qualified Data.Set as S
 import Text.Parsec
 import Text.Parsec.String
 
@@ -31,8 +40,8 @@ parseToggle = Toggle <$> parseLights
 parseInstruction :: Parser LightInstruction
 parseInstruction = char 't' *> ((string "oggle " *> parseToggle) <|> (string "urn o" *> ((string "n " *> parseTurnOn) <|> (string "ff " *> parseTurnOff))))
 
-parseInput :: IO (Either ParseError [LightInstruction])
-parseInput = parseFromFile (parseInstruction `sepEndBy1` newline <* eof) "inputs/day6"
+parseInput :: Parser [LightInstruction]
+parseInput = parseInstruction `sepEndBy1` newline <* eof
 
 part1 :: [LightInstruction] -> IO ()
 part1 ins = print . S.size $ foldr followInstruction S.empty (reverse ins)
@@ -48,6 +57,3 @@ part2 ins = print . sum $ foldr followInstruction M.empty (reverse ins)
     adjustLight (TurnOn l) = (,1) <$> l
     adjustLight (TurnOff l) = (,-1) <$> l
     adjustLight (Toggle l) = (,2) <$> l
-
-main :: IO ()
-main = parseInput >>= either print (sequence_ . sequenceA [part1, part2])
