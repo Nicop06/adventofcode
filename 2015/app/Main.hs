@@ -1,5 +1,13 @@
 {-# LANGUAGE ImportQualifiedPost #-}
 
+import Day2 qualified as D2
+import Day3 qualified as D3
+import Day4 qualified as D4
+import Day5 qualified as D5
+import Day6 qualified as D6
+import Day7 qualified as D7
+import Day8 qualified as D8
+import Day9 qualified as D9
 import Day1 qualified as D1
 import Day10 qualified as D10
 import Day11 qualified as D11
@@ -11,14 +19,7 @@ import Day16 qualified as D16
 import Day17 qualified as D17
 import Day18 qualified as D18
 import Day19 qualified as D19
-import Day2 qualified as D2
-import Day3 qualified as D3
-import Day4 qualified as D4
-import Day5 qualified as D5
-import Day6 qualified as D6
-import Day7 qualified as D7
-import Day8 qualified as D8
-import Day9 qualified as D9
+import Day20 qualified as D20
 import System.Environment
 import Text.Parsec.String
 
@@ -42,6 +43,7 @@ runDay 16 = parseAndRun 16 D16.parseInput [D16.part1, D16.part2]
 runDay 17 = parseAndRun 17 D17.parseInput [D17.part1, D17.part2]
 runDay 18 = parseAndRun 18 D18.parseInput [D18.part1, D18.part2]
 runDay 19 = parseAndRun 19 D19.parseInput [D19.part1, D19.part2]
+runDay 20 = parseAndRun 20 D20.parseInput [D20.part1, D20.part2]
 runDay _ = return ()
 
 parseAndRun :: Int -> Parser a -> [a -> IO ()] -> IO ()

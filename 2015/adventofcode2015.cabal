@@ -33,6 +33,7 @@ library
       Day18
       Day19
       Day2
+      Day20
       Day3
       Day4
       Day5
@@ -44,7 +45,7 @@ library
       Paths_adventofcode2015
   hs-source-dirs:
       ./
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -Wno-type-defaults -XImportQualifiedPost -XTupleSections -XTypeOperators
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -Wno-type-defaults -XImportQualifiedPost -XTupleSections -XTypeOperators -O3
   build-depends:
       aeson
     , base >=4.7 && <5
@@ -62,7 +63,7 @@ executable aoc2015
   main-is: Main.hs
   hs-source-dirs:
       app
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -Wno-type-defaults -XImportQualifiedPost -XTupleSections -XTypeOperators -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -Wno-type-defaults -XImportQualifiedPost -XTupleSections -XTypeOperators -O3 -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       adventofcode2015
     , aeson
