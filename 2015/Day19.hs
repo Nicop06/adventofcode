@@ -5,9 +5,8 @@ module Day19
   )
 where
 
-import Data.List (isPrefixOf, nub, sortOn)
+import Data.List (isPrefixOf, nub)
 import Data.Maybe (mapMaybe)
-import Data.Ord (Down (..))
 import Text.Parsec
 import Text.Parsec.String
 
