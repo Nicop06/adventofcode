@@ -87,7 +87,7 @@ fightWinner player boss =
 
 itemsWithWinner :: CharacterType -> Character -> [[Item]]
 itemsWithWinner winner boss =
-    filter ((== winner) . flip fightWinner boss . playerWithItems) possibleItems
+  filter ((== winner) . flip fightWinner boss . playerWithItems) possibleItems
 
 -- Parser
 
