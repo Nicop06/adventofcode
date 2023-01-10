@@ -10,7 +10,7 @@ import Text.Parsec.String
 
 -- Data
 
-type PlayerEffect = Player -> Player
+type PlayerEffect = GameState -> GameState
 
 data Turn = PlayerTurn | BossTurn deriving (Show, Eq)
 
@@ -95,9 +95,13 @@ canCastSpell :: GameState -> Spell -> Bool
 canCastSpell (GameState _ player _ effects) spell =
   manaGained player - manaSpent player > spellMana spell && spell `notElem` map spellEffect effects
 
-actionPhase :: GameState -> [GameState]
-actionPhase state = case gameTurn state of
-  PlayerTurn -> map (`castSpell` state) $ filter (canCastSpell state) [minBound ..]
+actionPhase :: PlayerEffect -> GameState -> [GameState]
+actionPhase playerEffect state = case gameTurn state of
+  PlayerTurn ->
+    let state' = playerEffect state
+     in if playerIsDead state'
+          then [state']
+          else map (`castSpell` state') $ filter (canCastSpell state') [minBound ..]
   BossTurn ->
     if bossIsDead state
       then [state]
@@ -105,8 +109,8 @@ actionPhase state = case gameTurn state of
   where
     bossDamageDealt = max 1 (bossDamage (getBoss state) - playerArmor state)
 
-fullTurn :: GameState -> [GameState]
-fullTurn = map changeTurn . actionPhase . applyEffects
+fullTurn :: PlayerEffect -> GameState -> [GameState]
+fullTurn playerEffect = map changeTurn . actionPhase playerEffect . applyEffects
   where
     changeTurn state = case gameTurn state of
       PlayerTurn -> state {gameTurn = BossTurn}
@@ -114,11 +118,11 @@ fullTurn = map changeTurn . actionPhase . applyEffects
 
 possibleOutcome :: PlayerEffect -> Boss -> [GameState]
 possibleOutcome playerEffect = performTurns . pure . initialState
-    where
-        performTurns [] = []
-        performTurns states =
-          let (finished, pending) = splitGameStates $ concatMap fullTurn states
-              in finished ++ performTurns pending
+  where
+    performTurns [] = []
+    performTurns states =
+      let (finished, pending) = splitGameStates $ concatMap (fullTurn playerEffect) states
+       in finished ++ performTurns pending
 
 splitGameStates :: [GameState] -> ([GameState], [GameState])
 splitGameStates [] = ([], [])
@@ -133,6 +137,9 @@ playerIsDead = (<= 0) . playerHP . getPlayer
 
 bossIsDead :: GameState -> Bool
 bossIsDead = (<= 0) . bossHP . getBoss
+
+lowestManaPlayerWins :: [GameState] -> Int
+lowestManaPlayerWins = minimum . map (manaSpent . getPlayer) . filter bossIsDead
 
 -- Parser
 
@@ -149,7 +156,7 @@ parseInput :: Parser Boss
 parseInput = Boss <$> parseHP <*> parseDamage <* eof
 
 part1 :: Boss -> IO ()
-part1 = print . minimum . map (manaSpent . getPlayer) . filter bossIsDead . possibleOutcome id
+part1 = print . lowestManaPlayerWins . possibleOutcome id
 
 part2 :: Boss -> IO ()
-part2 = print
+part2 = print . lowestManaPlayerWins . possibleOutcome (damagePlayer 1)
