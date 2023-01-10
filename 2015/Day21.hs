@@ -78,7 +78,7 @@ isAlive c = getHP c > 0
 
 dealDamage :: (Character, Character) -> (Character, Character)
 dealDamage (attacker, defender) =
-  let damageDealt = getDamage (getStats attacker) - getArmor (getStats defender)
+  let damageDealt = max 1 $ getDamage (getStats attacker) - getArmor (getStats defender)
    in (attacker, defender {getHP = getHP defender - damageDealt})
 
 fightWinner :: Character -> Character -> CharacterType
@@ -104,7 +104,7 @@ parseArmor :: Parser Int
 parseArmor = string "Armor: " *> parseNumber <* newline
 
 parseInput :: Parser Character
-parseInput = Character Boss <$> parseHP <*> (Stats <$> parseDamage <*> parseArmor)
+parseInput = Character Boss <$> parseHP <*> (Stats <$> parseDamage <*> parseArmor) <* eof
 
 part1 :: Character -> IO ()
 part1 = print . minimum . map totalCost . itemsWithWinner Player

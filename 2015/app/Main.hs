@@ -21,6 +21,7 @@ import Day18 qualified as D18
 import Day19 qualified as D19
 import Day20 qualified as D20
 import Day21 qualified as D21
+import Day22 qualified as D22
 import System.Environment
 import Text.Parsec.String
 
@@ -46,6 +47,7 @@ runDay 18 = parseAndRun 18 D18.parseInput [D18.part1, D18.part2]
 runDay 19 = parseAndRun 19 D19.parseInput [D19.part1, D19.part2]
 runDay 20 = parseAndRun 20 D20.parseInput [D20.part1, D20.part2]
 runDay 21 = parseAndRun 21 D21.parseInput [D21.part1, D21.part2]
+runDay 22 = parseAndRun 22 D22.parseInput [D22.part1, D22.part2]
 runDay _ = return ()
 
 parseAndRun :: Int -> Parser a -> [a -> IO ()] -> IO ()
