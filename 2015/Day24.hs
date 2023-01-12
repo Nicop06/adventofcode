@@ -26,12 +26,12 @@ allPossibleGroupsWithNumElem n weights =
       let s = subsets ws
        in filter ((<= totalWeight) . (* n) . sum) (s ++ map (w :) s)
 
-allValidGroups :: [Weight] -> [Group]
-allValidGroups weights = filter groupIsValid $ filter ((<= maxLen) . length) groups
+allValidGroups :: Int -> [Weight] -> [Group]
+allValidGroups n weights = filter groupIsValid $ filter ((<= maxLen) . length) groups
   where
-    maxLen = length weights `div` 3
-    groups = allPossibleGroupsWithNumElem 3 weights
-    groupIsValid g = not . null $ allPossibleGroupsWithNumElem 2 (weights `difference` g)
+    maxLen = length weights `div` n
+    groups = allPossibleGroupsWithNumElem n weights
+    groupIsValid g = not . null $ allPossibleGroupsWithNumElem (n - 1) (weights `difference` g)
 
 difference :: Eq a => [a] -> [a] -> [a]
 difference a b = filter (`notElem` b) a
@@ -53,7 +53,7 @@ parseInput :: Parser [Weight]
 parseInput = parseWeight `sepEndBy1` newline <* eof
 
 part1 :: [Weight] -> IO ()
-part1 = print . minimumOn quantumEntanglement . allValidGroups
+part1 = print . minimumOn quantumEntanglement . allValidGroups 3
 
 part2 :: [Weight] -> IO ()
-part2 = print
+part2 = print . minimumOn quantumEntanglement . allValidGroups 4
