@@ -3,7 +3,7 @@
 import Day1 qualified as D1
 import Day2 qualified as D2
 import Day3 qualified as D3
---import Day4 qualified as D4
+import Day4 qualified as D4
 --import Day5 qualified as D5
 --import Day6 qualified as D6
 --import Day7 qualified as D7
@@ -32,7 +32,7 @@ runDay :: Int -> IO ()
 runDay 1 = parseAndRun 1 D1.parseInput [D1.part1, D1.part2]
 runDay 2 = parseAndRun 2 D2.parseInput [D2.part1, D2.part2]
 runDay 3 = parseAndRun 3 D3.parseInput [D3.part1, D3.part2]
---runDay 4 = parseAndRun 4 D4.parseInput [D4.part1, D4.part2]
+runDay 4 = parseAndRun 4 D4.parseInput [D4.part1, D4.part2]
 --runDay 5 = parseAndRun 5 D5.parseInput [D5.part1, D5.part2]
 --runDay 6 = parseAndRun 6 D6.parseInput [D6.part1, D6.part2]
 --runDay 7 = parseAndRun 7 D7.parseInput [D7.part1, D7.part2]
