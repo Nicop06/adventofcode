@@ -1,15 +1,10 @@
 # Advent of code
 
 This repository contains my solutions for the [advent of code
-challenges](https://adventofcode.com).
+challenges](https://adventofcode.com). They are written in Haskell.
 
-## 2022
+To run the solution for `dayX`, you can run `stack run dayX`.
 
-In 2022, I decided to use Haskell. All the solutions use vanilla Haskell
-libraries. To run the solution for `dayX` and `partY`, you can run:
+You can also specify multiple days, e.g. `stack run 1 3 {8..10}`.
 
-```
-runhaskell dayX partY
-```
-
-This should print the result.
+If you want the solution for all the parts, simply do `stack run`.
