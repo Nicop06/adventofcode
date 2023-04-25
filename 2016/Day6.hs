@@ -5,9 +5,9 @@ module Day6
   )
 where
 
+import Data.List (group, sort, sortOn, transpose)
 import Text.Parsec
 import Text.Parsec.String
-import Data.List (transpose, sort, sortOn, group)
 
 sortLettersByFrequency :: [Char] -> [Char]
 sortLettersByFrequency = map head . sortOn length . group . sort

@@ -5,9 +5,9 @@ module Day3
   )
 where
 
+import Data.List (transpose)
 import Text.Parsec
 import Text.Parsec.String
-import Data.List (transpose)
 
 data Triangle = Triangle Int Int Int deriving (Show, Eq)
 
@@ -20,8 +20,9 @@ groupTriangles _ = []
 
 parseInput :: Parser [[Int]]
 parseInput = parseLine `sepEndBy1` newline <* eof
-    where parseLine = count 3 parseCoord
-          parseCoord = read <$> (spaces *> many1 digit)
+  where
+    parseLine = count 3 parseCoord
+    parseCoord = read <$> (spaces *> many1 digit)
 
 part1 :: [[Int]] -> IO ()
 part1 = print . length . filter isValid . groupTriangles . concat

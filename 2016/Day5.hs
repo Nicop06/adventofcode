@@ -37,7 +37,8 @@ nextPassword p s = case splitAt (getIndex s) p of
 
 generatePasswords :: String -> [Password]
 generatePasswords s = scanl nextPassword initialPassword $ generateHashes s
-    where initialPassword = replicate 8 Nothing
+  where
+    initialPassword = replicate 8 Nothing
 
 parseInput :: Parser String
 parseInput = many1 alphaNum <* newline <* eof
