@@ -6,6 +6,7 @@ module Day8
 where
 
 import Data.Array.Repa as A
+import Data.List qualified as L
 import Data.Maybe (fromJust)
 import Text.Parsec
 import Text.Parsec.String
@@ -36,19 +37,24 @@ applyUpdate update l = fromJust $ computeUnboxedP $ A.traverse l id (update $ ex
 runOperation :: Operation -> UpdateFunc
 runOperation (Rect c r) _ f idx@(Z :. x :. y) = f idx || (x < c && y < r)
 runOperation (RotateRow r n) (Z :. sx :. _) f idx@(Z :. x :. y) =
-  if y == r then f (Z :. (x + n) `mod` sx :. y) else f idx
+  if y == r then f (Z :. (sx + x - n) `mod` sx :. y) else f idx
 runOperation (RotateCol c n) (Z :. _ :. sy) f idx@(Z :. x :. y) =
-  if x == c then f (Z :. x :. (y + n) `mod` sy) else f idx
+  if x == c then f (Z :. x :. (sy + y - n) `mod` sy) else f idx
+
+applyOperation :: Screen -> Operation -> Screen
+applyOperation = flip $ applyUpdate . runOperation
 
 runAllOperations :: [Operation] -> Screen
-runAllOperations = foldr (applyUpdate . runOperation) initialScreen
+runAllOperations = foldl applyOperation initialScreen
 
 numPixelsOn :: Screen -> Int
 numPixelsOn = length . filter id . toList
 
 toPixelStrings :: Screen -> [String]
-toPixelStrings = reshapeList screenWidth . toList . A.map toPixel
-    where toPixel p = if p then '#' else '.'
+toPixelStrings = L.transpose . reshapeList screenHeight . toList . A.map toPixel
+
+toPixel :: Pixel -> Char
+toPixel p = if p then '#' else '.'
 
 reshapeList :: Int -> [a] -> [[a]]
 reshapeList _ [] = []
