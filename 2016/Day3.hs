@@ -19,8 +19,8 @@ groupTriangles (x : y : z : rs) = Triangle x y z : groupTriangles rs
 groupTriangles _ = []
 
 parseInput :: Parser [[Int]]
-parseInput = many1 parseLines <* eof
-    where parseLines = count 3 parseCoord <* newline
+parseInput = parseLine `sepEndBy1` newline <* eof
+    where parseLine = count 3 parseCoord
           parseCoord = read <$> (spaces *> many1 digit)
 
 part1 :: [[Int]] -> IO ()

@@ -13,7 +13,7 @@ sortLettersByFrequency :: [Char] -> [Char]
 sortLettersByFrequency = map head . sortOn length . group . sort
 
 parseInput :: Parser [String]
-parseInput = many1 (many1 alphaNum <* newline) <* eof
+parseInput = many1 alphaNum `sepEndBy1` newline <* eof
 
 part1 :: [String] -> IO ()
 part1 = putStrLn . map (last . sortLettersByFrequency) . transpose
