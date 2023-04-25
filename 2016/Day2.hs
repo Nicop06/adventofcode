@@ -26,7 +26,7 @@ codeFromInstructions :: (Coordinates -> Bool) -> Coordinates -> [[Instruction]] 
 codeFromInstructions allowedCoord start = tail . scanl (nextButton allowedCoord) start
 
 parseInput :: Parser [[Instruction]]
-parseInput = many1 (many1 parseInstruction <* newline)
+parseInput = many1 parseInstruction `sepEndBy1` newline <* eof
     where parseInstruction = read . pure <$> oneOf "UDLR"
 
 part1 :: [[Instruction]] -> IO ()

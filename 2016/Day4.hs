@@ -45,7 +45,7 @@ isValidRoom :: Room -> Bool
 isValidRoom (Room name _ checksum) = computeChecksum name == checksum
 
 parseInput :: Parser [Room]
-parseInput = many1 (parseRoom <* newline) <* eof
+parseInput = parseRoom `sepEndBy1` newline <* eof
 
 parseRoom :: Parser Room
 parseRoom = Room <$> parseName <*> parseID <*> parseChecksum
