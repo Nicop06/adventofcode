@@ -8,26 +8,43 @@ where
 import Text.Parsec
 import Text.Parsec.String
 
-parseInput :: Parser String
-parseInput = concat <$> many1 (parseMarked <|> parseText) <* newline <* eof
+data Token = Text Int | Marker Int Int deriving (Show, Eq)
 
-parseText :: Parser String
-parseText = many1 $ noneOf "(\n"
+tokenLen :: Token -> Int
+tokenLen (Text n) = n
+tokenLen (Marker n m) = 3 + length (show n) + length (show m)
 
-parseMarker :: Parser (Int, Int)
-parseMarker = (,) <$> (char '(' *> parseNum <* char 'x') <*> parseNum <* char ')'
+decompress :: [Token] -> [Token]
+decompress [] = []
+decompress ((Text n) : rs) = Text n : decompress rs
+decompress ((Marker n r) : rs) = let (e, rs') = expandTokens n rs in concat (replicate r e) ++ decompress rs'
+
+fullDecompressedSize :: [Token] -> Int
+fullDecompressedSize [] = 0
+fullDecompressedSize ((Text n) : rs) = n + fullDecompressedSize rs
+fullDecompressedSize ((Marker n r) : rs) = let (e, rs') = expandTokens n rs in (r * fullDecompressedSize e) + fullDecompressedSize rs'
+
+expandTokens :: Int -> [Token] -> ([Token], [Token])
+expandTokens _ [] = ([], [])
+expandTokens n (h : ts)
+  | n == tokenLen h = ([h], ts)
+  | n < tokenLen h = ([Text n], Text (tokenLen h - n) : ts)
+  | otherwise = let (e, ts') = expandTokens (n - tokenLen h) ts in (h : e, ts')
+
+parseInput :: Parser [Token]
+parseInput = many1 (parseMarker <|> parseText) <* newline <* eof
+
+parseText :: Parser Token
+parseText = Text . length <$> many1 (noneOf "(\n")
 
 parseNum :: Parser Int
 parseNum = read <$> many1 digit
 
-parseMarked :: Parser String
-parseMarked = parseMarker >>= uncurry parseAndRepeat
+parseMarker :: Parser Token
+parseMarker = Marker <$> (char '(' *> parseNum <* char 'x') <*> parseNum <* char ')'
 
-parseAndRepeat :: Int -> Int -> Parser String
-parseAndRepeat n r = concat . replicate r <$> count n (noneOf "\n")
+part1 :: [Token] -> IO ()
+part1 = print . sum . map tokenLen . decompress
 
-part1 :: String -> IO ()
-part1 = print . length
-
-part2 :: String -> IO ()
-part2 = part1
+part2 :: [Token] -> IO ()
+part2 = print . fullDecompressedSize
