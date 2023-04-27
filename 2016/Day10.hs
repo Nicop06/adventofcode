@@ -5,9 +5,9 @@ module Day10
   )
 where
 
+import Data.List (partition)
 import Text.Parsec
 import Text.Parsec.String
-import Data.List (partition, groupBy)
 
 type Value = Int
 
@@ -25,32 +25,48 @@ type HighDestination = Destination
 
 data Instruction = ValueToBot Value Bot | BotGives Bot LowDestination HighDestination deriving (Show, Eq)
 
-data BotContent = BotContent { getBot :: Bot, getValue :: Value } deriving (Show, Eq)
+data Content = BotContent Bot Value | OutputContent Output Value deriving (Show, Eq)
 
-executeInstruction :: [BotContent] ->  Instruction ->[BotContent]
+executeInstruction :: [Content] -> Instruction -> [Content]
 executeInstruction c (ValueToBot v b) = BotContent b v : c
 executeInstruction c (BotGives b l h) =
-    let botValues = map getValue . filter isGiver $ c in 
-        botContent l (minimum botValues) ++ botContent h (maximum botValues) ++ filter (not . isGiver) c
+  let botValues = map getContentValue . filter isGiver $ c
+   in botContent l (minimum botValues) : botContent h (maximum botValues) : filter (not . isGiver) c
   where
     isGiver = contentBelongsTo b
-    botContent (ToOutput _) _ = []
-    botContent (ToBot b') v = [BotContent b' v]
+    botContent (ToOutput o) v = OutputContent o v
+    botContent (ToBot b') v = BotContent b' v
 
-contentBelongsTo :: Bot -> BotContent -> Bool
+getContentValue :: Content -> Value
+getContentValue (BotContent _ v) = v
+getContentValue (OutputContent _ v) = v
+
+contentBelongsTo :: Bot -> Content -> Bool
 contentBelongsTo b (BotContent b' _) = b == b'
+contentBelongsTo _ _ = False
 
-canExecute :: [BotContent] -> Instruction -> Bool
+canExecute :: [Content] -> Instruction -> Bool
 canExecute _ (ValueToBot _ _) = True
 canExecute c (BotGives b _ _) = (== 2) . length . filter (contentBelongsTo b) $ c
 
-nextContent :: [BotContent] -> [Instruction] -> ([BotContent], [Instruction])
+nextContent :: [Content] -> [Instruction] -> ([Content], [Instruction])
 nextContent c i = let (toExecute, ri) = partition (canExecute c) i in (executeInstruction c $ head toExecute, tail toExecute ++ ri)
 
-botWithValues :: Value -> Value -> [BotContent] -> [Bot]
-botWithValues v1 v2 = map getBot . concat . filter (hasValues . map getValue) . groupBy sameBot
-    where sameBot (BotContent b _) (BotContent b' _) = b == b'
-          hasValues vals = v1 `elem` vals && v2 `elem` vals
+iterateInstructions :: [Instruction] -> [[Content]]
+iterateInstructions = map fst . takeUntil (null . snd) . iterate (uncurry nextContent) . ([],)
+
+takeUntil :: (a -> Bool) -> [a] -> [a]
+takeUntil _ [] = []
+takeUntil f (x : rs) = if f x then [x] else x : takeUntil f rs
+
+botWithValues :: Value -> Value -> [[Content]] -> Bot
+botWithValues v1 v2 = getBot . head . head . filter isSameBot . map (filter isValue)
+  where
+    isSameBot [BotContent b _, BotContent b' _] = b == b'
+    isSameBot _ = False
+    isValue b = let v = getContentValue b in (v == v1 || v == v2)
+    getBot (BotContent b _) = b
+    getBot _ = error $ "Could not find the bot responsible for " ++ show v1 ++ " and " ++ show v2
 
 parseInput :: Parser [Instruction]
 parseInput = parseInstruction `sepEndBy1` newline <* eof
@@ -74,12 +90,11 @@ parseNum :: Parser Int
 parseNum = read <$> many1 digit
 
 part1 :: [Instruction] -> IO ()
-part1 = print . head . filter isSameBot . map (botValues . fst) . takeWhile (not . null . snd) . iterate (uncurry nextContent) . ([],)
-    where botValues = map getBot . concatMap (filter isValue) . groupBy sameBot
-          sameBot (BotContent b _) (BotContent b' _) = b == b'
-          isValue b = let v = getValue b in (v == 17 || v == 61)
-          isSameBot [b, b'] = b == b'
-          isSameBot _ = False
+part1 = print . botWithValues 17 61 . iterateInstructions
 
 part2 :: [Instruction] -> IO ()
-part2 _ = print 0
+part2 = print . product . map getContentValue . filter isExpectedOutput . last . iterateInstructions
+  where
+    getOutput (OutputContent o _) = Just o
+    getOutput _ = Nothing
+    isExpectedOutput = (`elem` (Just <$> [0, 1, 2])) . getOutput
