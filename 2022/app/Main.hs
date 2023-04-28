@@ -1,5 +1,3 @@
-{-# LANGUAGE ImportQualifiedPost #-}
-
 import Day1 qualified as D1
 import Day10 qualified as D10
 import Day11 qualified as D11
