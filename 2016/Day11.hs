@@ -24,6 +24,9 @@ type CacheItem = (Int, [(Int, Int)])
 
 data CachedState = CachedState {floorStates :: [FloorState], statesCache :: S.Set CacheItem} deriving (Show, Eq)
 
+extraParts :: [Part]
+extraParts = [Generator, Microship] <*> ["elerium", "dilithium"]
+
 cacheItem :: FloorState -> CacheItem
 cacheItem (d, u) =
   let floorContents = map floorContent $ reverse d ++ u
@@ -121,4 +124,5 @@ part1 :: [Floor] -> IO ()
 part1 = print . length . allFloorStates
 
 part2 :: [Floor] -> IO ()
-part2 = print . length . concatMap floorContent
+part2 ((Floor n p) : rs) = part1 (Floor n (p ++ extraParts) : rs)
+part2 [] = part1 []
