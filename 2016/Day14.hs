@@ -5,7 +5,7 @@ module Day14
   )
 where
 
-import Crypto.Hash.MD5 (hash)
+import Crypto.Hash.MD5 qualified as MD5
 import Data.ByteString.Builder (byteStringHex, toLazyByteString)
 import Data.ByteString.Char8 qualified as B
 import Data.List (isInfixOf, group)
@@ -14,11 +14,14 @@ import Text.Parsec.String
 
 type Hash = String
 
-md5Hex :: Hash -> Hash
-md5Hex = B.unpack . B.toStrict . toLazyByteString . byteStringHex . hash . B.pack
+md5Hex :: String -> Hash
+md5Hex = B.unpack . B.toStrict . toLazyByteString . byteStringHex . MD5.hash . B.pack
 
-generateHashes :: String -> [(Int, Hash)]
-generateHashes s = [(i, md5Hex (s ++ show i)) | i <- [0 ..]]
+generateHashes :: (Int -> Hash) -> [(Int, Hash)]
+generateHashes hash = [(i, hash i) | i <- [0 ..]]
+
+hashFunction :: Int -> String -> Int -> Hash
+hashFunction n s i = last . take (n + 1) . iterate md5Hex $ (s ++ show i)
 
 isValidPassword :: [Hash] -> Bool
 isValidPassword [] = False
@@ -32,8 +35,11 @@ triplets = filter ((>=3) . length) . group
 parseInput :: Parser String
 parseInput = many1 alphaNum <* newline <* eof
 
+indexToGenerateHashNumber :: Int -> String -> Int
+indexToGenerateHashNumber n = fst . head . last . take 64 . filter (isValidPassword . map snd) . iterate tail . generateHashes . hashFunction n
+
 part1 :: String -> IO ()
-part1 = print . fst . head . last . take 64 . filter (isValidPassword . map snd) . iterate tail . generateHashes
+part1 = print . indexToGenerateHashNumber 1
 
 part2 :: String -> IO ()
-part2 = putStrLn
+part2 = print . indexToGenerateHashNumber 2017
