@@ -84,7 +84,7 @@ takeUntil f (x : rs) = if f x then [x] else x : takeUntil f rs
 
 executeUntilEnd :: RegState -> [Instruction] -> [GlobalState]
 executeUntilEnd r i = takeUntil isEndState . iterate (nextInstruction . executeNext) $ GlobalState r (i, [])
- 
+
 parseInput :: Parser [Instruction]
 parseInput = parseInstruction `sepEndBy1` newline <* eof
 
@@ -117,7 +117,6 @@ executeAndPrintA r = print . getReg A . regState . last . executeUntilEnd r
 
 part1 :: [Instruction] -> IO ()
 part1 = executeAndPrintA (RegState 0 0 0 0)
-
 
 part2 :: [Instruction] -> IO ()
 part2 = executeAndPrintA (RegState 0 0 1 0)

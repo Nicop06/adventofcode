@@ -8,7 +8,7 @@ where
 import Crypto.Hash.MD5 qualified as MD5
 import Data.ByteString.Builder (byteStringHex, toLazyByteString)
 import Data.ByteString.Char8 qualified as B
-import Data.List (isInfixOf, group)
+import Data.List (group, isInfixOf)
 import Text.Parsec
 import Text.Parsec.String
 
@@ -26,11 +26,11 @@ hashFunction n s i = last . take (n + 1) . iterate md5Hex $ (s ++ show i)
 isValidPassword :: [Hash] -> Bool
 isValidPassword [] = False
 isValidPassword (h : rs) = case triplets h of
-    (c : _) : _ -> any (replicate 5 c `isInfixOf`) $ take 1000 (tail rs)
-    _ -> False
+  (c : _) : _ -> any (replicate 5 c `isInfixOf`) $ take 1000 (tail rs)
+  _ -> False
 
 triplets :: Hash -> [String]
-triplets = filter ((>=3) . length) . group
+triplets = filter ((>= 3) . length) . group
 
 parseInput :: Parser String
 parseInput = many1 alphaNum <* newline <* eof
