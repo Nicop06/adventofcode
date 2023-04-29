@@ -21,8 +21,9 @@ numBits 0 = 0
 numBits n = n `rem` 2 + numBits (n `div` 2)
 
 accessiblePositions :: Position -> [Position]
-accessiblePositions p = filter isValidPos $ ([first, second] <*> [(+1), subtract 1]) <&> ($ p)
-    where isValidPos (x, y) = x >= 0 && y >= 0
+accessiblePositions p = filter isValidPos $ ([first, second] <*> [(+ 1), subtract 1]) <&> ($ p)
+  where
+    isValidPos (x, y) = x >= 0 && y >= 0
 
 nextPositions :: Int -> S.Set Position -> S.Set Position
 nextPositions n = S.fromList . filter (isOpenSpace n) . concatMap accessiblePositions . S.toList
@@ -34,7 +35,7 @@ parseInput :: Parser Int
 parseInput = read <$> many1 digit <* newline <* eof
 
 part1 :: Int -> IO ()
-part1 = print . length . takeWhile (not . ((31,39) `S.member`)) . allAccessiblePositions
+part1 = print . length . takeWhile (not . ((31, 39) `S.member`)) . allAccessiblePositions
 
 part2 :: Int -> IO ()
 part2 = print . S.size . S.unions . take 51 . allAccessiblePositions

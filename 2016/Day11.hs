@@ -7,7 +7,7 @@ where
 
 import Control.Applicative ((<**>))
 import Control.Arrow (first, second)
-import Data.List (sort, sortOn, groupBy)
+import Data.List (groupBy, sort, sortOn)
 import Data.Set qualified as S
 import Text.Parsec
 import Text.Parsec.String
@@ -94,7 +94,7 @@ isFinalState _ = False
 allFloorStates :: [Floor] -> [CachedState]
 allFloorStates f = takeWhile (not . any isFinalState . floorStates) . iterate allNextStates $ initialStates
   where
-    initialStates = CachedState [ ([], f)] S.empty
+    initialStates = CachedState [([], f)] S.empty
 
 parseInput :: Parser [Floor]
 parseInput = parseFloor `sepEndBy1` newline <* eof
