@@ -14,7 +14,7 @@ import Day13 qualified as D13
 import Day14 qualified as D14
 import Day15 qualified as D15
 import Day16 qualified as D16
---import Day17 qualified as D17
+import Day17 qualified as D17
 --import Day18 qualified as D18
 --import Day19 qualified as D19
 --import Day20 qualified as D20
@@ -43,7 +43,7 @@ runDay 13 = parseAndRun 13 D13.parseInput [D13.part1, D13.part2]
 runDay 14 = parseAndRun 14 D14.parseInput [D14.part1, D14.part2]
 runDay 15 = parseAndRun 15 D15.parseInput [D15.part1, D15.part2]
 runDay 16 = parseAndRun 16 D16.parseInput [D16.part1, D16.part2]
---runDay 17 = parseAndRun 17 D17.parseInput [D17.part1, D17.part2]
+runDay 17 = parseAndRun 17 D17.parseInput [D17.part1, D17.part2]
 --runDay 18 = parseAndRun 18 D18.parseInput [D18.part1, D18.part2]
 --runDay 19 = parseAndRun 19 D19.parseInput [D19.part1, D19.part2]
 --runDay 20 = parseAndRun 20 D20.parseInput [D20.part1, D20.part2]
