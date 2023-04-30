@@ -10,21 +10,29 @@ import Text.Parsec.String
 
 type Elf = Int
 
+skipIndexIf :: (Int -> Bool) -> [a] -> [a]
+skipIndexIf f = map snd . filter (f . fst) . zip [0 ..]
+
 stealFromLeftElf :: Int -> [[Elf]]
 stealFromLeftElf numElfs = iterate steal [1 .. numElfs]
   where
     steal e =
-      let e' = map snd . filter (odd . fst) . zip [1 ..] $ e
+      let e' = skipIndexIf even e
        in if odd $ length e then tail e' else e'
 
 stealFromAcross :: Int -> Elf
-stealFromAcross numElfs = stealFromAcross' 0 numElfs [1 .. numElfs]
+stealFromAcross numElfs = head . head . filter ((<= 1) . length) . iterate stealFromAcross' $ [1 .. numElfs]
+
+stealFromAcross' :: [Elf] -> [Elf]
+stealFromAcross' [] = error "No Elf left"
+stealFromAcross' [e] = [e]
+stealFromAcross' elfs =
+  let elfs' = skipIndexIf (not . shouldStealFrom) elfs
+      numElfStolenFrom = n - length elfs'
+   in drop numElfStolenFrom elfs' ++ take numElfStolenFrom elfs'
   where
-    stealFromAcross' _ _ [] = error "Cannot have a single elf left"
-    stealFromAcross' _ _ [e] = e
-    stealFromAcross' i n l =
-      let indexToSkip = ((i + n `div` 2) `mod` n)
-       in stealFromAcross' ((i + 1) `mod` n) (n - 1) (take indexToSkip l ++ drop (indexToSkip + 1) l)
+    n = length elfs
+    shouldStealFrom i = i >= (n `div` 2) && (let j = (2 * i - n) `mod` 3 in j == 0 || j == 2)
 
 parseInput :: Parser Int
 parseInput = read <$> many1 digit <* newline <* eof
