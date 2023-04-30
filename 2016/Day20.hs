@@ -23,18 +23,19 @@ blockRange r = concatMap (`rangeDifference` r)
 
 rangeDifference :: Range -> Range -> [Range]
 rangeDifference (f, t) (f', t')
-    | f' > t || t' < f = [(f, t)]
-    | f' <= f && t' >= t = []
-    | f' > f && t' < t = [(f,f'-1), (t'+1,t)]
-    | f' <= f = [(t'+1,t)]
-    | otherwise = [(f,f'-1)]
+  | f' > t || t' < f = [(f, t)]
+  | f' <= f && t' >= t = []
+  | f' > f && t' < t = [(f, f' - 1), (t' + 1, t)]
+  | f' <= f = [(t' + 1, t)]
+  | otherwise = [(f, f' - 1)]
 
 lowestIPNotBlocked :: [Range] -> IP
 lowestIPNotBlocked ranges = minimum (map fst ranges)
 
 numIPAllowed :: [Range] -> Int
 numIPAllowed = sum . map rangeSize
-    where rangeSize (f, t) = t - f + 1
+  where
+    rangeSize (f, t) = t - f + 1
 
 parseInput :: Parser [Range]
 parseInput = parseRange `sepEndBy1` newline <* eof
