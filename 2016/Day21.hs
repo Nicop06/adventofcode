@@ -69,10 +69,10 @@ rotateLetterFunc l size f = rotateFunc (numStepsForLetter l size f) size f
 
 rotateBackLetterFunc :: Letter -> Size -> (Index -> Letter) -> Index -> Letter
 rotateBackLetterFunc l size f =
-  let steps = numStepsForLetterIndex size (head . filter ((== letterIndex l size f) . newLetterLocation) $ [0 .. size - 1])
+  let steps = snd . head . filter ((== letterIndex l size f) . (`mod` size) . uncurry (+)) . zip indices $ map (numStepsForLetterIndex size) indices
    in rotateFunc (-steps) size f
   where
-    newLetterLocation i = (i + numStepsForLetterIndex size i) `mod` size
+    indices = [0 .. size - 1]
 
 numStepsForLetterIndex :: Size -> Index -> Index
 numStepsForLetterIndex size i = (i + (if abs i >= 4 then 2 else 1) + size) `mod` size
