@@ -5,14 +5,15 @@ module Day1
   )
 where
 
-import Data.List (sort)
+import Data.List (sortOn)
+import Data.Ord
 import Text.Parsec
 import Text.Parsec.String
 
 type Inventory = [Int]
 
 largestAmountCaloriesTopK :: Int -> [[Int]] -> Int
-largestAmountCaloriesTopK k = sum . take k . reverse . sort . map sum
+largestAmountCaloriesTopK k = sum . take k . sortOn Down . map sum
 
 parseNumber :: Parser Int
 parseNumber = read <$> many1 digit
