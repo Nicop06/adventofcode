@@ -70,7 +70,7 @@ listDups (x : xs) =
    in if null group then listDups xs' else x : listDups xs'
 
 parseInstruction :: Parser Instruction
-parseInstruction = Instruction <$> (read . pure <$> anyChar) <*> (read <$> many1 digit)
+parseInstruction = Instruction . read . pure <$> anyChar <*> (read <$> many1 digit)
 
 parseInput :: Parser [Instruction]
 parseInput = parseInstruction `sepBy1` string ", "
