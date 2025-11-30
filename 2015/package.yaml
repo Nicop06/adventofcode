@@ -38,7 +38,6 @@ ghc-options:
 - -XImportQualifiedPost
 - -XTupleSections
 - -XTypeOperators
-- -O3
 
 library:
   source-dirs:
@@ -52,8 +51,6 @@ executables:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
+    - -O3
     dependencies:
     - adventofcode2015
-    when:
-    - condition: false
-      other-modules: Paths_adventofcode2015

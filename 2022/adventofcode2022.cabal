@@ -1,12 +1,12 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.36.0.
+-- This file has been generated from package.yaml by hpack version 0.37.0.
 --
 -- see: https://github.com/sol/hpack
 
 name:           adventofcode2022
 version:        0.1.0.0
-description:    The solution packageor the adventofcode 2022.
+description:    The solution for the adventofcode 2022.
 homepage:       https://github.com/Nicop06/adventofcode#readme
 bug-reports:    https://github.com/Nicop06/adventofcode/issues
 author:         Nicolas Porcel
@@ -50,7 +50,7 @@ library
       Paths_adventofcode2022
   hs-source-dirs:
       ./
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -Wno-type-defaults -XImportQualifiedPost -XTupleSections
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -Wno-type-defaults -XImportQualifiedPost -XTupleSections -XTypeOperators
   build-depends:
       aeson
     , base >=4.7 && <5
@@ -66,9 +66,11 @@ library
 
 executable aoc2022
   main-is: Main.hs
+  other-modules:
+      Paths_adventofcode2022
   hs-source-dirs:
       app
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -Wno-type-defaults -XImportQualifiedPost -XTupleSections -threaded -rtsopts -with-rtsopts=-N -O2
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -Wno-type-defaults -XImportQualifiedPost -XTupleSections -XTypeOperators -threaded -rtsopts -with-rtsopts=-N -O3
   build-depends:
       adventofcode2022
     , aeson

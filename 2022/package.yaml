@@ -7,10 +7,10 @@ maintainer:          "nicolasporcel06@gmail.com"
 copyright:           "2022 Nicolas Porcel"
 
 # Metadata used when publishing your package
-# synopsis:            Solutions packageor the Advent of Code
+# synopsis:            Solutions for the Advent of Code
 # category:            bin
 
-description: The solution packageor the adventofcode 2022.
+description: The solution for the adventofcode 2022.
 
 dependencies:
 - base >= 4.7 && < 5
@@ -37,6 +37,7 @@ ghc-options:
 - -Wno-type-defaults
 - -XImportQualifiedPost
 - -XTupleSections
+- -XTypeOperators
 
 library:
   source-dirs:
@@ -50,9 +51,6 @@ executables:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
-    - -O2
+    - -O3
     dependencies:
     - adventofcode2022
-    when:
-    - condition: false
-      other-modules: Paths_adventofcode2022
