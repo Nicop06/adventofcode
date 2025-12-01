@@ -81,10 +81,10 @@ goDown (i:u, d) = (u, i : d)
 goDown ([], d) = ([], d)
 
 moveBy :: Int -> InstructionState -> InstructionState
-moveBy i
-  | i > 0 = moveBy (i - 1) . goDown
-  | i < 0 = moveBy (i + 1) . goUp
-  | otherwise = id
+moveBy by state@(_, _)
+  | by < 0 = moveBy (by + 1) . goUp $ state
+  | by > 0 = moveBy (by - 1) . goDown $ state
+  | otherwise = state
 
 toggle :: Instruction -> Instruction
 toggle NoOp = NoOp
@@ -111,16 +111,19 @@ toggleAt at state@(i:u, j:d)
   | otherwise = (toggle i : u, j : d)
 
 execute :: Instruction -> GlobalState -> GlobalState
-execute NoOp s = s
-execute (Copy from to) s@(GlobalState rs _) = s {regState = copy from to rs}
-execute (Inc reg) s@(GlobalState rs _) = s {regState = increment reg rs}
-execute (Dec reg) s@(GlobalState rs _) = s {regState = decrement reg rs}
+execute NoOp s = nextInstruction s
+execute (Copy from to) s@(GlobalState rs _) =
+  nextInstruction $ s {regState = copy from to rs}
+execute (Inc reg) s@(GlobalState rs _) =
+  nextInstruction $ s {regState = increment reg rs}
+execute (Dec reg) s@(GlobalState rs _) =
+  nextInstruction $ s {regState = decrement reg rs}
 execute (JumpNoZero val n) s@(GlobalState rs ins) =
   if getValue val rs == 0
-    then s
-    else s {insState = moveBy (getValue n rs - 1) ins}
+    then nextInstruction s
+    else s {insState = moveBy (getValue n rs) ins}
 execute (Toggle val) s@(GlobalState rs ins) =
-  s {insState = toggleAt (getValue val rs) ins}
+  nextInstruction $ s {insState = toggleAt (getValue val rs) ins}
 
 executeNext :: GlobalState -> GlobalState
 executeNext s@(GlobalState _ (i:_, _)) = execute i s
@@ -129,21 +132,14 @@ executeNext s = s
 nextInstruction :: GlobalState -> GlobalState
 nextInstruction s@(GlobalState _ i) = s {insState = goDown i}
 
-isEndState :: GlobalState -> Bool
-isEndState (GlobalState _ ([], _)) = True
-isEndState (GlobalState _ _) = False
+executeUntilEnd :: GlobalState -> GlobalState
+executeUntilEnd state@(GlobalState _ ([], _)) = state
+executeUntilEnd state@(GlobalState rs _)
+  | (getReg A rs > 0) = executeUntilEnd $! executeNext state -- Force strictness
+  | otherwise = executeUntilEnd $! executeNext state
 
-takeUntil :: (a -> Bool) -> [a] -> [a]
-takeUntil _ [] = []
-takeUntil f (x:rs) =
-  if f x
-    then [x]
-    else x : takeUntil f rs
-
-executeUntilEnd :: RegState -> [Instruction] -> [GlobalState]
-executeUntilEnd r i =
-  takeUntil isEndState . iterate (nextInstruction . executeNext) $
-  GlobalState r (i, [])
+makeInitState :: RegState -> [Instruction] -> GlobalState
+makeInitState r i = GlobalState r (i, [])
 
 parseInput :: Parser [Instruction]
 parseInput = parseInstruction `sepEndBy1` newline <* eof
@@ -177,7 +173,8 @@ parseNum :: Parser Int
 parseNum = read <$> many1 (digit <|> char '-')
 
 executeAndPrintA :: RegState -> [Instruction] -> IO ()
-executeAndPrintA r = print . getReg A . regState . last . executeUntilEnd r
+executeAndPrintA r =
+  print . getReg A . regState . executeUntilEnd . makeInitState r
 
 part1 :: [Instruction] -> IO ()
 part1 = executeAndPrintA (RegState 7 0 0 0)
