@@ -38,6 +38,7 @@ ghc-options:
 - -XImportQualifiedPost
 - -XTupleSections
 - -XTypeOperators
+- -XBangPatterns
 
 library:
   source-dirs:

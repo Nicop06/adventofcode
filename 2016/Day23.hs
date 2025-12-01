@@ -134,9 +134,8 @@ nextInstruction s@(GlobalState _ i) = s {insState = goDown i}
 
 executeUntilEnd :: GlobalState -> GlobalState
 executeUntilEnd state@(GlobalState _ ([], _)) = state
-executeUntilEnd state@(GlobalState rs _)
-  | (getReg A rs > 0) = executeUntilEnd $! executeNext state -- Force strictness
-  | otherwise = executeUntilEnd $! executeNext state
+executeUntilEnd state@(GlobalState (RegState !_ !_ !_ !_) !_) =
+  executeUntilEnd . executeNext $! state
 
 makeInitState :: RegState -> [Instruction] -> GlobalState
 makeInitState r i = GlobalState r (i, [])

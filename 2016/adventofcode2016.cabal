@@ -48,7 +48,7 @@ library
       Paths_adventofcode2016
   hs-source-dirs:
       ./
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -Wno-type-defaults -XImportQualifiedPost -XTupleSections -XTypeOperators
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -Wno-type-defaults -XImportQualifiedPost -XTupleSections -XTypeOperators -XBangPatterns
   build-depends:
       aeson
     , base >=4.7 && <5
@@ -68,7 +68,7 @@ executable aoc2016
       Paths_adventofcode2016
   hs-source-dirs:
       app
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -Wno-type-defaults -XImportQualifiedPost -XTupleSections -XTypeOperators -threaded -rtsopts -with-rtsopts=-N -O3
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -Wno-type-defaults -XImportQualifiedPost -XTupleSections -XTypeOperators -XBangPatterns -threaded -rtsopts -with-rtsopts=-N -O3
   build-depends:
       adventofcode2016
     , aeson
