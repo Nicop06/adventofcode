@@ -1,0 +1,61 @@
+name:                adventofcode2025
+version:             0.1.0.0
+github:              "Nicop06/adventofcode"
+license:             BSD3
+author:              "Nicolas Porcel"
+maintainer:          "nicolasporcel06@gmail.com"
+copyright:           "2025 Nicolas Porcel"
+
+# Metadata used when publishing your package
+# synopsis:            Solutions for the Advent of Code
+# category:            bin
+
+description: The solution for the adventofcode 2025.
+
+dependencies:
+- base >= 4.7 && < 5
+- parsec
+
+ghc-options:
+- -Wall
+- -Wcompat
+- -Widentities
+- -Wincomplete-record-updates
+- -Wincomplete-uni-patterns
+- -Wmissing-export-lists
+- -Wmissing-home-modules
+- -Wpartial-fields
+- -Wredundant-constraints
+- -Wno-type-defaults
+- -XImportQualifiedPost
+- -XTupleSections
+- -XTypeOperators
+- -XBangPatterns
+
+library:
+  source-dirs: src
+
+executables:
+  aoc2025:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    - -O2
+    dependencies:
+    - adventofcode2025
+
+tests:
+  aoc2025-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - adventofcode2025
+    - QuickCheck
+    - hspec
