@@ -31,15 +31,9 @@ countZero = length . filter (== 0) . map (`rem` numDials)
 
 numPassByZero :: Password -> Password -> Int
 numPassByZero p1 p2
-  | p1 < p2 = adjustedNumDivDiff (p1 + 1) p2
-  | p2 < p1 = adjustedNumDivDiff (p2 - 1) (p1 - 1)
+  | p1 < p2 = countZero [(p1 + 1) .. p2]
+  | p2 < p1 = countZero [p2 .. (p1 - 1)]
   | otherwise = 0
-  where
-    numDivDiff a b = (b `div` numDials) - (a `div` numDials)
-    adjustedNumDivDiff a b
-      | a <= 0 && b > 0 = numDivDiff (a - 1) b
-      | a < 0 && b < 0 = numDivDiff (a - 1) (b - 1)
-      | otherwise = numDivDiff a b
 
 allNumPassByZero :: [Password] -> Int
 allNumPassByZero (p1:p2:rs) = numPassByZero p1 p2 + allNumPassByZero (p2 : rs)
