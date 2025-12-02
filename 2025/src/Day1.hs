@@ -29,11 +29,16 @@ applyRotation p (Rotation L r) = p - r
 countZero :: [Password] -> Int
 countZero = length . filter (== 0) . map (`rem` numDials)
 
+-- The number of zeros (modulus 100) between p1 and p2.
+-- If p1 mod 100 == 0, it should not be counted, but if p2 mod 100 == 0 then it
+-- should.
 numPassByZero :: Password -> Password -> Int
 numPassByZero p1 p2
-  | p1 < p2 = countZero [(p1 + 1) .. p2]
-  | p2 < p1 = countZero [p2 .. (p1 - 1)]
+  | p1 < p2 = numDivDiff p1 p2
+  | p2 < p1 = numDivDiff (p2 - 1) (p1 - 1)
   | otherwise = 0
+  where
+    numDivDiff a b = (b `div` numDials) - (a `div` numDials)
 
 allNumPassByZero :: [Password] -> Int
 allNumPassByZero (p1:p2:rs) = numPassByZero p1 p2 + allNumPassByZero (p2 : rs)

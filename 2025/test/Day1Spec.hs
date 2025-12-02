@@ -57,3 +57,11 @@ spec = do
     (numPassByZero (-100) (-300)) `shouldBe` 2
   it "should have two zeros between -300 and -100" $ do
     (numPassByZero (-300) (-100)) `shouldBe` 2
+  it "should have three zeros between -301 and -20" $ do
+    (numPassByZero (-301) (-20)) `shouldBe` 3
+  it "should have two zeros between -350 and -101" $ do
+    (numPassByZero (-350) (-101)) `shouldBe` 2
+  it "should have three zeros between 20 and 301" $ do
+    (numPassByZero 20 301) `shouldBe` 3
+  it "should have two zeros between 101 and 350" $ do
+    (numPassByZero 99 250) `shouldBe` 2
