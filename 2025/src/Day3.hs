@@ -16,18 +16,27 @@ hasAtLeastLength _ 0 = True
 hasAtLeastLength [] i = i == 0
 hasAtLeastLength (_:xs) i = hasAtLeastLength xs (i - 1)
 
-maxJoltage :: Int -> Bank -> Int
-maxJoltage _ [] = 0
-maxJoltage 0 _ = 0
-maxJoltage numDigits (x:xs)
-  | xs `hasAtLeastLength` (numDigits - 1) =
-    max
-      (x * 10 ^ (numDigits - 1) + maxJoltage (numDigits - 1) xs)
-      (maxJoltage numDigits xs)
-  | otherwise = 0
+nextBestBattery :: Int -> Bank -> (Int, Bank)
+nextBestBattery n (b:bs)
+  | bs `hasAtLeastLength` (n - 1) =
+    let (b', bs') = nextBestBattery n bs
+     in if b >= b'
+          then (b, bs)
+          else (b', bs')
+  | otherwise = (0, [])
+nextBestBattery _ _ = (0, [])
+
+bestBatteries :: Int -> Bank -> Bank
+bestBatteries 0 _ = []
+bestBatteries n bs =
+  let (b, bs') = nextBestBattery n bs
+   in b : bestBatteries (n - 1) bs'
+
+bankJoltage :: Bank -> Int
+bankJoltage = foldl ((+) . (* 10)) 0
 
 totalJoltage :: Int -> [Bank] -> Int
-totalJoltage numDigits = sum . map (maxJoltage numDigits)
+totalJoltage numDigits = sum . map (bankJoltage . bestBatteries numDigits)
 
 parseBank :: Parser Bank
 parseBank = many1 (read . pure <$> digit)
