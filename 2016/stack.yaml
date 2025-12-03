@@ -1,4 +1,7 @@
-resolver: lts-24.21
+resolver: lts-22.44
 
 packages:
 - .
+
+extra-deps:
+- repa-3.4.2.0
