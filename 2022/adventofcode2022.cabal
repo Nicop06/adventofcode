@@ -70,7 +70,7 @@ executable aoc2022
       Paths_adventofcode2022
   hs-source-dirs:
       app
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -Wno-type-defaults -XImportQualifiedPost -XTupleSections -XTypeOperators -threaded -rtsopts -with-rtsopts=-N -O3
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -Wno-type-defaults -XImportQualifiedPost -XTupleSections -XTypeOperators -threaded -rtsopts -with-rtsopts=-N -O2
   build-depends:
       adventofcode2022
     , aeson
