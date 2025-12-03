@@ -11,24 +11,26 @@ type Battery = Int
 
 type Bank = [Battery]
 
-allJoltage :: Int -> Bank -> [[Int]]
-allJoltage _ [] = [[]]
-allJoltage 0 _ = [[]]
-allJoltage numDigits (b:bs) = allJoltage numDigits bs ++ map (b:) (allJoltage (numDigits - 1) bs)
+hasAtLeastLength :: [a] -> Int -> Bool
+hasAtLeastLength _ 0 = True
+hasAtLeastLength [] i = i == 0
+hasAtLeastLength (_:xs) i = hasAtLeastLength xs (i - 1)
 
-sumJoltage :: [Int] -> Int
-sumJoltage = foldl ((+) . (*10)) 0
-
-maxJoltage :: Int -> Bank -> [Int]
-maxJoltage _ [] = []
-maxJoltage 0 _ = []
-maxJoltage numDigits (b:bs) = foldr max [] (allJoltage numDigits bs ++ map (b:) (allJoltage (numDigits - 1) bs))
+maxJoltage :: Int -> Bank -> Int
+maxJoltage _ [] = 0
+maxJoltage 0 _ = 0
+maxJoltage numDigits (x:xs)
+  | xs `hasAtLeastLength` (numDigits - 1) =
+    max
+      (x * 10 ^ (numDigits - 1) + maxJoltage (numDigits - 1) xs)
+      (maxJoltage numDigits xs)
+  | otherwise = 0
 
 totalJoltage :: Int -> [Bank] -> Int
-totalJoltage numDigits = sum . map (foldr (max . sumJoltage) 0 . allJoltage numDigits)
+totalJoltage numDigits = sum . map (maxJoltage numDigits)
 
 parseBank :: Parser Bank
-parseBank = many1 (read .pure <$> digit)
+parseBank = many1 (read . pure <$> digit)
 
 parseInput :: Parser [Bank]
 parseInput = parseBank `sepEndBy1` newline <* eof
