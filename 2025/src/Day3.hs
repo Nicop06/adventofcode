@@ -11,17 +11,21 @@ type Battery = Int
 
 type Bank = [Battery]
 
-maxFirstJoltage :: Bank -> (Int, Bank)
-maxFirstJoltage (j1:j2:rs) = let (max', rs') = maxFirstJoltage (j2:rs) in
-  if max' > j1 then (max', rs') else (j1, j2:rs)
-maxFirstJoltage _ = (0, [])
+allJoltage :: Int -> Bank -> [[Int]]
+allJoltage _ [] = [[]]
+allJoltage 0 _ = [[]]
+allJoltage numDigits (b:bs) = allJoltage numDigits bs ++ map (b:) (allJoltage (numDigits - 1) bs)
 
-maxJoltage :: Bank -> Int
-maxJoltage bank = let (m, rs) = maxFirstJoltage bank in m * 10 + foldr max 0 rs
+sumJoltage :: [Int] -> Int
+sumJoltage = foldl ((+) . (*10)) 0
 
-allJoltage :: Bank -> [Int]
-allJoltage (b:rs) = map (+10 * b) rs ++ allJoltage rs
-allJoltage _ = []
+maxJoltage :: Int -> Bank -> [Int]
+maxJoltage _ [] = []
+maxJoltage 0 _ = []
+maxJoltage numDigits (b:bs) = foldr max [] (allJoltage numDigits bs ++ map (b:) (allJoltage (numDigits - 1) bs))
+
+totalJoltage :: Int -> [Bank] -> Int
+totalJoltage numDigits = sum . map (foldr (max . sumJoltage) 0 . allJoltage numDigits)
 
 parseBank :: Parser Bank
 parseBank = many1 (read .pure <$> digit)
@@ -30,7 +34,7 @@ parseInput :: Parser [Bank]
 parseInput = parseBank `sepEndBy1` newline <* eof
 
 part1 :: [Bank] -> IO ()
-part1 = print . sum . map maxJoltage
+part1 = print . totalJoltage 2
 
 part2 :: [Bank] -> IO ()
-part2 = print . sum . map (foldr max 0 . allJoltage)
+part2 = print . totalJoltage 12
