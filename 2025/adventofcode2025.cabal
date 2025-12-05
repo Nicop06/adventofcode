@@ -25,6 +25,7 @@ library
       Day2
       Day3
       Day4
+      Day5
   other-modules:
       Paths_adventofcode2025
   hs-source-dirs:
