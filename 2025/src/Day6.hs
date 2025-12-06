@@ -1,8 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 
 module Day6
-  ( parseInput
-  , part1
+  ( part1
   , part2
   ) where
 
@@ -15,20 +14,20 @@ data Operation
   | Multiply
   deriving (Eq, Show)
 
-data Puzzle =
-  Puzzle [[Int]] [Operation]
+data Part1 =
+  Part1 [[Int]] [Operation]
   deriving (Eq, Show)
 
 applyOperation :: Operation -> [Int] -> Int
 applyOperation Add = sum
 applyOperation Multiply = product
 
-solvePuzzle :: Puzzle -> Int
-solvePuzzle (Puzzle numbers operations) =
+solvePart1 :: Part1 -> Int
+solvePart1 (Part1 numbers operations) =
   sum $ zipWith applyOperation operations (transpose numbers)
 
 parseRow :: (Stream s m Char) => ParsecT s u m a -> ParsecT s u m [a]
-parseRow parser = parser `sepEndBy1` skipMany (char ' ')
+parseRow parser = parser `sepEndBy1` skipMany1 (char ' ')
 
 parseNumbersRow :: Parser [Int]
 parseNumbersRow = parseRow (read <$> many1 digit)
@@ -39,14 +38,44 @@ parseOperation = (Add <$ char '+') <|> (Multiply <$ char '*')
 parseOperationRow :: Parser [Operation]
 parseOperationRow = parseRow parseOperation
 
-parseInput :: Parser Puzzle
-parseInput =
-  Puzzle <$> (parseNumbersRow `sepEndBy1` newline) <*> parseOperationRow <*
+parsePart1 :: Parser Part1
+parsePart1 =
+  Part1 <$> (parseNumbersRow `sepEndBy1` newline) <*> parseOperationRow <*
   newline <*
   eof
 
-part1 :: Puzzle -> IO ()
-part1 = print . solvePuzzle
+part1 :: FilePath -> IO ()
+part1 file = parseFromFile parsePart1 file >>= either print (print . solvePart1)
 
-part2 :: Puzzle -> IO ()
-part2 _ = print 1
+------------
+-- Part 2 --
+------------
+data OperationOrSpace
+  = Operation Operation
+  | Space
+
+data NumberOrNone
+  = Number Int
+  | NaN
+
+data Part2 =
+  Part2 [[NumberOrNone]] [OperationOrSpace]
+
+solvePart2 :: Part2 -> Int
+solvePart2 (Part2 numbers operations) = length numbers + length operations
+
+parseNumberOrNone :: Parser NumberOrNone
+parseNumberOrNone = (Number . read . pure <$> digit) <|> (NaN <$ char ' ')
+
+parseOperationOrSpace :: Parser OperationOrSpace
+parseOperationOrSpace = (Operation <$> parseOperation) <|> (Space <$ char ' ')
+
+parsePart2 :: Parser Part2
+parsePart2 =
+  Part2 <$> (many1 parseNumberOrNone `sepEndBy1` newline) <*>
+  many1 parseOperationOrSpace <*
+  newline <*
+  eof
+
+part2 :: FilePath -> IO ()
+part2 file = parseFromFile parsePart2 file >>= either print (print . solvePart2)
