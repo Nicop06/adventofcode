@@ -26,17 +26,18 @@ solvePart1 :: Part1 -> Int
 solvePart1 (Part1 numbers operations) =
   sum $ zipWith applyOperation operations (transpose numbers)
 
-parseRow :: (Stream s m Char) => ParsecT s u m a -> ParsecT s u m [a]
-parseRow parser = parser `sepEndBy1` skipMany1 (char ' ')
+parseRowWith :: (Stream s m Char) => ParsecT s u m a -> ParsecT s u m [a]
+parseRowWith parser =
+  skipMany (char ' ') *> parser `sepEndBy1` skipMany1 (char ' ')
 
 parseNumbersRow :: Parser [Int]
-parseNumbersRow = parseRow (read <$> many1 digit)
+parseNumbersRow = parseRowWith (read <$> many1 digit)
 
 parseOperation :: Parser Operation
 parseOperation = (Add <$ char '+') <|> (Multiply <$ char '*')
 
 parseOperationRow :: Parser [Operation]
-parseOperationRow = parseRow parseOperation
+parseOperationRow = parseRowWith parseOperation
 
 parsePart1 :: Parser Part1
 parsePart1 =
@@ -50,31 +51,33 @@ part1 file = parseFromFile parsePart1 file >>= either print (print . solvePart1)
 ------------
 -- Part 2 --
 ------------
-data OperationOrSpace
-  = Operation Operation
-  | Space
-
-data NumberOrNone
-  = Number Int
-  | NaN
-
 data Part2 =
-  Part2 [[NumberOrNone]] [OperationOrSpace]
+  Part2 [String] [Operation]
+  deriving (Eq, Show)
+
+groupProblems :: [String] -> [[String]]
+groupProblems [] = []
+groupProblems (s:rs)
+  | all (== ' ') s = [] : groupProblems rs
+  | otherwise =
+    let groups = groupProblems rs
+     in case groups of
+          [] -> [[s]]
+          (g:gs) -> (s : g) : gs
+
+parseNumbers :: [String] -> [[Int]]
+parseNumbers = map (map read) . groupProblems . transpose
 
 solvePart2 :: Part2 -> Int
-solvePart2 (Part2 numbers operations) = length numbers + length operations
+solvePart2 (Part2 numbers operations) =
+  sum $ zipWith applyOperation operations (parseNumbers numbers)
 
-parseNumberOrNone :: Parser NumberOrNone
-parseNumberOrNone = (Number . read . pure <$> digit) <|> (NaN <$ char ' ')
-
-parseOperationOrSpace :: Parser OperationOrSpace
-parseOperationOrSpace = (Operation <$> parseOperation) <|> (Space <$ char ' ')
+parseRow :: Parser String
+parseRow = many1 (digit <|> char ' ')
 
 parsePart2 :: Parser Part2
 parsePart2 =
-  Part2 <$> (many1 parseNumberOrNone `sepEndBy1` newline) <*>
-  many1 parseOperationOrSpace <*
-  newline <*
+  Part2 <$> (parseRow `sepEndBy1` newline) <*> parseOperationRow <* newline <*
   eof
 
 part2 :: FilePath -> IO ()
