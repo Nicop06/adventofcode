@@ -45,15 +45,11 @@ beamTravel t t' =
              show tLen ++ " vs " ++ show tLen'
 
 numSplit :: [Tile] -> [Tile] -> Int
-numSplit r r' = sum . map boolToInt $ zipWith isSplit r r'
+numSplit r r' = sum . map fromEnum $ zipWith isSplit r r'
 
 isSplit :: Tile -> Tile -> Bool
 isSplit Beam Splitter = True
 isSplit _ _ = False
-
-boolToInt :: Bool -> Int
-boolToInt False = 0
-boolToInt True = 1
 
 countBeamSplit :: PuzzleInput -> Int
 countBeamSplit (r:r':rs) = numSplit r r' + countBeamSplit (beamTravel r r' : rs)

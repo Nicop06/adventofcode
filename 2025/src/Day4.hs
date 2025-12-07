@@ -40,17 +40,13 @@ isTileAccessible dim arrFn idx =
   (length . filter ((== Roll) . arrFn) $ neighbours dim idx) <
   maxNumNeighbourForAccess
 
-boolToInt :: Bool -> Int
-boolToInt True = 1
-boolToInt False = 0
-
 numAccessibleTiles :: Monad m => Grid -> m Int
-numAccessibleTiles = sumAllP . R.map boolToInt . accessibleTiles
+numAccessibleTiles = sumAllP . R.map fromEnum . accessibleTiles
 
 numAccessibleTilesRec :: Grid -> Int
 numAccessibleTilesRec grid =
   let mask = accessibleTiles grid
-      n = sumAllS . R.map boolToInt $ mask
+      n = sumAllS . R.map fromEnum $ mask
    in if n > 0
         then n +
              numAccessibleTilesRec (computeS $ R.zipWith emptyTile mask grid)
