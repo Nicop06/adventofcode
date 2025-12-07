@@ -13,19 +13,35 @@ import Text.Parsec.String
 data Tile
   = EmptySpace
   | Splitter
-  | Beam
+  | Beam Int
   deriving (Eq, Show)
 
 type PuzzleInput = [[Tile]]
+
+isBeam :: Tile -> Bool
+isBeam (Beam _) = True
+isBeam _ = False
+
+numBeams :: Tile -> Int
+numBeams (Beam i) = i
+numBeams _ = 0
 
 newTile :: DIM1 -> (DIM1 -> Tile) -> (DIM1 -> Tile) -> DIM1 -> Tile
 newTile dim f f' sh@(Z :. i) =
   let prev = (Z :. i - 1)
       next = (Z :. i + 1)
-   in if f' sh == EmptySpace &&
-         (inShape dim prev && isSplit (f prev) (f' prev) ||
-          inShape dim next && isSplit (f next) (f' next) || f sh == Beam)
-        then Beam
+      isPrevSplit = inShape dim prev && isSplit (f prev) (f' prev)
+      isNextSplit = inShape dim next && isSplit (f next) (f' next)
+      numBeamsCur =
+        (if isPrevSplit
+           then numBeams (f prev)
+           else 0) +
+        (if isNextSplit
+           then numBeams (f next)
+           else 0) +
+        numBeams (f sh)
+   in if f' sh == EmptySpace && (isPrevSplit || isNextSplit || isBeam (f sh))
+        then Beam numBeamsCur
         else f' sh
 
 beamTravel :: [Tile] -> [Tile] -> [Tile]
@@ -48,25 +64,16 @@ numSplit :: [Tile] -> [Tile] -> Int
 numSplit r r' = sum . map fromEnum $ zipWith isSplit r r'
 
 isSplit :: Tile -> Tile -> Bool
-isSplit Beam Splitter = True
+isSplit (Beam _) Splitter = True
 isSplit _ _ = False
 
 countBeamSplit :: PuzzleInput -> Int
 countBeamSplit (r:r':rs) = numSplit r r' + countBeamSplit (beamTravel r r' : rs)
 countBeamSplit _ = 0
 
-propagateBeam :: PuzzleInput -> PuzzleInput
-propagateBeam (r:r':rs) = r : propagateBeam (beamTravel r r' : rs)
-propagateBeam rs = rs
-
-toAscii :: Tile -> Char
-toAscii Beam = '|'
-toAscii Splitter = '^'
-toAscii EmptySpace = '.'
-
 parseTile :: Parser Tile
 parseTile =
-  (EmptySpace <$ char '.') <|> (Splitter <$ char '^') <|> (Beam <$ char 'S')
+  (EmptySpace <$ char '.') <|> (Splitter <$ char '^') <|> (Beam 1 <$ char 'S')
 
 parseInput :: Parser [[Tile]]
 parseInput = (many1 parseTile `sepEndBy1` newline) <* eof
@@ -75,4 +82,4 @@ part1 :: PuzzleInput -> IO ()
 part1 = print . countBeamSplit
 
 part2 :: PuzzleInput -> IO ()
-part2 = mapM_ (putStrLn . map toAscii) . propagateBeam
+part2 = print . sum . map numBeams . foldl1 beamTravel
