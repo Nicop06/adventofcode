@@ -1,8 +1,9 @@
 module Day3
-  ( parseInput
-  , part1
-  , part2
-  ) where
+  ( parseInput,
+    part1,
+    part2,
+  )
+where
 
 import Text.Parsec
 import Text.Parsec.String
@@ -14,15 +15,15 @@ type Bank = [Battery]
 hasAtLeastLength :: [a] -> Int -> Bool
 hasAtLeastLength _ 0 = True
 hasAtLeastLength [] i = i == 0
-hasAtLeastLength (_:xs) i = hasAtLeastLength xs (i - 1)
+hasAtLeastLength (_ : xs) i = hasAtLeastLength xs (i - 1)
 
 nextBestBattery :: Int -> Bank -> (Int, Bank)
-nextBestBattery n (b:bs)
+nextBestBattery n (b : bs)
   | bs `hasAtLeastLength` (n - 1) =
-    let (b', bs') = nextBestBattery n bs
-     in if b >= b'
-          then (b, bs)
-          else (b', bs')
+      let (b', bs') = nextBestBattery n bs
+       in if b >= b'
+            then (b, bs)
+            else (b', bs')
   | otherwise = (0, [])
 nextBestBattery _ _ = (0, [])
 

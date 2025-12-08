@@ -1,15 +1,16 @@
 module Day2
-  ( parseInput
-  , part1
-  , part2
-  , isInvalidId
-  ) where
+  ( parseInput,
+    part1,
+    part2,
+    isInvalidId,
+  )
+where
 
 import Text.Parsec
 import Text.Parsec.String
 
-data Range =
-  Range Int Int
+data Range
+  = Range Int Int
   deriving (Show, Eq, Read)
 
 allCuts :: String -> [String]

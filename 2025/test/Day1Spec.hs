@@ -1,6 +1,7 @@
 module Day1Spec
-  ( spec
-  ) where
+  ( spec,
+  )
+where
 
 import Day1 (numPassByZero)
 import Test.Hspec

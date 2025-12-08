@@ -1,8 +1,9 @@
 module Day7
-  ( parseInput
-  , part1
-  , part2
-  ) where
+  ( parseInput,
+    part1,
+    part2,
+  )
+where
 
 import Text.Parsec
 import Text.Parsec.String
@@ -28,17 +29,19 @@ beamTravel t t' = go (addEmpty t) (addEmpty t')
   where
     addEmpty :: [Tile] -> [Tile]
     addEmpty r = EmptySpace : r ++ [EmptySpace]
-    go (t1:t2:t3:ts) (t1':t2':t3':ts') =
+    go (t1 : t2 : t3 : ts) (t1' : t2' : t3' : ts') =
       let isPrevSplit = isSplit t1 t1'
           isNextSplit = isSplit t3 t3'
           numBeamsCur =
-            (if isPrevSplit
-               then numBeams t1
-               else 0) +
-            (if isNextSplit
-               then numBeams t3
-               else 0) +
-            numBeams t2
+            ( if isPrevSplit
+                then numBeams t1
+                else 0
+            )
+              + ( if isNextSplit
+                    then numBeams t3
+                    else 0
+                )
+              + numBeams t2
           newTile =
             if t2' == EmptySpace && (isPrevSplit || isNextSplit || isBeam t2)
               then Beam numBeamsCur
@@ -51,7 +54,7 @@ isSplit (Beam _) Splitter = True
 isSplit _ _ = False
 
 countBeamSplit :: PuzzleInput -> Int
-countBeamSplit (r:r':rs) =
+countBeamSplit (r : r' : rs) =
   let numSplit = sum . map fromEnum $ zipWith isSplit r r'
    in numSplit + countBeamSplit (beamTravel r r' : rs)
 countBeamSplit _ = 0

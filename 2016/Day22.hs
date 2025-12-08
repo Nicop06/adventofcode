@@ -6,7 +6,7 @@ module Day22
 where
 
 import Control.Monad (void)
-import Data.Array.Repa as A (Array, index, traverse, (!), extent)
+import Data.Array.Repa as A (Array, extent, index, traverse, (!))
 import Data.Array.Repa.Index
 import Data.Array.Repa.Repr.Vector (V, computeVectorS, fromListVector)
 import Data.List (sortOn)
@@ -37,7 +37,7 @@ makeGrid l = fromListVector (ix2 (w + 1) (h + 1)) . map nodeFromDesc . sortOn ge
     (w, h) = maximum . map getCoordinates $ l
 
 allCoordinates :: Grid -> [DIM2]
-allCoordinates grid = let (Z :. w :. h) = extent grid in [ix2 x y | x <- [0..w], y <- [0..h]]
+allCoordinates grid = let (Z :. w :. h) = extent grid in [ix2 x y | x <- [0 .. w], y <- [0 .. h]]
 
 canMoveTo :: Node -> Node -> Bool
 canMoveTo from to = getUsed from > 0 && getUsed from <= getAvail to

@@ -1,8 +1,9 @@
 module Day4
-  ( parseInput
-  , part1
-  , part2
-  ) where
+  ( parseInput,
+    part1,
+    part2,
+  )
+where
 
 import Data.Array
 import Text.Parsec
@@ -25,7 +26,8 @@ maxNumNeighbourForAccess = 4
 neighbours :: (Coord, Coord) -> Coord -> [Coord]
 neighbours b (i, j) =
   filter (/= (i, j)) $
-  filter (inRange b) $ (,) <$> map (+ i) [-1, 0, 1] <*> map (+ j) [-1, 0, 1]
+    filter (inRange b) $
+      (,) <$> map (+ i) [-1, 0, 1] <*> map (+ j) [-1, 0, 1]
 
 accessibleTiles :: Grid -> Mask
 accessibleTiles grid =
@@ -35,9 +37,9 @@ accessibleTiles grid =
 isTileAccessible :: Grid -> Coord -> Bool
 isTileAccessible a i =
   let b = bounds a
-   in (a ! i == Roll) &&
-      (length . filter ((== Roll) . (a !)) $ neighbours b i) <
-      maxNumNeighbourForAccess
+   in (a ! i == Roll)
+        && (length . filter ((== Roll) . (a !)) $ neighbours b i)
+          < maxNumNeighbourForAccess
 
 numAccessibleTiles :: Grid -> Int
 numAccessibleTiles = sum . map fromEnum . elems . accessibleTiles
@@ -48,9 +50,10 @@ numAccessibleTilesRec grid =
       b = bounds grid
       n = sum . map fromEnum $ elems mask
    in if n > 0
-        then n +
-             numAccessibleTilesRec
-               (listArray b $ zipWith emptyTile (elems mask) (elems grid))
+        then
+          n
+            + numAccessibleTilesRec
+              (listArray b $ zipWith emptyTile (elems mask) (elems grid))
         else 0
   where
     emptyTile True _ = Free

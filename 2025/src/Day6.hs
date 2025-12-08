@@ -1,9 +1,10 @@
 {-# LANGUAGE FlexibleContexts #-}
 
 module Day6
-  ( part1
-  , part2
-  ) where
+  ( part1,
+    part2,
+  )
+where
 
 import Data.List (transpose)
 import Text.Parsec
@@ -14,8 +15,8 @@ data Operation
   | Multiply
   deriving (Eq, Show)
 
-data Part1 =
-  Part1 [[Int]] [Operation]
+data Part1
+  = Part1 [[Int]] [Operation]
   deriving (Eq, Show)
 
 applyOperation :: Operation -> [Int] -> Int
@@ -41,9 +42,11 @@ parseOperationRow = parseRowWith parseOperation
 
 parsePart1 :: Parser Part1
 parsePart1 =
-  Part1 <$> (parseNumbersRow `sepEndBy1` newline) <*> parseOperationRow <*
-  newline <*
-  eof
+  Part1
+    <$> (parseNumbersRow `sepEndBy1` newline)
+    <*> parseOperationRow
+    <* newline
+    <* eof
 
 part1 :: FilePath -> IO ()
 part1 file = parseFromFile parsePart1 file >>= either print (print . solvePart1)
@@ -51,19 +54,19 @@ part1 file = parseFromFile parsePart1 file >>= either print (print . solvePart1)
 ------------
 -- Part 2 --
 ------------
-data Part2 =
-  Part2 [String] [Operation]
+data Part2
+  = Part2 [String] [Operation]
   deriving (Eq, Show)
 
 groupProblems :: [String] -> [[String]]
 groupProblems [] = []
-groupProblems (s:rs)
+groupProblems (s : rs)
   | all (== ' ') s = [] : groupProblems rs
   | otherwise =
-    let groups = groupProblems rs
-     in case groups of
-          [] -> [[s]]
-          (g:gs) -> (s : g) : gs
+      let groups = groupProblems rs
+       in case groups of
+            [] -> [[s]]
+            (g : gs) -> (s : g) : gs
 
 parseNumbers :: [String] -> [[Int]]
 parseNumbers = map (map read) . groupProblems . transpose
@@ -77,8 +80,11 @@ parseRow = many1 (digit <|> char ' ')
 
 parsePart2 :: Parser Part2
 parsePart2 =
-  Part2 <$> (parseRow `sepEndBy1` newline) <*> parseOperationRow <* newline <*
-  eof
+  Part2
+    <$> (parseRow `sepEndBy1` newline)
+    <*> parseOperationRow
+    <* newline
+    <* eof
 
 part2 :: FilePath -> IO ()
 part2 file = parseFromFile parsePart2 file >>= either print (print . solvePart2)

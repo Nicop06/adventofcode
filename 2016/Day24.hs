@@ -1,8 +1,9 @@
 module Day24
-  ( parseInput
-  , part1
-  , part2
-  ) where
+  ( parseInput,
+    part1,
+    part2,
+  )
+where
 
 import Data.Array
 import Text.Parsec
@@ -24,8 +25,9 @@ listToGrid tiles =
 
 parseTile :: Parser Tile
 parseTile =
-  (Free <$ char '.') <|> (Wall <$ char '#') <|>
-  (Location . read . pure <$> digit)
+  (Free <$ char '.')
+    <|> (Wall <$ char '#')
+    <|> (Location . read . pure <$> digit)
 
 parseInput :: Parser Grid
 parseInput = listToGrid <$> (many1 parseTile `sepEndBy1` newline) <* eof

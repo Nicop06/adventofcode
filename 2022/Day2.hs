@@ -57,8 +57,9 @@ roundForPart2 (Round e p) = Round e (shapeForOutcome e $ outcomeForPart2 p)
 
 parseRound :: Parser Round
 parseRound = Round <$> (parseElfCode <* char ' ') <*> parsePlayerCode
-    where parseElfCode = (Rock <$ char 'A') <|> (Paper <$ char 'B') <|> (Scissor <$ char 'C')
-          parsePlayerCode = (Rock <$ char 'X') <|> (Paper <$ char 'Y') <|> (Scissor <$ char 'Z')
+  where
+    parseElfCode = (Rock <$ char 'A') <|> (Paper <$ char 'B') <|> (Scissor <$ char 'C')
+    parsePlayerCode = (Rock <$ char 'X') <|> (Paper <$ char 'Y') <|> (Scissor <$ char 'Z')
 
 parseInput :: Parser [Round]
 parseInput = parseRound `sepEndBy1` newline <* eof

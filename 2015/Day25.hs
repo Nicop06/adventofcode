@@ -23,8 +23,9 @@ startingNum = 20151125
 
 seriesIndex :: (Int, Int) -> Int
 seriesIndex coords = length . takeWhile (/= coords) $ iterate nextCoord (1, 1)
-    where nextCoord (1, col) = (col + 1, 1)
-          nextCoord (row, col) = (row - 1, col + 1)
+  where
+    nextCoord (1, col) = (col + 1, 1)
+    nextCoord (row, col) = (row - 1, col + 1)
 
 codes :: [Int]
 codes = iterate ((`rem` divBy) . (* multBy)) startingNum

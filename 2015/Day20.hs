@@ -41,6 +41,6 @@ part1 n = print . (+ 1) . length . takeWhile (< n) $ map housePresents [1 ..]
     housePresents = (* 10) . sum . allDivisors
 
 part2 :: Int -> IO ()
-part2 n = print . (+ 1) . length . takeWhile (< n) $ map housePresents [1..]
+part2 n = print . (+ 1) . length . takeWhile (< n) $ map housePresents [1 ..]
   where
     housePresents h = (* 11) . sum . filter ((>= h) . (* 50)) $ allDivisors h

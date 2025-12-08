@@ -28,7 +28,8 @@ move W = second (subtract 1)
 
 visitPlacesRobotSanta :: [Direction] -> [Coordinate]
 visitPlacesRobotSanta d = [fst, snd] <*> scanl moveAndSwap ((0, 0), (0, 0)) d
-    where moveAndSwap (c, c') d' = (c', move d' c)
+  where
+    moveAndSwap (c, c') d' = (c', move d' c)
 
 visitedPlaces :: [Direction] -> [Coordinate]
 visitedPlaces = scanl (flip move) (0, 0)

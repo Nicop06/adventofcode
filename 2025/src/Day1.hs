@@ -1,9 +1,10 @@
 module Day1
-  ( parseInput
-  , part1
-  , part2
-  , numPassByZero
-  ) where
+  ( parseInput,
+    part1,
+    part2,
+    numPassByZero,
+  )
+where
 
 import Text.Parsec
 import Text.Parsec.String
@@ -15,8 +16,8 @@ data Turn
   | R
   deriving (Show, Eq, Read)
 
-data Rotation =
-  Rotation Turn Int
+data Rotation
+  = Rotation Turn Int
   deriving (Show, Eq)
 
 numDials :: Int
@@ -41,7 +42,7 @@ numPassByZero p1 p2
     numDivDiff a b = (b `div` numDials) - (a `div` numDials)
 
 allNumPassByZero :: [Password] -> Int
-allNumPassByZero (p1:p2:rs) = numPassByZero p1 p2 + allNumPassByZero (p2 : rs)
+allNumPassByZero (p1 : p2 : rs) = numPassByZero p1 p2 + allNumPassByZero (p2 : rs)
 allNumPassByZero _ = 0
 
 parseRotation :: Parser Rotation
