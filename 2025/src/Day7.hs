@@ -4,9 +4,6 @@ module Day7
   , part2
   ) where
 
-import Data.Array.Repa as R hiding ((++), map, zipWith)
-import Data.Array.Repa.Repr.Vector as R
-import Prelude as P
 import Text.Parsec
 import Text.Parsec.String
 
@@ -26,49 +23,37 @@ numBeams :: Tile -> Int
 numBeams (Beam i) = i
 numBeams _ = 0
 
-newTile :: DIM1 -> (DIM1 -> Tile) -> (DIM1 -> Tile) -> DIM1 -> Tile
-newTile dim f f' sh@(Z :. i) =
-  let prev = (Z :. i - 1)
-      next = (Z :. i + 1)
-      isPrevSplit = inShape dim prev && isSplit (f prev) (f' prev)
-      isNextSplit = inShape dim next && isSplit (f next) (f' next)
-      numBeamsCur =
-        (if isPrevSplit
-           then numBeams (f prev)
-           else 0) +
-        (if isNextSplit
-           then numBeams (f next)
-           else 0) +
-        numBeams (f sh)
-   in if f' sh == EmptySpace && (isPrevSplit || isNextSplit || isBeam (f sh))
-        then Beam numBeamsCur
-        else f' sh
-
 beamTravel :: [Tile] -> [Tile] -> [Tile]
-beamTravel t t' =
-  let tLen = length t
-      tLen' = length t'
-      dim = ix1 tLen
-   in if tLen == tLen'
-        then toList $
-             traverse2
-               (fromListVector dim t)
-               (fromListVector dim t')
-               (\_ _ -> dim)
-               (newTile dim)
-        else error $
-             "Rows don't have the same length: " ++
-             show tLen ++ " vs " ++ show tLen'
-
-numSplit :: [Tile] -> [Tile] -> Int
-numSplit r r' = sum . map fromEnum $ zipWith isSplit r r'
+beamTravel t t' = go (addEmpty t) (addEmpty t')
+  where
+    addEmpty :: [Tile] -> [Tile]
+    addEmpty r = EmptySpace : r ++ [EmptySpace]
+    go (t1:t2:t3:ts) (t1':t2':t3':ts') =
+      let isPrevSplit = isSplit t1 t1'
+          isNextSplit = isSplit t3 t3'
+          numBeamsCur =
+            (if isPrevSplit
+               then numBeams t1
+               else 0) +
+            (if isNextSplit
+               then numBeams t3
+               else 0) +
+            numBeams t2
+          newTile =
+            if t2' == EmptySpace && (isPrevSplit || isNextSplit || isBeam t2)
+              then Beam numBeamsCur
+              else t2'
+       in newTile : go (t2 : t3 : ts) (newTile : t3' : ts')
+    go _ _ = []
 
 isSplit :: Tile -> Tile -> Bool
 isSplit (Beam _) Splitter = True
 isSplit _ _ = False
 
 countBeamSplit :: PuzzleInput -> Int
-countBeamSplit (r:r':rs) = numSplit r r' + countBeamSplit (beamTravel r r' : rs)
+countBeamSplit (r:r':rs) =
+  let numSplit = sum . map fromEnum $ zipWith isSplit r r'
+   in numSplit + countBeamSplit (beamTravel r r' : rs)
 countBeamSplit _ = 0
 
 parseTile :: Parser Tile
