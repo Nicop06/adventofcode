@@ -28,7 +28,6 @@ ghc-options:
 - -Wpartial-fields
 - -Wredundant-constraints
 - -Wno-type-defaults
-- -XImportQualifiedPost
 - -XTupleSections
 - -XTypeOperators
 - -XBangPatterns

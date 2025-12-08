@@ -7,7 +7,7 @@ where
 
 import Data.Function
 import Data.List (groupBy, maximumBy, sortOn)
-import Data.Map.Strict qualified as Map
+import Data.Map.Strict (Map, fromList, (!))
 import Text.Parsec
 import Text.Parsec.String
 
@@ -17,7 +17,7 @@ type ValveName = String
 
 data Valve = Valve {valveName :: ValveName, flowRate :: Int, tunnels :: [ValveName]} deriving (Show)
 
-type Tunnels = Map.Map ValveName Valve
+type Tunnels = Map ValveName Valve
 
 data ValvesState = ValvesState {getOpenValves :: [ValveName], position :: ValveName} deriving (Show)
 
@@ -28,7 +28,7 @@ data CombinedState = CombinedState [ValveName] [(CombinedPosition, Int)] Combine
 -- Helpers
 
 currentFlow :: Tunnels -> [ValveName] -> Int
-currentFlow t = sum . map (flowRate <$> (t Map.!))
+currentFlow t = sum . map (flowRate <$> (t !))
 
 bestFlow :: [CombinedState] -> CombinedState
 bestFlow = maximumBy (compare `on` totalFlow)
@@ -40,7 +40,7 @@ totalFlow = last . scanl1 (+) . reverse . map snd . pathHistory
 
 allPossibleMoves :: Tunnels -> ValvesState -> [ValvesState]
 allPossibleMoves t s =
-  let curValve = t Map.! position s
+  let curValve = t ! position s
       nextTunnel = ValvesState (getOpenValves s)
       nextStates = map nextTunnel (tunnels curValve)
       stateWithOpenValve = ValvesState (position s : getOpenValves s) (position s)
@@ -93,7 +93,7 @@ parseValve :: Parser Valve
 parseValve = Valve <$> (string "Valve " *> parseName) <*> parseFlow <*> parseTunnels <* newline
 
 parseInput :: Parser Tunnels
-parseInput = Map.fromList . map ((,) <$> valveName <*> id) <$> many1 parseValve <* eof
+parseInput = fromList . map ((,) <$> valveName <*> id) <$> many1 parseValve <* eof
 
 part1 :: Tunnels -> IO ()
 part1 = print . totalFlow . bestState initialState 30

@@ -7,7 +7,7 @@ where
 
 import Control.Arrow (first, second)
 import Data.List (nub)
-import Data.Set qualified as S
+import Data.Set as S (fromList, notMember)
 import Text.Parsec
 import Text.Parsec.String
 
@@ -72,7 +72,7 @@ updatePlayer :: Grid -> [Blizzard] -> Position -> [Position]
 updatePlayer (Grid gridSize start end) blizzards pos = filter isAllowedPos (pos : (move <$> [U, D, L, R] <*> [pos]))
   where
     blizPos = S.fromList $ map getBlizzardPos blizzards
-    isAllowedPos p = (not (outOfBounds gridSize p) || p == start || p == end) && p `S.notMember` blizPos
+    isAllowedPos p = (not (outOfBounds gridSize p) || p == start || p == end) && p `notMember` blizPos
 
 updateGridState :: Grid -> GridState -> GridState
 updateGridState grid (GridState blizzards pos) =

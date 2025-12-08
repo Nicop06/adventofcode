@@ -5,7 +5,7 @@ module Day21
   )
 where
 
-import Data.Map.Strict qualified as M
+import Data.Map.Strict as M (Map, fromList, insert, lookup)
 import Data.Maybe (fromJust)
 import Text.Parsec
 import Text.Parsec.String
@@ -22,7 +22,7 @@ data Result = Result Int | Equation (Int -> Int)
 
 data OpSide = LeftOp | RightOp
 
-type Monkeys = M.Map MonkeyId MonkeyYelling
+type Monkeys = Map MonkeyId MonkeyYelling
 
 -- Helpers
 
@@ -65,7 +65,7 @@ computeRoot monkeys =
 
 computeHumanInput :: Monkeys -> Int
 computeHumanInput monkeys =
-  let monkeys' = M.insert "humn" Var monkeys
+  let monkeys' = insert "humn" Var monkeys
    in case M.lookup "root" monkeys' of
         Just (Operation _ left right) ->
           let ll = fromJust $ M.lookup left monkeys'
@@ -108,7 +108,7 @@ parseMonkey :: Parser (MonkeyId, MonkeyYelling)
 parseMonkey = (,) <$> (monkeyId <* string ": ") <*> monkeyYelling
 
 parseInput :: Parser Monkeys
-parseInput = M.fromList <$> parseMonkey `sepEndBy1` newline <* eof
+parseInput = fromList <$> parseMonkey `sepEndBy1` newline <* eof
 
 part1 :: Monkeys -> IO ()
 part1 = print . computeRoot

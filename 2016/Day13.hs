@@ -7,7 +7,7 @@ where
 
 import Control.Arrow (first, second)
 import Data.Functor ((<&>))
-import Data.Set qualified as S
+import qualified Data.Set as S
 import Text.Parsec
 import Text.Parsec.String
 

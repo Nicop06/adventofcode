@@ -6,7 +6,7 @@ module Day8
 where
 
 import Data.Array.Repa as A
-import Data.List qualified as L
+import qualified Data.List as L
 import Data.Maybe (fromJust)
 import Text.Parsec
 import Text.Parsec.String

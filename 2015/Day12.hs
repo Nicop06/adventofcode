@@ -8,9 +8,9 @@ module Day12
 where
 
 import Data.Aeson
-import Data.Aeson.KeyMap qualified as KV
-import Data.Maybe (fromJust)
+import qualified Data.Aeson.KeyMap as KV
 import Data.ByteString.Char8 (pack)
+import Data.Maybe (fromJust)
 import Text.Parsec
 import Text.Parsec.String
 

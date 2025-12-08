@@ -6,7 +6,7 @@ module Day14
 where
 
 import Control.Monad (liftM2)
-import Data.Set qualified as Set
+import Data.Set (Set, fromList, insert, notMember, toList, union)
 import Data.Tuple (swap)
 import Text.Parsec
 import Text.Parsec.String
@@ -15,7 +15,7 @@ import Text.Parsec.String
 
 type Position = (Int, Int)
 
-type RockLocations = Set.Set Position
+type RockLocations = Set Position
 
 -- Helpers
 
@@ -38,10 +38,10 @@ numStoppedSand rocks = length . takeWhile (isFlowing . fst) . tail . scanl simul
     isFlowing sand = sand < lowestRock && sand /= initPos
     simulateSand (p, r) sand@(x, y)
       | sand > lowestRock = (sand, r)
-      | sandBelow `Set.notMember` r = simulateSand (p, r) sandBelow
-      | sandLeft `Set.notMember` r = simulateSand (p, r) sandLeft
-      | sandRight `Set.notMember` r = simulateSand (p, r) sandRight
-      | otherwise = (sand, Set.insert sand r)
+      | sandBelow `notMember` r = simulateSand (p, r) sandBelow
+      | sandLeft `notMember` r = simulateSand (p, r) sandLeft
+      | sandRight `notMember` r = simulateSand (p, r) sandRight
+      | otherwise = (sand, insert sand r)
       where
         sandBelow = (x + 1, y)
         sandLeft = (x + 1, y - 1)
@@ -49,12 +49,12 @@ numStoppedSand rocks = length . takeWhile (isFlowing . fst) . tail . scanl simul
 
 addInfiniteLine :: RockLocations -> RockLocations
 addInfiniteLine rockLocations =
-  let rocks = Set.toList rockLocations
+  let rocks = toList rockLocations
       bottomRockHeight = (maximum . map fst $ rocks) + 2
       leftMost = (minimum . map snd $ rocks) - bottomRockHeight * 2
       rightMost = (maximum . map snd $ rocks) + bottomRockHeight * 2
       bottomRocks = rockPath (bottomRockHeight, leftMost) (bottomRockHeight, rightMost)
-   in Set.union (Set.fromList bottomRocks) rockLocations
+   in union (fromList bottomRocks) rockLocations
 
 -- Parser
 
@@ -65,7 +65,7 @@ parsePath :: Parser [Position]
 parsePath = createPath <$> parsePosition `sepBy1` string " -> " <* newline
 
 parseInput :: Parser RockLocations
-parseInput = Set.fromList . map swap . concat <$> many1 parsePath <* eof
+parseInput = fromList . map swap . concat <$> many1 parsePath <* eof
 
 part1 :: RockLocations -> IO ()
 part1 = print . numStoppedSand

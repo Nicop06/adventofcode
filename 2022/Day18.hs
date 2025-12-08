@@ -5,7 +5,7 @@ module Day18
   )
 where
 
-import Data.Set qualified as S
+import Data.Set (Set, fromList, notMember, union)
 import Text.Parsec
 import Text.Parsec.String
 
@@ -40,15 +40,15 @@ thd3 (_, _, a) = a
 sidesCoordinates :: Cube -> [Cube]
 sidesCoordinates cube = [map1, map2, map3] <*> [(+ 1), subtract 1] <*> [cube]
 
-exposedSides :: S.Set Cube -> Cube -> [Cube]
-exposedSides set = filter (`S.notMember` set) . sidesCoordinates
+exposedSides :: Set Cube -> Cube -> [Cube]
+exposedSides set = filter (`notMember` set) . sidesCoordinates
 
-numExposedSides :: S.Set Cube -> Cube -> Int
+numExposedSides :: Set Cube -> Cube -> Int
 numExposedSides set = length . exposedSides set
 
-numExposedSidesWithoutPocket :: S.Set Cube -> Bounds -> Cube -> Int
+numExposedSidesWithoutPocket :: Set Cube -> Bounds -> Cube -> Int
 numExposedSidesWithoutPocket set bounds =
-  length . filter (canBeReachedByAir set bounds . S.fromList . (: [])) . exposedSides set
+  length . filter (canBeReachedByAir set bounds . fromList . (: [])) . exposedSides set
 
 isOutsideCompound :: Bounds -> Cube -> Bool
 isOutsideCompound (Bounds (mx, my, mz)) (x, y, z) =
@@ -57,24 +57,24 @@ isOutsideCompound (Bounds (mx, my, mz)) (x, y, z) =
 compoundBounds :: Compound -> Bounds
 compoundBounds c = Bounds (maximum . map fst3 $ c, maximum . map snd3 $ c, maximum . map thd3 $ c)
 
-canBeReachedByAir :: S.Set Cube -> Bounds -> S.Set Cube -> Bool
+canBeReachedByAir :: Set Cube -> Bounds -> Set Cube -> Bool
 canBeReachedByAir set bounds reachableCubes =
   case concatMap (exposedSides set) reachableCubes of
     [] -> False
     newReachable ->
       any (isOutsideCompound bounds) newReachable
-        || canBeReachedByAir newSet bounds (S.fromList newReachable)
+        || canBeReachedByAir newSet bounds (fromList newReachable)
       where
-        newSet = set `S.union` reachableCubes
+        newSet = set `union` reachableCubes
 
 totalExposedSidesWithoutPocket :: Compound -> Int
 totalExposedSidesWithoutPocket c =
-  let set = S.fromList c
+  let set = fromList c
       bounds = compoundBounds c
    in sum . map (numExposedSidesWithoutPocket set bounds) $ c
 
 totalExposedSides :: Compound -> Int
-totalExposedSides c = let set = S.fromList c in sum . map (numExposedSides set) $ c
+totalExposedSides c = let set = fromList c in sum . map (numExposedSides set) $ c
 
 -- Parser
 

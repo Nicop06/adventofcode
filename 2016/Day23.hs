@@ -1,8 +1,11 @@
+{-# LANGUAGE BangPatterns #-}
+
 module Day23
-  ( parseInput
-  , part1
-  , part2
-  ) where
+  ( parseInput,
+    part1,
+    part2,
+  )
+where
 
 import Data.Char (toUpper)
 import Text.Parsec
@@ -15,13 +18,12 @@ data Register
   | D
   deriving (Show, Read, Eq)
 
-data RegState =
-  RegState
-    { regA :: Int
-    , regB :: Int
-    , regC :: Int
-    , regD :: Int
-    }
+data RegState = RegState
+  { regA :: Int,
+    regB :: Int,
+    regC :: Int,
+    regD :: Int
+  }
   deriving (Show, Eq)
 
 data Value
@@ -40,11 +42,10 @@ data Instruction
 
 type InstructionState = ([Instruction], [Instruction])
 
-data GlobalState =
-  GlobalState
-    { regState :: RegState
-    , insState :: InstructionState
-    }
+data GlobalState = GlobalState
+  { regState :: RegState,
+    insState :: InstructionState
+  }
   deriving (Show, Eq)
 
 setReg :: Register -> Int -> RegState -> RegState
@@ -73,11 +74,11 @@ copy :: Value -> Register -> RegState -> RegState
 copy from to rs = setReg to (getValue from rs) rs
 
 goUp :: InstructionState -> InstructionState
-goUp (u, i:d) = (i : u, d)
+goUp (u, i : d) = (i : u, d)
 goUp (u, []) = (u, [])
 
 goDown :: InstructionState -> InstructionState
-goDown (i:u, d) = (u, i : d)
+goDown (i : u, d) = (u, i : d)
 goDown ([], d) = ([], d)
 
 moveBy :: Int -> InstructionState -> InstructionState
@@ -98,14 +99,14 @@ toggle (Toggle (Value _)) = NoOp
 
 toggleAt :: Int -> InstructionState -> InstructionState
 toggleAt _ ([], []) = ([], [])
-toggleAt at state@([], _:_)
+toggleAt at state@([], _ : _)
   | at < 0 = goDown . toggleAt (at + 1) . goUp $ state
   | otherwise = state
-toggleAt at state@(i:u, [])
+toggleAt at state@(i : u, [])
   | at > 0 = goUp . toggleAt (at - 1) . goDown $ state
   | at == 0 = (toggle i : u, [])
   | otherwise = state
-toggleAt at state@(i:u, j:d)
+toggleAt at state@(i : u, j : d)
   | at < 0 = goDown . toggleAt (at + 1) . goUp $ state
   | at > 0 = goUp . toggleAt (at - 1) . goDown $ state
   | otherwise = (toggle i : u, j : d)
@@ -126,7 +127,7 @@ execute (Toggle val) s@(GlobalState rs ins) =
   nextInstruction $ s {insState = toggleAt (getValue val rs) ins}
 
 executeNext :: GlobalState -> GlobalState
-executeNext s@(GlobalState _ (i:_, _)) = execute i s
+executeNext s@(GlobalState _ (i : _, _)) = execute i s
 executeNext s = s
 
 nextInstruction :: GlobalState -> GlobalState

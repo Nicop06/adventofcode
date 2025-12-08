@@ -5,9 +5,9 @@ module Day14
   )
 where
 
-import Crypto.Hash.MD5 qualified as MD5
+import qualified Crypto.Hash.MD5 as MD5
 import Data.ByteString.Builder (byteStringHex, toLazyByteString)
-import Data.ByteString.Char8 qualified as B
+import qualified Data.ByteString.Char8 as B
 import Data.List (group, isInfixOf)
 import Text.Parsec
 import Text.Parsec.String

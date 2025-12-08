@@ -6,7 +6,7 @@ module Day9
 where
 
 import Data.List (groupBy, permutations, sortOn)
-import Data.Map.Strict qualified as M
+import qualified Data.Map.Strict as M
 import Data.Maybe (fromJust)
 import Text.Parsec
 import Text.Parsec.String

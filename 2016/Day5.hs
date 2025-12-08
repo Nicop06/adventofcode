@@ -7,7 +7,7 @@ where
 
 import Crypto.Hash.MD5 (hash)
 import Data.ByteString.Builder (byteStringHex, toLazyByteString)
-import Data.ByteString.Char8 qualified as B
+import qualified Data.ByteString.Char8 as B
 import Data.Char (ord)
 import Data.List (isPrefixOf)
 import Data.Maybe (catMaybes, fromMaybe, isJust)

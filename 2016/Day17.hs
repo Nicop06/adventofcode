@@ -6,9 +6,9 @@ module Day17
 where
 
 import Control.Arrow (first, second)
-import Crypto.Hash.MD5 qualified as MD5
+import Crypto.Hash.MD5 (hash)
 import Data.ByteString.Builder (byteStringHex, toLazyByteString)
-import Data.ByteString.Char8 qualified as B
+import Data.ByteString.Char8 (pack, toStrict, unpack)
 import Text.Parsec
 import Text.Parsec.String
 
@@ -21,7 +21,7 @@ type Position = (Int, Int)
 data PlayerState = PlayerState {playerPosition :: Position, getPath :: [Direction]} deriving (Show, Eq, Ord)
 
 md5Hex :: String -> String
-md5Hex = B.unpack . B.toStrict . toLazyByteString . byteStringHex . MD5.hash . B.pack
+md5Hex = unpack . toStrict . toLazyByteString . byteStringHex . hash . pack
 
 isValidPos :: Position -> Bool
 isValidPos (x, y) = x >= 0 && y >= 0 && x < 4 && y < 4

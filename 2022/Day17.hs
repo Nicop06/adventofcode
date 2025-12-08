@@ -7,7 +7,7 @@ where
 
 import Control.Applicative (ZipList (..), getZipList)
 import Data.Bifunctor (first, second)
-import Data.Map.Strict qualified as M
+import Data.Map.Strict as M (Map, empty, insert, lookup)
 import Data.Maybe (fromMaybe)
 import Text.Parsec
 import Text.Parsec.String
@@ -30,7 +30,7 @@ data CaveState = CaveState {getNextShapes :: [(Int, RockShape)], getNextJets :: 
 
 type CacheState = (Int, Int, RockShape)
 
-type Cache = M.Map CacheState (Int, Int)
+type Cache = Map CacheState (Int, Int)
 
 caveWidth :: Int
 caveWidth = 7
@@ -107,7 +107,7 @@ getOrUpdateCache :: Cache -> CaveState -> (Cache, CaveState)
 getOrUpdateCache cache state@(CaveState shapes jets cave _ steps _ _) =
   let cacheState = (fst . head $ shapes, fst . head $ jets, snd cave)
    in case M.lookup cacheState cache of
-        Nothing -> (M.insert cacheState (caveRockHeight cave, steps) cache, state)
+        Nothing -> (insert cacheState (caveRockHeight cave, steps) cache, state)
         Just (height, s) -> (cache, reduceState state height s)
 
 reduceState :: CaveState -> Int -> Int -> CaveState
@@ -136,7 +136,7 @@ runSimulation cache state = case updateCaveState cache state of
   (cache', newState) -> newState : runSimulation cache' newState
 
 heightAfterSimulation :: CaveState -> Int
-heightAfterSimulation = caveRockHeight . getCave . last . runSimulation M.empty
+heightAfterSimulation = caveRockHeight . getCave . last . runSimulation empty
 
 -- Parser
 

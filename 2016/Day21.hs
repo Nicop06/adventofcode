@@ -7,7 +7,6 @@ where
 
 import Data.Array.Repa as A (Array, U, computeUnboxedP, extent, fromListUnboxed, toList, traverse)
 import Data.Array.Repa.Index
-import Data.List qualified as L
 import Data.Maybe (fromJust)
 import Text.Parsec
 import Text.Parsec.String
@@ -98,7 +97,7 @@ applyOperation :: Operation -> Password -> Password
 applyOperation = applyUpdate . operationFunc
 
 runAllOperations :: String -> [Operation] -> [String]
-runAllOperations p = map toList . L.scanl (flip applyOperation) (initialPassword p)
+runAllOperations p = map toList . scanl (flip applyOperation) (initialPassword p)
 
 parseInput :: Parser [Operation]
 parseInput = parseOperation `sepEndBy1` newline <* eof

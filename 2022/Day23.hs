@@ -6,15 +6,16 @@ module Day23
 where
 
 import Control.Arrow (first, second)
-import Data.Set qualified as S
+import Data.Set as S (Set, difference, fromList, map, notMember, toList)
 import Text.Parsec
 import Text.Parsec.String
+import Prelude as P
 
 -- Data
 
 type Position = (Int, Int)
 
-type Elfs = S.Set Position
+type Elfs = Set Position
 
 data Direction = N | S | W | E deriving (Show, Eq)
 
@@ -30,7 +31,7 @@ move E = second (+ 1)
 move W = second (subtract 1)
 
 isFree :: Elfs -> Direction -> Position -> Bool
-isFree elfs dir pos = all (`S.notMember` elfs) posToCheck
+isFree elfs dir pos = all (`notMember` elfs) posToCheck
   where
     posToCheck
       | dir == N || dir == S = [move E pos, move W pos, pos]
@@ -46,10 +47,10 @@ maybeMove dir elfs pos =
 
 moveAllElfsOnce :: ([Direction], Elfs) -> ([Direction], Elfs)
 moveAllElfsOnce (dir, elfs) =
-  let oldAndNewPos = map ((,) <$> id <*> maybeMove dir elfs) $ S.toList elfs
-      allNewPos = map snd oldAndNewPos
+  let oldAndNewPos = P.map ((,) <$> id <*> maybeMove dir elfs) $ toList elfs
+      allNewPos = P.map snd oldAndNewPos
       oldOrNew (old, new) = if (> 1) . length $ filter (== new) allNewPos then old else new
-   in (tail dir ++ [head dir], S.fromList $ map oldOrNew oldAndNewPos)
+   in (tail dir ++ [head dir], fromList $ P.map oldOrNew oldAndNewPos)
 
 moveAllElfs :: Int -> Elfs -> Elfs
 moveAllElfs n elfs = snd . last . take (n + 1) $ iterate moveAllElfsOnce (directions, elfs)
@@ -59,7 +60,7 @@ roundNoMove elfs = roundNoMoveR (directions, elfs) 1
   where
     roundNoMoveR dirAndElfs n =
       let dirAndElfs' = moveAllElfsOnce dirAndElfs
-       in if null (snd dirAndElfs' `S.difference` snd dirAndElfs)
+       in if null (snd dirAndElfs' `difference` snd dirAndElfs)
             then n
             else roundNoMoveR dirAndElfs' (n + 1)
 
@@ -76,10 +77,10 @@ numEmptyGroundTiles elfs =
 -- Parser
 
 parseRow :: Parser [Int]
-parseRow = map fst . filter ((== '#') . snd) . zip [0 ..] <$> many1 (char '#' <|> char '.')
+parseRow = P.map fst . filter ((== '#') . snd) . zip [0 ..] <$> many1 (char '#' <|> char '.')
 
 parseInput :: Parser Elfs
-parseInput = S.fromList . concat . zipWith (\x -> fmap (x,)) [0 ..] <$> parseRow `sepEndBy1` newline <* eof
+parseInput = fromList . concat . zipWith (\x -> fmap (x,)) [0 ..] <$> parseRow `sepEndBy1` newline <* eof
 
 part1 :: Elfs -> IO ()
 part1 = print . numEmptyGroundTiles . moveAllElfs 10
