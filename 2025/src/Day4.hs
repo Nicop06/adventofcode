@@ -22,14 +22,10 @@ type Mask = Array Coord Bool
 maxNumNeighbourForAccess :: Int
 maxNumNeighbourForAccess = 4
 
-inBounds :: (Coord, Coord) -> Coord -> Bool
-inBounds ((minX, minY), (maxX, maxY)) (x, y) =
-  x >= minX && y >= minY && x <= maxX && y <= maxY
-
 neighbours :: (Coord, Coord) -> Coord -> [Coord]
 neighbours b (i, j) =
   filter (/= (i, j)) $
-  filter (inBounds b) $ (,) <$> map (+ i) [-1, 0, 1] <*> map (+ j) [-1, 0, 1]
+  filter (inRange b) $ (,) <$> map (+ i) [-1, 0, 1] <*> map (+ j) [-1, 0, 1]
 
 accessibleTiles :: Grid -> Mask
 accessibleTiles grid =
