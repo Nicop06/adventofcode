@@ -33,7 +33,6 @@ ghc-options:
 - -Wredundant-constraints
 - -Wno-type-defaults
 - -XTupleSections
-- -XTypeOperators
 
 library:
   source-dirs:

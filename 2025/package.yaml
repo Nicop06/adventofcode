@@ -29,8 +29,6 @@ ghc-options:
 - -Wredundant-constraints
 - -Wno-type-defaults
 - -XTupleSections
-- -XTypeOperators
-- -XBangPatterns
 
 library:
   source-dirs: src
