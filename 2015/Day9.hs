@@ -6,7 +6,7 @@ module Day9
 where
 
 import Data.List (groupBy, permutations, sortOn)
-import qualified Data.Map.Strict as M
+import Data.Map.Strict as M (Map, fromList, keys, lookup)
 import Data.Maybe (fromJust)
 import Text.Parsec
 import Text.Parsec.String
@@ -17,12 +17,12 @@ type City = String
 
 type Distance = Int
 
-type CityDistance = M.Map City [(City, Distance)]
+type CityDistance = Map City [(City, Distance)]
 
 -- Helpers
 
 buildCityDistanceMap :: [(City, (City, Distance))] -> CityDistance
-buildCityDistanceMap = M.fromList . map cityPair . groupBy sameCity . sortOn fst . concatMap reversedDistance
+buildCityDistanceMap = fromList . map cityPair . groupBy sameCity . sortOn fst . concatMap reversedDistance
   where
     reversedDistance p@(c1, (c2, d)) = [p, (c2, (c1, d))]
     sameCity (c1, _) (c2, _) = c1 == c2

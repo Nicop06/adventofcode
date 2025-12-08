@@ -5,8 +5,8 @@ module Day8
   )
 where
 
-import Data.Array.Repa as A
-import qualified Data.List as L
+import Data.Array.Repa as A hiding (transpose)
+import Data.List (transpose)
 import Data.Maybe (fromJust)
 import Text.Parsec
 import Text.Parsec.String
@@ -51,7 +51,7 @@ numPixelsOn :: Screen -> Int
 numPixelsOn = length . filter id . toList
 
 toPixelStrings :: Screen -> [String]
-toPixelStrings = L.transpose . reshapeList screenHeight . toList . A.map toPixel
+toPixelStrings = transpose . reshapeList screenHeight . toList . A.map toPixel
 
 toPixel :: Pixel -> Char
 toPixel p = if p then '#' else '.'

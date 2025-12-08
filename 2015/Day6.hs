@@ -5,8 +5,8 @@ module Day6
   )
 where
 
-import qualified Data.Map.Strict as M
-import qualified Data.Set as S
+import Data.Map.Strict as M (empty, filter, fromList, unionWith)
+import Data.Set as S (difference, empty, fromList, size, union)
 import Text.Parsec
 import Text.Parsec.String
 

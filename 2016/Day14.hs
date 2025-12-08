@@ -5,7 +5,7 @@ module Day14
   )
 where
 
-import qualified Crypto.Hash.MD5 as MD5
+import Crypto.Hash.MD5 (hash)
 import Data.ByteString.Builder (byteStringHex, toLazyByteString)
 import qualified Data.ByteString.Char8 as B
 import Data.List (group, isInfixOf)
@@ -15,10 +15,10 @@ import Text.Parsec.String
 type Hash = String
 
 md5Hex :: String -> Hash
-md5Hex = B.unpack . B.toStrict . toLazyByteString . byteStringHex . MD5.hash . B.pack
+md5Hex = B.unpack . B.toStrict . toLazyByteString . byteStringHex . hash . B.pack
 
 generateHashes :: (Int -> Hash) -> [(Int, Hash)]
-generateHashes hash = [(i, hash i) | i <- [0 ..]]
+generateHashes h = [(i, h i) | i <- [0 ..]]
 
 hashFunction :: Int -> String -> Int -> Hash
 hashFunction n s i = last . take (n + 1) . iterate md5Hex $ (s ++ show i)

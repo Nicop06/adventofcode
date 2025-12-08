@@ -7,7 +7,7 @@ where
 
 import Control.Applicative ((<**>))
 import Data.Bits
-import qualified Data.Map.Strict as M
+import Data.Map.Strict as M (Map, empty, fromList, insert, lookup)
 import Data.Maybe (fromJust)
 import Text.Parsec
 import Text.Parsec.String
@@ -18,12 +18,12 @@ data Connection = AND Wire Wire | OR Wire Wire | NOT Wire | LSHIFT Wire Int | RS
 
 type Instruction = (String, Connection)
 
-type Circuit = M.Map String Connection
+type Circuit = Map String Connection
 
 -- Helpers
 
 processCircuit :: String -> Circuit -> Int
-processCircuit wireName c = fst $ processWireR M.empty (Wire wireName)
+processCircuit wireName c = fst $ processWireR empty (Wire wireName)
   where
     processWireR cache (Number n) = (n, cache)
     processWireR cache (Wire w) =
@@ -32,7 +32,7 @@ processCircuit wireName c = fst $ processWireR M.empty (Wire wireName)
         Nothing ->
           let con = fromJust $ M.lookup w c
               (val', cache') = processInstruction con
-           in (val', M.insert w val' cache')
+           in (val', insert w val' cache')
           where
             processInstruction (AND w1 w2) =
               let (val1, cache1) = processWireR cache w1
@@ -71,7 +71,7 @@ parseInstruction :: Parser Instruction
 parseInstruction = flip (,) <$> parseConnection <*> (string "-> " *> parseWireName)
 
 parseInput :: Parser Circuit
-parseInput = M.fromList <$> (parseInstruction `sepEndBy1` newline <* eof)
+parseInput = fromList <$> (parseInstruction `sepEndBy1` newline <* eof)
 
 part1 :: Circuit -> IO ()
 part1 = print . processCircuit "a"

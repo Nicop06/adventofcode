@@ -8,7 +8,7 @@ where
 import Control.Applicative ((<**>))
 import Control.Arrow (first, second)
 import Data.List (groupBy, sort, sortOn)
-import qualified Data.Set as S
+import Data.Set as S (Set, empty, fromList, member, union)
 import Text.Parsec
 import Text.Parsec.String
 
@@ -22,7 +22,7 @@ type FloorState = ([Floor], [Floor])
 
 type CacheItem = (Int, [(Int, Int)])
 
-data CachedState = CachedState {floorStates :: [FloorState], statesCache :: S.Set CacheItem} deriving (Show, Eq)
+data CachedState = CachedState {floorStates :: [FloorState], statesCache :: Set CacheItem} deriving (Show, Eq)
 
 extraParts :: [Part]
 extraParts = [Generator, Microship] <*> ["elerium", "dilithium"]
@@ -46,9 +46,9 @@ allNextStates :: CachedState -> CachedState
 allNextStates (CachedState states cache) =
   let nextStates = concatMap nextFloorStates states
       statesAndCacheItem = zip nextStates (map cacheItem nextStates)
-      filteredStates = filter (not . (`S.member` cache) . snd) . map head . groupBy sameCachedElem . sortOn snd $ statesAndCacheItem
+      filteredStates = filter (not . (`member` cache) . snd) . map head . groupBy sameCachedElem . sortOn snd $ statesAndCacheItem
       sameCachedElem s s' = snd s == snd s'
-   in CachedState (map fst filteredStates) (cache `S.union` S.fromList (map snd filteredStates))
+   in CachedState (map fst filteredStates) (cache `union` fromList (map snd filteredStates))
 
 splitN :: Int -> [a] -> [([a], [a])]
 splitN 0 l = [([], l)]
@@ -94,7 +94,7 @@ isFinalState _ = False
 allFloorStates :: [Floor] -> [CachedState]
 allFloorStates f = takeWhile (not . any isFinalState . floorStates) . iterate allNextStates $ initialStates
   where
-    initialStates = CachedState [([], f)] S.empty
+    initialStates = CachedState [([], f)] empty
 
 parseInput :: Parser [Floor]
 parseInput = parseFloor `sepEndBy1` newline <* eof

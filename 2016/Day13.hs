@@ -7,7 +7,7 @@ where
 
 import Control.Arrow (first, second)
 import Data.Functor ((<&>))
-import qualified Data.Set as S
+import Data.Set (Set, fromList, member, singleton, size, toList, unions)
 import Text.Parsec
 import Text.Parsec.String
 
@@ -25,17 +25,17 @@ accessiblePositions p = filter isValidPos $ ([first, second] <*> [(+ 1), subtrac
   where
     isValidPos (x, y) = x >= 0 && y >= 0
 
-nextPositions :: Int -> S.Set Position -> S.Set Position
-nextPositions n = S.fromList . filter (isOpenSpace n) . concatMap accessiblePositions . S.toList
+nextPositions :: Int -> Set Position -> Set Position
+nextPositions n = fromList . concatMap (filter (isOpenSpace n) . accessiblePositions) . toList
 
-allAccessiblePositions :: Int -> [S.Set Position]
-allAccessiblePositions n = iterate (nextPositions n) (S.singleton (1, 1))
+allAccessiblePositions :: Int -> [Set Position]
+allAccessiblePositions n = iterate (nextPositions n) (singleton (1, 1))
 
 parseInput :: Parser Int
 parseInput = read <$> many1 digit <* newline <* eof
 
 part1 :: Int -> IO ()
-part1 = print . length . takeWhile (not . ((31, 39) `S.member`)) . allAccessiblePositions
+part1 = print . length . takeWhile (not . ((31, 39) `member`)) . allAccessiblePositions
 
 part2 :: Int -> IO ()
-part2 = print . S.size . S.unions . take 51 . allAccessiblePositions
+part2 = print . size . unions . take 51 . allAccessiblePositions
