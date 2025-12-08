@@ -15,14 +15,8 @@ description: The solution for the adventofcode 2022.
 dependencies:
 - base >= 4.7 && < 5
 - parsec
-- vector
 - repa
-- cryptohash-md5
 - containers
-- bytestring
-- text
-- aeson
-- scientific
 
 ghc-options:
 - -Wall
