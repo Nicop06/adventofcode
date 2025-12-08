@@ -4,10 +4,7 @@ module Day4
   , part2
   ) where
 
-import Control.Monad
-import Data.Array.Repa as R
-import Data.Array.Repa.Repr.Vector as R
-import Prelude as P
+import Data.Array
 import Text.Parsec
 import Text.Parsec.String
 
@@ -16,40 +13,48 @@ data Tile
   | Roll
   deriving (Eq, Show)
 
-type Grid = Array V DIM2 Tile
+type Coord = (Int, Int)
 
-type Mask = Array D DIM2 Bool
+type Grid = Array Coord Tile
+
+type Mask = Array Coord Bool
 
 maxNumNeighbourForAccess :: Int
 maxNumNeighbourForAccess = 4
 
-add :: Shape sh => sh -> sh -> sh
-add i1 i2 = shapeOfList $ P.zipWith (+) (listOfShape i1) (listOfShape i2)
+inBounds :: (Coord, Coord) -> Coord -> Bool
+inBounds ((minX, minY), (maxX, maxY)) (x, y) =
+  x >= minX && y >= minY && x <= maxX && y <= maxY
 
-neighbours :: DIM2 -> DIM2 -> [DIM2]
-neighbours dim idx =
-  filter (/= idx) $
-  filter (inShape dim) $ P.map (add idx) $ ix2 <$> [-1, 0, 1] <*> [-1, 0, 1]
+neighbours :: (Coord, Coord) -> Coord -> [Coord]
+neighbours b (i, j) =
+  filter (/= (i, j)) $
+  filter (inBounds b) $ (,) <$> map (+ i) [-1, 0, 1] <*> map (+ j) [-1, 0, 1]
 
 accessibleTiles :: Grid -> Mask
-accessibleTiles grid = R.traverse grid id (isTileAccessible (extent grid))
+accessibleTiles grid =
+  let b = bounds grid
+   in array b [(i, isTileAccessible grid i) | i <- range b]
 
-isTileAccessible :: DIM2 -> (DIM2 -> Tile) -> DIM2 -> Bool
-isTileAccessible dim arrFn idx =
-  (arrFn idx == Roll) &&
-  (length . filter ((== Roll) . arrFn) $ neighbours dim idx) <
-  maxNumNeighbourForAccess
+isTileAccessible :: Grid -> Coord -> Bool
+isTileAccessible a i =
+  let b = bounds a
+   in (a ! i == Roll) &&
+      (length . filter ((== Roll) . (a !)) $ neighbours b i) <
+      maxNumNeighbourForAccess
 
-numAccessibleTiles :: Monad m => Grid -> m Int
-numAccessibleTiles = sumAllP . R.map fromEnum . accessibleTiles
+numAccessibleTiles :: Grid -> Int
+numAccessibleTiles = sum . map fromEnum . elems . accessibleTiles
 
 numAccessibleTilesRec :: Grid -> Int
 numAccessibleTilesRec grid =
   let mask = accessibleTiles grid
-      n = sumAllS . R.map fromEnum $ mask
+      b = bounds grid
+      n = sum . map fromEnum $ elems mask
    in if n > 0
         then n +
-             numAccessibleTilesRec (computeS $ R.zipWith emptyTile mask grid)
+             numAccessibleTilesRec
+               (listArray b $ zipWith emptyTile (elems mask) (elems grid))
         else 0
   where
     emptyTile True _ = Free
@@ -57,9 +62,9 @@ numAccessibleTilesRec grid =
 
 listToGrid :: [[Tile]] -> Grid
 listToGrid tiles =
-  let width = length (head tiles)
-      height = length tiles
-   in fromListVector (ix2 height width) $ concat tiles
+  let width = length (head tiles) - 1
+      height = length tiles - 1
+   in listArray ((0, 0), (height, width)) $ concat tiles
 
 parseTile :: Parser Tile
 parseTile = (Free <$ char '.') <|> (Roll <$ char '@')
@@ -68,7 +73,7 @@ parseInput :: Parser Grid
 parseInput = listToGrid <$> (many1 parseTile `sepEndBy1` newline) <* eof
 
 part1 :: Grid -> IO ()
-part1 = print <=< numAccessibleTiles
+part1 = print . numAccessibleTiles
 
 part2 :: Grid -> IO ()
 part2 = print . numAccessibleTilesRec
