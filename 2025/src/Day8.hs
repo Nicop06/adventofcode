@@ -18,11 +18,23 @@ allPairs :: [a] -> [(a, a)]
 allPairs (x:xs) = ((x, ) <$> xs) ++ allPairs xs
 allPairs [] = []
 
-closestPairs :: Int -> [Coords] -> [(Coords, Coords)]
-closestPairs n = take n . sortOn (uncurry distance) . allPairs
+closestPairs :: [Coords] -> [(Coords, Coords)]
+closestPairs = sortOn (uncurry distance) . allPairs
 
 junctionCliques :: [(Coords, Coords)] -> [[Coords]]
 junctionCliques = foldr groupJunctions []
+
+allConnected :: Int -> [[Coords]] -> Bool
+allConnected n [g] = length g == n
+allConnected _ _ = False
+
+pairConnectingAll :: Int -> [[Coords]] -> [(Coords, Coords)] -> (Coords, Coords)
+pairConnectingAll n gs (p:ps) =
+  let gs' = groupJunctions p gs
+   in if allConnected n gs'
+        then p
+        else pairConnectingAll n gs' ps
+pairConnectingAll _ _ _ = error "No pair remaining"
 
 findGroup :: Coords -> [[Coords]] -> ([Coords], [[Coords]])
 findGroup c (g:gs)
@@ -55,7 +67,13 @@ part1 =
   print .
   product .
   take 3 .
-  sortBy (comparing Down) . map length . junctionCliques . closestPairs 1000
+  sortBy (comparing Down) .
+  map length . junctionCliques . take 1000 . closestPairs
 
 part2 :: [Coords] -> IO ()
-part2 = print . const 1
+part2 cs =
+  print . uncurry multXCoord $
+  pairConnectingAll (length cs) [] (closestPairs cs)
+  where
+    multXCoord :: Coords -> Coords -> Int
+    multXCoord (x, _, _) (x', _, _) = x * x'
