@@ -1,4 +1,5 @@
 import Day1
+import Day10
 import Day2
 import Day3
 import Day4
@@ -20,7 +21,7 @@ runDay 6 = runDayX 6 (\a -> sequence_ [Day6.part1 a, Day6.part2 a])
 runDay 7 = parseAndRun 7 Day7.parseInput [Day7.part1, Day7.part2]
 runDay 8 = parseAndRun 8 Day8.parseInput [Day8.part1, Day8.part2]
 runDay 9 = parseAndRun 9 Day9.parseInput [Day9.part1, Day9.part2]
--- runDay 10 = parseAndRun 10 Day10.parseInput [Day10.part1, Day10.part2]
+runDay 10 = parseAndRun 10 Day10.parseInput [Day10.part1, Day10.part2]
 -- runDay 11 = parseAndRun 11 Day11.parseInput [Day11.part1, Day11.part2]
 -- runDay 12 = parseAndRun 12 Day12.parseInput [Day12.part1, Day12.part2]
 runDay _ = return ()
