@@ -6,6 +6,8 @@ module Day10
 where
 
 import Data.Array
+import Data.List (permutations)
+import Data.Maybe (mapMaybe)
 import Text.Parsec
 import Text.Parsec.String
 
@@ -37,32 +39,41 @@ toggleLight Off = On
 updateLights :: Button -> MachineState -> MachineState
 updateLights (Button idx) machineState = machineState // [(i, toggleLight (machineState ! i)) | i <- idx]
 
-updateJoltage :: Button -> Joltage -> Joltage
-updateJoltage (Button idx) joltage = joltage // [(i, 1 + joltage ! i) | i <- idx]
-
 hasAny :: [a] -> Bool
 hasAny [] = False
 hasAny _ = True
 
-numButtonsNeeded :: Eq a => (Button -> Array Int a -> Array Int a) -> a -> Array Int a -> [Button] -> Int
-numButtonsNeeded updateFn initVal state buttons = go 1
+numButtonsNeededForLightState :: Machine -> Int
+numButtonsNeededForLightState (Machine state buttons _) = go 1
   where
     canMatchState :: Int -> Bool
     canMatchState numButtons =
       hasAny $
         filter (== state) $
-          map (foldr updateFn (listToArray $ replicate (length state) initVal)) $
+          map (foldr updateLights (listToArray $ replicate (length state) Off)) $
             combinationsOf numButtons buttons
     go :: Int -> Int
     go n
       | canMatchState n = n
       | otherwise = go (n + 1)
 
-numButtonsNeededForLightState :: Machine -> Int
-numButtonsNeededForLightState (Machine lightState buttons _) = numButtonsNeeded updateLights Off lightState buttons
-
 numButtonsNeededForJoltage :: Machine -> Int
-numButtonsNeededForJoltage (Machine _ buttons joltage) = numButtonsNeeded updateJoltage 0 joltage buttons
+numButtonsNeededForJoltage (Machine _ buttons joltage) = case mapMaybe (go joltage) (permutations buttons) of
+  [] -> 0
+  l -> minimum l
+  where
+    go :: Joltage -> [Button] -> Maybe Int
+    go _ [] = Nothing
+    go j (Button idx : bs) =
+      let n = minimum [j ! i | i <- idx]
+          j' = j // [(i, (j ! i) - n) | i <- idx]
+       in go' j' n
+      where
+        go' :: Joltage -> Int -> Maybe Int
+        go' j' n
+          | all (== 0) (elems j') = Just n
+          | any (< 0) (elems j') = Nothing
+          | otherwise = (+ n) <$> go j' bs
 
 parseNumber :: Parser Int
 parseNumber = read <$> many1 digit
