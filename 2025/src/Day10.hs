@@ -5,15 +5,16 @@ module Day10
   )
 where
 
+import Control.Arrow (first)
 import Data.Array
-import Data.List (permutations)
-import Data.Maybe (mapMaybe)
 import Text.Parsec
 import Text.Parsec.String
 
 data LightState = Off | On deriving (Eq, Show, Enum)
 
 type MachineState = Array Int LightState
+
+type JoltageMatrix = Array (Int, Int) Int
 
 newtype Button = Button [Int] deriving (Eq, Show)
 
@@ -57,23 +58,46 @@ numButtonsNeededForLightState (Machine state buttons _) = go 1
       | canMatchState n = n
       | otherwise = go (n + 1)
 
-numButtonsNeededForJoltage :: Machine -> Int
-numButtonsNeededForJoltage (Machine _ buttons joltage) = case mapMaybe (go joltage) (permutations buttons) of
-  [] -> 0
-  l -> minimum l
+makeJoltageMatrix :: Machine -> JoltageMatrix
+makeJoltageMatrix (Machine _ buttons joltage) =
+  let (_, m) = bounds joltage
+      (n, idx) = buttonIndices 0 buttons
+      b = ((0, 0), (m, n))
+   in array b [(i, 0) | i <- range b] // map (,1) idx // map (first (,n)) (assocs joltage)
   where
-    go :: Joltage -> [Button] -> Maybe Int
-    go _ [] = Nothing
-    go j (Button idx : bs) =
-      let n = minimum [j ! i | i <- idx]
-          j' = j // [(i, (j ! i) - n) | i <- idx]
-       in go' j' n
-      where
-        go' :: Joltage -> Int -> Maybe Int
-        go' j' n
-          | all (== 0) (elems j') = Just n
-          | any (< 0) (elems j') = Nothing
-          | otherwise = (+ n) <$> go j' bs
+    buttonIndices :: Int -> [Button] -> (Int, [(Int, Int)])
+    buttonIndices i [] = (i, [])
+    buttonIndices i (Button idx : bs) =
+      let (n, idx') = buttonIndices (i + 1) bs
+       in (n, idx' ++ [(j, i) | j <- idx])
+
+copyRow :: Int -> Int -> JoltageMatrix -> [((Int, Int), Int)]
+copyRow fromRow toRow m =
+  let ((_, startCol), (_, endCol)) = bounds m
+   in [((toRow, j), m ! (fromRow, j)) | j <- range (startCol, endCol)]
+
+swapRows :: Int -> Int -> JoltageMatrix -> JoltageMatrix
+swapRows i i' m = m // copyRow i i' m // copyRow i' i m
+
+subRow :: Int -> Int -> JoltageMatrix -> JoltageMatrix
+subRow row col m =
+  let (_, (endRow, endCol)) = bounds m
+   in (m // [((i, j), (m ! (i, j)) * m ! (row, col) - m ! (row, j) * m ! (i, col)) | (i, j) <- range ((row + 1, 0), (endRow, endCol))])
+
+reduceMatrix :: JoltageMatrix -> JoltageMatrix
+reduceMatrix joltageMatrix = go startRow startCol joltageMatrix
+  where
+    ((startRow, startCol), (endRow, endCol)) = bounds joltageMatrix
+    go :: Int -> Int -> JoltageMatrix -> JoltageMatrix
+    go row col m
+      | row > endRow || col >= endCol = m
+      | otherwise =
+          let rowsToSelect = filter ((> 0) . snd) [(i, m ! (i, col)) | i <- [row .. endRow]]
+           in case rowsToSelect of
+                [] -> go row (col + 1) m
+                ((newRow, _) : _) ->
+                  let m' = swapRows row newRow m
+                   in go (row + 1) (col + 1) (subRow row col m')
 
 parseNumber :: Parser Int
 parseNumber = read <$> many1 digit
@@ -100,4 +124,4 @@ part1 :: [Machine] -> IO ()
 part1 = print . sum . map numButtonsNeededForLightState
 
 part2 :: [Machine] -> IO ()
-part2 = print . sum . map numButtonsNeededForJoltage
+part2 = print . const 1
