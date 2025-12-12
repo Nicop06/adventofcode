@@ -7,7 +7,6 @@ where
 
 import Control.Arrow (first)
 import Data.Array
-import Debug.Trace
 import Text.Parsec
 import Text.Parsec.String
 
@@ -16,6 +15,8 @@ data LightState = Off | On deriving (Eq, Show, Enum)
 type MachineState = Array Int LightState
 
 type JoltageMatrix = Array (Int, Int) Int
+
+type ButtonPresses = Array Int Int
 
 newtype Button = Button [Int] deriving (Eq, Show)
 
@@ -88,8 +89,6 @@ copyRow fromRow toRow m =
 swapRows :: Int -> Int -> JoltageMatrix -> JoltageMatrix
 swapRows i i' m = m // copyRow i i' m // copyRow i' i m
 
-debug = flip trace
-
 subRow :: Int -> Int -> Int -> Int -> JoltageMatrix -> JoltageMatrix
 subRow startRow endRow row col m =
   let ((_, startCol), (_, endCol)) = bounds m
@@ -112,17 +111,15 @@ triangulariseMatrix joltageMatrix = go startRow startCol joltageMatrix
 
 removeEmptyRows :: JoltageMatrix -> JoltageMatrix
 removeEmptyRows joltageMatrix =
-  let lastRow = go startRow
-   in array ((startRow, startCol), (lastRow, endCol)) [((i, j), joltageMatrix ! (i, j)) | (i, j) <- range b, i <= lastRow]
+  let rows = go [[joltageMatrix ! (i, j) | j <- range (startCol, endCol)] | i <- range (startRow, endRow)]
+   in listArray ((startRow, startCol), (length rows - 1, endCol)) $ concat rows
   where
-    b@((startRow, startCol), (endRow, endCol)) = bounds joltageMatrix
-    go :: Int -> Int
-    go i
-      | isRowEmpty i = i - 1
-      | i == endRow = endRow
-      | otherwise = go (i + 1)
-    isRowEmpty :: Int -> Bool
-    isRowEmpty i = all (== 0) [joltageMatrix ! (i, j) | j <- range (startCol, endCol)]
+    ((startRow, startCol), (endRow, endCol)) = bounds joltageMatrix
+    go :: [[Int]] -> [[Int]]
+    go [] = []
+    go (r : rs)
+      | all (== 0) r = go rs
+      | otherwise = r : go rs
 
 -- Assumes that the matrix is triangular
 diagonaliseMatrix :: JoltageMatrix -> JoltageMatrix
@@ -137,6 +134,31 @@ diagonaliseMatrix joltageMatrix = go endRow joltageMatrix
 
 reduceMatrix :: JoltageMatrix -> JoltageMatrix
 reduceMatrix = diagonaliseMatrix . removeEmptyRows . triangulariseMatrix
+
+solveMatrix :: JoltageMatrix -> (ButtonPresses, JoltageMatrix)
+solveMatrix joltageMatrix =
+  let ((_, startCol), (endRow, endCol)) = bounds joltageMatrix
+      b = (startCol, endCol - 1)
+      buttonPresses = array b [(i, 0) | i <- range b]
+   in solveSingleVar endRow joltageMatrix buttonPresses
+  where
+    solveSingleVar :: Int -> JoltageMatrix -> ButtonPresses -> (ButtonPresses, JoltageMatrix)
+    solveSingleVar row m bp = case unsolvedVars of
+      [b] ->
+        let buttonCoeff = m ! (row, b)
+            joltage = m ! (row, endCol)
+            buttonValue = joltage `div` buttonCoeff
+            rowRange = range (startRow, endRow)
+            m' = removeEmptyRows $ m // [((i, b), 0) | i <- rowRange] // [((i, endCol), m ! (i, endCol) - buttonValue * (m ! (i, b))) | i <- rowRange]
+            bp' = if bp ! b == 0 then bp // [(b, buttonValue)] else error ("Button " ++ show b ++ " already has value " ++ show (bp ! b))
+            (_, (endRow', _)) = bounds m'
+         in if joltage `mod` buttonCoeff /= 0
+              then error ("Coefficient " ++ show buttonCoeff ++ " not divisible by joltage " ++ show joltage)
+              else if endRow' == startRow then (bp', m') else solveSingleVar endRow' m' bp'
+      _ -> if row > startRow then solveSingleVar (row - 1) m bp else (bp, m)
+      where
+        unsolvedVars = [j | j <- range (startCol, endCol - 1), m ! (row, j) /= 0]
+        ((startRow, startCol), (endRow, endCol)) = bounds m
 
 printMatrix :: JoltageMatrix -> [String]
 printMatrix m = let ((startRow, startCol), (endRow, endCol)) = bounds m in [] : [show [m ! (i, j) | j <- range (startCol, endCol)] | i <- range (startRow, endRow)]
