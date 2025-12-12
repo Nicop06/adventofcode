@@ -7,6 +7,7 @@ where
 
 import Control.Arrow (first)
 import Data.Array
+import Debug.Trace
 import Text.Parsec
 import Text.Parsec.String
 
@@ -21,6 +22,10 @@ newtype Button = Button [Int] deriving (Eq, Show)
 type Joltage = Array Int Int
 
 data Machine = Machine {getLightState :: MachineState, getButtons :: [Button], getJoltage :: Joltage} deriving (Eq, Show)
+
+------------
+-- Lights --
+------------
 
 listToArray :: [a] -> Array Int a
 listToArray l = let len = length l in listArray (0, len - 1) l
@@ -58,6 +63,10 @@ numButtonsNeededForLightState (Machine state buttons _) = go 1
       | canMatchState n = n
       | otherwise = go (n + 1)
 
+-------------
+-- Joltage --
+-------------
+
 makeJoltageMatrix :: Machine -> JoltageMatrix
 makeJoltageMatrix (Machine _ buttons joltage) =
   let (_, m) = bounds joltage
@@ -79,25 +88,62 @@ copyRow fromRow toRow m =
 swapRows :: Int -> Int -> JoltageMatrix -> JoltageMatrix
 swapRows i i' m = m // copyRow i i' m // copyRow i' i m
 
-subRow :: Int -> Int -> JoltageMatrix -> JoltageMatrix
-subRow row col m =
-  let (_, (endRow, endCol)) = bounds m
-   in (m // [((i, j), (m ! (i, j)) * m ! (row, col) - m ! (row, j) * m ! (i, col)) | (i, j) <- range ((row + 1, 0), (endRow, endCol))])
+debug = flip trace
 
-reduceMatrix :: JoltageMatrix -> JoltageMatrix
-reduceMatrix joltageMatrix = go startRow startCol joltageMatrix
+subRow :: Int -> Int -> Int -> Int -> JoltageMatrix -> JoltageMatrix
+subRow startRow endRow row col m =
+  let ((_, startCol), (_, endCol)) = bounds m
+   in (m // [((i, j), (m ! (i, j)) * m ! (row, col) - m ! (row, j) * m ! (i, col)) | (i, j) <- range ((startRow, startCol), (endRow, endCol))])
+
+triangulariseMatrix :: JoltageMatrix -> JoltageMatrix
+triangulariseMatrix joltageMatrix = go startRow startCol joltageMatrix
   where
     ((startRow, startCol), (endRow, endCol)) = bounds joltageMatrix
     go :: Int -> Int -> JoltageMatrix -> JoltageMatrix
     go row col m
       | row > endRow || col >= endCol = m
       | otherwise =
-          let rowsToSelect = filter ((> 0) . snd) [(i, m ! (i, col)) | i <- [row .. endRow]]
+          let rowsToSelect = filter ((/= 0) . snd) [(i, m ! (i, col)) | i <- [row .. endRow]]
            in case rowsToSelect of
                 [] -> go row (col + 1) m
                 ((newRow, _) : _) ->
                   let m' = swapRows row newRow m
-                   in go (row + 1) (col + 1) (subRow row col m')
+                   in go (row + 1) (col + 1) (subRow (row + 1) endRow row col m')
+
+removeEmptyRows :: JoltageMatrix -> JoltageMatrix
+removeEmptyRows joltageMatrix =
+  let lastRow = go startRow
+   in array ((startRow, startCol), (lastRow, endCol)) [((i, j), joltageMatrix ! (i, j)) | (i, j) <- range b, i <= lastRow]
+  where
+    b@((startRow, startCol), (endRow, endCol)) = bounds joltageMatrix
+    go :: Int -> Int
+    go i
+      | isRowEmpty i = i - 1
+      | i == endRow = endRow
+      | otherwise = go (i + 1)
+    isRowEmpty :: Int -> Bool
+    isRowEmpty i = all (== 0) [joltageMatrix ! (i, j) | j <- range (startCol, endCol)]
+
+-- Assumes that the matrix is triangular
+diagonaliseMatrix :: JoltageMatrix -> JoltageMatrix
+diagonaliseMatrix joltageMatrix = go endRow joltageMatrix
+  where
+    ((startRow, startCol), (endRow, endCol)) = bounds joltageMatrix
+    go :: Int -> JoltageMatrix -> JoltageMatrix
+    go 0 m = m
+    go row m = case [j | j <- range (startCol, endCol), m ! (row, j) /= 0] of
+      [] -> go (row - 1) m
+      j : _ -> let m' = subRow startRow (row - 1) row j m in go (row - 1) m'
+
+reduceMatrix :: JoltageMatrix -> JoltageMatrix
+reduceMatrix = diagonaliseMatrix . removeEmptyRows . triangulariseMatrix
+
+printMatrix :: JoltageMatrix -> [String]
+printMatrix m = let ((startRow, startCol), (endRow, endCol)) = bounds m in [] : [show [m ! (i, j) | j <- range (startCol, endCol)] | i <- range (startRow, endRow)]
+
+------------
+-- Parser --
+------------
 
 parseNumber :: Parser Int
 parseNumber = read <$> many1 digit
@@ -124,4 +170,4 @@ part1 :: [Machine] -> IO ()
 part1 = print . sum . map numButtonsNeededForLightState
 
 part2 :: [Machine] -> IO ()
-part2 = print . const 1
+part2 = mapM_ (mapM_ putStrLn . printMatrix . reduceMatrix . makeJoltageMatrix) . take 10
