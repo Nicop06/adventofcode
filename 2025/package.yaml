@@ -16,6 +16,7 @@ dependencies:
 - base >= 4.7 && < 5
 - parsec
 - array
+- sbv
 
 ghc-options:
 - -Wall
