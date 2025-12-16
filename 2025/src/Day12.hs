@@ -10,7 +10,7 @@ import Data.Array
 import Text.Parsec
 import Text.Parsec.String
 
-data ShapePart = Filled | Free deriving (Show)
+data ShapePart = Filled | Free deriving (Show, Eq)
 
 type Present = Array (Int, Int) ShapePart
 
@@ -20,6 +20,12 @@ data Puzzle = Puzzle {getPresents :: [Present], getRegions :: [Region]} deriving
 
 parseShapePart :: Parser ShapePart
 parseShapePart = Filled <$ char '#' <|> Free <$ char '.'
+
+presentSize :: Present -> Int
+presentSize = length . filter (== Filled) . elems
+
+canFit :: [Present] -> Region -> Bool
+canFit presents (Region w h numPresents) = sum (zipWith (*) (map presentSize presents) numPresents) <= w * h
 
 parsePresent :: Parser Present
 parsePresent = between parseHeader newline parseShape
@@ -31,14 +37,15 @@ parsePresent = between parseHeader newline parseShape
 
 parseRegion :: Parser Region
 parseRegion = Region <$> readNumber <* char 'x' <*> readNumber <* string ": " <*> readNumber `sepBy1` char ' '
-  where readNumber :: Parser Int
-        readNumber = read <$> many1 digit
+  where
+    readNumber :: Parser Int
+    readNumber = read <$> many1 digit
 
 parseInput :: Parser Puzzle
-parseInput = Puzzle <$> count 6 parsePresent <*> (parseRegion `sepEndBy1` newline) <* eof
+parseInput = Puzzle <$> many1 (try parsePresent) <*> (parseRegion `sepEndBy1` newline) <* eof
 
 part1 :: Puzzle -> IO ()
-part1 = print
+part1 (Puzzle presents regions) = print . length . filter (canFit presents) $ regions
 
 part2 :: Puzzle -> IO ()
-part2 = print
+part2 = print . const 1
