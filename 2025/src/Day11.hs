@@ -5,7 +5,7 @@ module Day11
   )
 where
 
-import Control.Arrow (second)
+import Control.Arrow (first, (&&&))
 import Data.Map as M (Map, empty, fromList, insert, lookup)
 import Text.Parsec
 import Text.Parsec.String
@@ -21,73 +21,20 @@ getDevice name deviceMap = case M.lookup name deviceMap of
   Just device -> device
   Nothing -> Device name []
 
-data CacheState = CacheState
-  { pathsWithOutput :: Int,
-    pathsWithDAC :: Int,
-    pathsWithFFT :: Int,
-    pathsWithBoth :: Int
-  }
-  deriving (Show)
+type Cache = Map DeviceName Int
 
-defaultCache :: CacheState
-defaultCache =
-  CacheState
-    { pathsWithOutput = 0,
-      pathsWithDAC = 0,
-      pathsWithFFT = 0,
-      pathsWithBoth = 0
-    }
-
-combineCaches :: CacheState -> CacheState -> CacheState
-combineCaches c1 c2 =
-  CacheState
-    { pathsWithOutput = pathsWithOutput c1 + pathsWithOutput c2,
-      pathsWithDAC = pathsWithDAC c1 + pathsWithDAC c2,
-      pathsWithFFT = pathsWithFFT c1 + pathsWithFFT c2,
-      pathsWithBoth = pathsWithBoth c1 + pathsWithBoth c2
-    }
-
-visitDevice :: DeviceName -> CacheState -> CacheState
-visitDevice d c
-  | d == DeviceName "fft" =
-      c
-        { pathsWithOutput = 0,
-          pathsWithDAC = 0,
-          pathsWithFFT = pathsWithFFT c + pathsWithOutput c,
-          pathsWithBoth = pathsWithBoth c + pathsWithDAC c
-        }
-  | d == DeviceName "dac" =
-      c
-        { pathsWithOutput = 0,
-          pathsWithFFT = 0,
-          pathsWithDAC = pathsWithDAC c + pathsWithOutput c,
-          pathsWithBoth = pathsWithBoth c + pathsWithFFT c
-        }
-  | otherwise = c
-
-getAllPaths :: CacheState -> Int
-getAllPaths (CacheState a b c d) = a + b + c + d
-
-type Cache = Map DeviceName CacheState
-
-numPaths :: DeviceName -> DeviceName -> DeviceMap -> CacheState
-numPaths from to deviceMap = snd $ go from M.empty
+numPaths :: DeviceName -> DeviceName -> DeviceMap -> Int
+numPaths from to deviceMap = fst $ visit from M.empty
   where
-    go :: DeviceName -> Cache -> (Cache, CacheState)
-    go d visited
-      | d == to = (visited, defaultCache {pathsWithOutput = 1})
+    visit :: DeviceName -> Cache -> (Int, Cache)
+    visit d visited
+      | d == to = (1, visited)
       | otherwise = case M.lookup d visited of
-          Just p -> (visited, p)
+          Just p -> (p, visited)
           Nothing ->
             let outputs = getOutputs (getDevice d deviceMap)
-                (visited', n) = visit outputs visited
-             in (M.insert d n visited', n)
-
-    visit :: [DeviceName] -> Cache -> (Cache, CacheState)
-    visit [] visited = (visited, defaultCache)
-    visit (d : ds) visited =
-      let (visited', n) = go d visited
-       in second (combineCaches $ visitDevice d n) $ visit ds visited'
+             in (fst &&& uncurry (M.insert d)) $
+                  foldr (\d' (m, v) -> first (+ m) $ visit d' v) (0, visited) outputs
 
 parseDeviceName :: Parser DeviceName
 parseDeviceName = DeviceName <$> many1 alphaNum
@@ -102,7 +49,16 @@ parseInput = toDeviceMap <$> parseDevice `sepEndBy1` newline <* eof
     toDeviceMap = fromList . map (\d -> (getName d, d))
 
 part1 :: DeviceMap -> IO ()
-part1 = print . getAllPaths . numPaths (DeviceName "you") (DeviceName "out")
+part1 = print . numPaths (DeviceName "you") (DeviceName "out")
 
 part2 :: DeviceMap -> IO ()
-part2 = print . pathsWithBoth . numPaths (DeviceName "svr") (DeviceName "out")
+part2 m =
+  print
+    ( numPaths svr dac m * numPaths dac fft m * numPaths fft out m
+        + numPaths svr fft m * numPaths fft dac m * numPaths dac out m
+    )
+  where
+    fft = DeviceName "fft"
+    dac = DeviceName "dac"
+    svr = DeviceName "svr"
+    out = DeviceName "out"
