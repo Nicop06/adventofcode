@@ -44,4 +44,4 @@ part1 :: (Int, Int) -> IO ()
 part1 = print . (codes !!) . seriesIndex
 
 part2 :: (Int, Int) -> IO ()
-part2 = const $ putStrLn "We are done!!"
+part2 = putStrLn . const "We are done!!"

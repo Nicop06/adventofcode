@@ -48,4 +48,4 @@ part1 :: Puzzle -> IO ()
 part1 (Puzzle presents regions) = print . length . filter (canFit presents) $ regions
 
 part2 :: Puzzle -> IO ()
-part2 = print . const 1
+part2 = putStrLn . const "We are done!!"

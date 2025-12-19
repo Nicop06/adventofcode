@@ -55,4 +55,4 @@ part1 :: [Int] -> IO ()
 part1 = print . printSnafu . sum
 
 part2 :: [Int] -> IO ()
-part2 = const $ putStrLn "We are done!!"
+part2 = putStrLn . const "We are done!!"
