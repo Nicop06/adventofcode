@@ -6,9 +6,7 @@ module Day22
 where
 
 import Control.Arrow (first, second)
-import Data.Array.Repa (Array, DIM2, extent, ix2, (!))
-import Data.Array.Repa.Repr.Vector (V, fromListVector)
-import Data.Array.Repa.Shape (listOfShape)
+import Data.Array
 import Text.Parsec
 import Text.Parsec.String
 
@@ -16,7 +14,9 @@ import Text.Parsec.String
 
 data Tile = None | Open | Wall deriving (Show, Eq)
 
-type Grid = Array V DIM2 Tile
+type Coord = (Int, Int)
+
+type Grid = Array Coord Tile
 
 data Instruction = NumberOftiles Int | TurnRight | TurnLeft deriving (Show, Eq)
 
@@ -37,18 +37,16 @@ type NextTileFunc = Grid -> Player -> Player
 listToGrid :: [[Tile]] -> Grid
 listToGrid tiles =
   let maxLen = maximum . map length $ tiles
-   in fromListVector (ix2 (length tiles) maxLen) $ concatMap (take maxLen . (++ repeat None)) tiles
+   in listArray ((0, 0), (length tiles - 1, maxLen - 1)) $ concatMap (take maxLen . (++ repeat None)) tiles
 
 initialCoordinate :: Grid -> Coordinates
 initialCoordinate grid =
   let (_, numCols) = gridSize grid
-      openTile = fst . head . filter ((== Open) . snd) . map (\c -> (c, grid ! ix2 0 c)) $ [0 .. (numCols - 1)]
+      openTile = fst . head . filter ((== Open) . snd) . map (\c -> (c, grid ! (0, c))) $ [0 .. (numCols - 1)]
    in (0, openTile)
 
 gridSize :: Grid -> GridSize
-gridSize grid = case listOfShape . extent $ grid of
-  [c, r] -> (r, c)
-  _ -> error "Invalid dimension for grid"
+gridSize grid = let (_, (r, c)) = bounds grid in (r + 1, c + 1)
 
 initialPlayer :: Grid -> Player
 initialPlayer grid = (initialCoordinate grid, R)
@@ -79,18 +77,18 @@ nextCoord R = second (+ 1)
 
 nextTile :: Grid -> Player -> Player
 nextTile grid (coord, dir) =
-  let (x, y) = wrapGrid grid $ nextCoord dir coord
-   in case grid ! ix2 x y of
-        None -> nextTile grid ((x, y), dir)
-        _ -> ((x, y), dir)
+  let c = wrapGrid grid $ nextCoord dir coord
+   in case grid ! c of
+        None -> nextTile grid (c, dir)
+        _ -> (c, dir)
 
 move :: Int -> NextTileFunc -> Grid -> Player -> Player
 move 0 _ _ p = p
 move steps nextTileFunc grid player =
-  let ((x, y), dir') = nextTileFunc grid player
-   in case grid ! ix2 x y of
+  let (c, dir') = nextTileFunc grid player
+   in case grid ! c of
         Wall -> player
-        _ -> move (steps - 1) nextTileFunc grid ((x, y), dir')
+        _ -> move (steps - 1) nextTileFunc grid (c, dir')
 
 followPath :: NextTileFunc -> Grid -> Path -> [Player]
 followPath nextTileFunc grid = scanl (flip (followInstruction nextTileFunc grid)) (initialPlayer grid)
@@ -151,7 +149,7 @@ nextTileCube grid p@((x, y), dir) =
       | otherwise = error ("Invalid position: " ++ show p)
 
 isOnTile :: Grid -> Coordinates -> Bool
-isOnTile grid (x, y) = let (r, c) = gridSize grid in x >= 0 && x < r && y >= 0 && y < c && (grid ! ix2 x y) /= None
+isOnTile grid c = inRange (bounds grid) c && (grid ! c) /= None
 
 -- Parser
 
