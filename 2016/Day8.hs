@@ -5,17 +5,15 @@ module Day8
   )
 where
 
-import Data.Array.Repa as A hiding (transpose)
-import Data.List (transpose)
-import Data.Maybe (fromJust)
+import Data.Array
 import Text.Parsec
 import Text.Parsec.String
 
 type Pixel = Bool
 
-type Screen = Array U DIM2 Pixel
+type Coord = (Int, Int)
 
-type UpdateFunc = DIM2 -> (DIM2 -> Pixel) -> DIM2 -> Pixel
+type Screen = Array Coord Pixel
 
 data Operation = Rect Int Int | RotateRow Int Int | RotateCol Int Int deriving (Show, Eq)
 
@@ -25,40 +23,27 @@ screenHeight = 6
 screenWidth :: Int
 screenWidth = 50
 
-screenSize :: DIM2
-screenSize = ix2 screenWidth screenHeight
-
 initialScreen :: Screen
-initialScreen = fromJust $ computeUnboxedP $ fromFunction screenSize (const False)
+initialScreen = let b = ((0, 0), (screenHeight - 1, screenWidth - 1)) in array b [(c, False) | c <- range b]
 
-applyUpdate :: UpdateFunc -> Screen -> Screen
-applyUpdate update l = fromJust $ computeUnboxedP $ A.traverse l id (update $ extent l)
-
-runOperation :: Operation -> UpdateFunc
-runOperation (Rect c r) _ f idx@(Z :. x :. y) = f idx || (x < c && y < r)
-runOperation (RotateRow r n) (Z :. sx :. _) f idx@(Z :. x :. y) =
-  if y == r then f (Z :. (sx + x - n) `mod` sx :. y) else f idx
-runOperation (RotateCol c n) (Z :. _ :. sy) f idx@(Z :. x :. y) =
-  if x == c then f (Z :. x :. (sy + y - n) `mod` sy) else f idx
-
-applyOperation :: Screen -> Operation -> Screen
-applyOperation = flip $ applyUpdate . runOperation
+runOperation :: Operation -> Screen -> Screen
+runOperation (Rect c r) screen = screen // [(p, True) | p <- range ((0, 0), (r - 1, c - 1))]
+runOperation (RotateRow r n) screen =
+  screen // [((r, (y + n) `mod` screenWidth), screen ! (r, y)) | y <- [0 .. screenWidth - 1]]
+runOperation (RotateCol c n) screen =
+  screen // [(((x + n) `mod` screenHeight, c), screen ! (x, c)) | x <- [0 .. screenHeight - 1]]
 
 runAllOperations :: [Operation] -> Screen
-runAllOperations = foldl applyOperation initialScreen
+runAllOperations = foldl (flip runOperation) initialScreen
 
 numPixelsOn :: Screen -> Int
-numPixelsOn = length . filter id . toList
+numPixelsOn = length . filter id . elems
 
 toPixelStrings :: Screen -> [String]
-toPixelStrings = transpose . reshapeList screenHeight . toList . A.map toPixel
-
-toPixel :: Pixel -> Char
-toPixel p = if p then '#' else '.'
-
-reshapeList :: Int -> [a] -> [[a]]
-reshapeList _ [] = []
-reshapeList n l = let (start, end) = splitAt n l in start : reshapeList n end
+toPixelStrings screen = [[toPixel $ screen ! (i, j) | j <- [0 .. screenWidth - 1]] | i <- [0 .. screenHeight - 1]]
+  where
+    toPixel :: Pixel -> Char
+    toPixel p = if p then '#' else '.'
 
 parseInput :: Parser [Operation]
 parseInput = parseOperation `sepEndBy1` newline <* eof
