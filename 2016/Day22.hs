@@ -5,59 +5,67 @@ module Day22
   )
 where
 
+import Control.Arrow (first, second)
 import Control.Monad (void)
-import Data.Array.Repa as A (Array, extent, index, traverse, (!))
-import Data.Array.Repa.Index
-import Data.Array.Repa.Repr.Vector (V, computeVectorS, fromListVector)
-import Data.List (sortOn)
+import Data.Array
 import Text.Parsec
 import Text.Parsec.String
 
-type Coordinates = (Int, Int)
+type Coord = (Int, Int)
 
 type Size = Int
 
 type Usage = Int
 
-data NodeDesc = NodeDesc {getCoordinates :: Coordinates, getSize :: Size, initialUsed :: Size, initialAvail :: Size, getUsage :: Usage} deriving (Show, Eq)
+data NodeDesc = NodeDesc
+  { getCoordinates :: Coord,
+    getSize :: Size,
+    initialUsed :: Size,
+    initialAvail :: Size,
+    getUsage :: Usage
+  }
+  deriving (Show, Eq)
 
-data Node = Node {getUsed :: Size, getAvail :: Size} deriving (Show, Eq)
+data Node = Node
+  { getUsed :: Size,
+    getAvail :: Size
+  }
+  deriving (Show, Eq)
 
-type Grid = Array V DIM2 Node
+type Grid = Array Coord Node
 
 pairs :: Eq a => [a] -> [(a, a)]
 pairs l = filter (uncurry (/=)) $ (,) <$> l <*> l
 
-nodeFromDesc :: NodeDesc -> Node
-nodeFromDesc n = Node (initialUsed n) (initialAvail n)
-
 makeGrid :: [NodeDesc] -> Grid
-makeGrid l = fromListVector (ix2 (w + 1) (h + 1)) . map nodeFromDesc . sortOn getCoordinates $ l
+makeGrid l =
+  let (w, h) = maximum . map getCoordinates $ l
+   in array ((0, 0), (w, h)) [(getCoordinates n, nodeFromDesc n) | n <- l]
   where
-    (w, h) = maximum . map getCoordinates $ l
+    nodeFromDesc :: NodeDesc -> Node
+    nodeFromDesc n = Node (initialUsed n) (initialAvail n)
 
-allCoordinates :: Grid -> [DIM2]
-allCoordinates grid = let (Z :. w :. h) = extent grid in [ix2 x y | x <- [0 .. w], y <- [0 .. h]]
+makeGoal :: Grid -> Coord
+makeGoal g = let ((_, _), (gx, _)) = bounds g in (gx, 0)
 
 canMoveTo :: Node -> Node -> Bool
 canMoveTo from to = getUsed from > 0 && getUsed from <= getAvail to
 
-canMoveToCoords :: DIM2 -> DIM2 -> Grid -> Bool
+canMoveToCoords :: Coord -> Coord -> Grid -> Bool
 canMoveToCoords from to grid = canMoveTo (grid ! from) (grid ! to)
 
-moveTo :: DIM2 -> DIM2 -> Grid -> Grid
-moveTo from to grid = computeVectorS $ A.traverse grid id replaceNode
+moveTo :: Coord -> Coord -> Grid -> Grid
+moveTo from to grid = grid // [(from, newFromNode), (to, newToNode)]
   where
-    replaceNode f i
-      | i == from = let (Node used avail) = f from in Node 0 (used + avail)
-      | i == to =
-          let (Node fromUsed _) = f from
-              (Node toUsed toAvail) = f to
-           in Node (fromUsed + toUsed) (toAvail - fromUsed)
-      | otherwise = f i
+    (Node fromUsed fromAvail) = grid ! from
+    (Node toUsed toAvail) = grid ! to
+    newFromNode = Node 0 (fromUsed + fromAvail)
+    newToNode = Node (toUsed + fromUsed) (toAvail - fromUsed)
 
-allNeighbours :: Coordinates -> [Coordinates]
-allNeighbours (x, y) = [(x + 1, y + 1), (x + 1, y - 1), (x - 1, y + 1), (x - 1, y - 1)]
+allNeighbours :: Grid -> Coord -> [Coord]
+allNeighbours g c =
+  filter (inRange $ bounds g) $
+    [first, second] <*> [(+ 1), subtract 1] <*> [c]
 
 parseInput :: Parser [NodeDesc]
 parseInput = count 2 skipLine *> (parseNode `sepEndBy1` newline) <* eof
@@ -68,7 +76,7 @@ skipLine = void $ many1 (noneOf "\n") <* newline
 parseNode :: Parser NodeDesc
 parseNode = NodeDesc <$> parseCoordinates <*> parseSize <*> parseSize <*> parseSize <*> parseUsage
 
-parseCoordinates :: Parser Coordinates
+parseCoordinates :: Parser Coord
 parseCoordinates = (,) <$> (string "/dev/grid/node-x" *> parseNum) <*> (string "-y" *> parseNum <* many (char ' '))
 
 parseSize :: Parser Size
@@ -81,7 +89,10 @@ parseNum :: Parser Int
 parseNum = read <$> many1 digit
 
 part1 :: [NodeDesc] -> IO ()
-part1 = print . length . filter (uncurry canMoveTo) . pairs . map nodeFromDesc
+part1 = print . length . filter (uncurry canMoveTo) . pairs . elems . makeGrid
 
 part2 :: [NodeDesc] -> IO ()
-part2 = print . makeGrid
+part2 n = print . filter (\(c1, c2) -> canMoveTo (grid ! c1) (grid ! c2)) . filter (uncurry isNeighbour) $ pairs (indices grid)
+  where
+    grid = makeGrid n
+    isNeighbour (x1, y1) (x2, y2) = abs (x1 - x2) == 1 && abs (y1 - y2) == 1
