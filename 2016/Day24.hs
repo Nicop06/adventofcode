@@ -31,7 +31,7 @@ isLocation (Location _) = True
 isLocation _ = False
 
 getNeighbours :: (Coord, Coord) -> Coord -> [Coord]
-getNeighbours b c = filter (inRange b) $ [first, second] <*> [(+ 1), flip (-) 1] <*> [c]
+getNeighbours b c = filter (inRange b) $ [first, second] <*> [(+ 1), subtract 1] <*> [c]
 
 distMatrix :: Coord -> Grid -> DistMatrix
 distMatrix start grid = go [start] (amap (const maxBound) grid // [(start, 0)])

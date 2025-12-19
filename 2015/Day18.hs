@@ -52,7 +52,7 @@ corners lights = let ((minX, minY), (maxX, maxY)) = bounds lights in [(minX,), (
 allNeighbors :: Bounds -> Coord -> [Coord]
 allNeighbors b c = filter (inRange b) possibleNeighbors
   where
-    transforms = [(+ 1), id, flip (-) 1]
+    transforms = [(+ 1), id, subtract 1]
     possibleNeighbors = filter (/= c) $ (***) <$> transforms <*> transforms <*> [c]
 
 numLightsOn :: Lights -> Int
