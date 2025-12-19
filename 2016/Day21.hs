@@ -5,8 +5,7 @@ module Day21
   )
 where
 
-import Data.Array.Repa as A (Array, U, computeUnboxedP, extent, fromListUnboxed, toList, traverse)
-import Data.Array.Repa.Index
+import Data.List (elemIndex)
 import Data.Maybe (fromJust)
 import Text.Parsec
 import Text.Parsec.String
@@ -17,29 +16,28 @@ type Index = Int
 
 type Letter = Char
 
-type Password = Array U DIM1 Char
+type Password = String
 
-type UpdateFunc = Size -> (Index -> Letter) -> Index -> Letter
+data Operation
+  = SwapIndices Index Index
+  | SwapLetters Letter Letter
+  | RotateRight Index
+  | RotateLeft Index
+  | RotateLetter Letter
+  | RotateBackLetter Letter
+  | Reverse Index Index
+  | Move Index Index
+  deriving (Show, Eq)
 
-data Operation = SwapIndices Index Index | SwapLetters Letter Letter | RotateRight Index | RotateLeft Index | RotateLetter Letter | RotateBackLetter Letter | Reverse Index Index | Move Index Index deriving (Show, Eq)
-
-initialPassword :: String -> Password
-initialPassword p = fromListUnboxed (ix1 $ length p) p
-
-applyUpdate :: UpdateFunc -> Password -> Password
-applyUpdate update l = fromJust $ computeUnboxedP $ A.traverse l id updateFunc
-  where
-    updateFunc f = update (shapeToInt $ extent l) (f . ix1) . shapeToInt
-
-operationFunc :: Operation -> UpdateFunc
-operationFunc (SwapIndices i j) = const (swapIndicesFunc i j)
-operationFunc (SwapLetters l l') = swapLettersFunc l l'
-operationFunc (RotateLeft steps) = rotateFunc (-steps)
-operationFunc (RotateRight steps) = rotateFunc steps
-operationFunc (RotateLetter l) = rotateLetterFunc l
-operationFunc (RotateBackLetter l) = rotateBackLetterFunc l
-operationFunc (Reverse i j) = const (reverseFunc i j)
-operationFunc (Move from to) = const (moveFunc from to)
+applyOperation :: Operation -> Password -> Password
+applyOperation (SwapIndices i j) p = swapLetters (p !! i) (p !! j) p
+applyOperation (SwapLetters l l') p = swapLetters l l' p
+applyOperation (RotateLeft steps) p = rotate steps p
+applyOperation (RotateRight steps) p = rotate (length p - steps) p
+applyOperation (RotateLetter l) p = rotate (length p - numStepsForLetter l p) p
+applyOperation (RotateBackLetter l) p = rotateBackLetter l p
+applyOperation (Reverse i j) p = reverseBetween i j p
+applyOperation (Move from to) p = move from to p
 
 unscrambleOperation :: Operation -> Operation
 unscrambleOperation (RotateLeft i) = RotateRight i
@@ -48,56 +46,51 @@ unscrambleOperation (RotateLetter l) = RotateBackLetter l
 unscrambleOperation (Move from to) = Move to from
 unscrambleOperation op = op
 
-shapeToInt :: DIM1 -> Index
-shapeToInt (Z :. i) = i
-
-swapIndicesFunc :: Index -> Index -> (Index -> Letter) -> Index -> Letter
-swapIndicesFunc i j f idx
-  | i == idx = f j
-  | j == idx = f i
-  | otherwise = f idx
-
-swapLettersFunc :: Letter -> Letter -> Size -> (Index -> Letter) -> Index -> Letter
-swapLettersFunc l l' size f = swapIndicesFunc (letterIndex l size f) (letterIndex l' size f) f
-
-rotateFunc :: Index -> Size -> (Index -> Letter) -> Index -> Letter
-rotateFunc steps size f idx = f $ (idx - steps + size) `mod` size
-
-rotateLetterFunc :: Letter -> Size -> (Index -> Letter) -> Index -> Letter
-rotateLetterFunc l size f = rotateFunc (numStepsForLetter l size f) size f
-
-rotateBackLetterFunc :: Letter -> Size -> (Index -> Letter) -> Index -> Letter
-rotateBackLetterFunc l size f =
-  let steps = snd . head . filter ((== letterIndex l size f) . (`mod` size) . uncurry (+)) . zip indices $ map (numStepsForLetterIndex size) indices
-   in rotateFunc (-steps) size f
+swapLetters :: Letter -> Letter -> Password -> Password
+swapLetters l l' = map swap
   where
-    indices = [0 .. size - 1]
+    swap p
+      | p == l = l'
+      | p == l' = l
+      | otherwise = p
+
+rotate :: Index -> Password -> Password
+rotate steps p = let (p1, p2) = splitAt (steps `mod` length p) p in p2 ++ p1
+
+rotateBackLetter :: Letter -> Password -> Password
+rotateBackLetter l p =
+  let originalIndex = head $ filter rotationMatches [0 .. size - 1]
+   in rotate (numStepsForLetterIndex size originalIndex) p
+  where
+    rotationMatches i = (i + numStepsForLetterIndex size i) `mod` size == letterIndex
+    letterIndex = fromJust $ elemIndex l p
+    size = length p
 
 numStepsForLetterIndex :: Size -> Index -> Index
 numStepsForLetterIndex size i = (i + (if abs i >= 4 then 2 else 1) + size) `mod` size
 
-numStepsForLetter :: Letter -> Size -> (Index -> Letter) -> Index
-numStepsForLetter l size f = let i = letterIndex l size f in numStepsForLetterIndex size i
+numStepsForLetter :: Letter -> Password -> Index
+numStepsForLetter l p = numStepsForLetterIndex (length p) (fromJust $ elemIndex l p)
 
-reverseFunc :: Index -> Index -> (Index -> Letter) -> Index -> Letter
-reverseFunc i j f idx
-  | idx <= j && idx >= i = f $ j + i - idx
-  | otherwise = f idx
+reverseBetween :: Index -> Index -> Password -> Password
+reverseBetween i j p
+  | j < i = reverseBetween j i p
+  | otherwise =
+      let (start, rs) = splitAt i p
+          (mid, end) = splitAt (j - i + 1) rs
+       in start ++ reverse mid ++ end
 
-moveFunc :: Index -> Index -> (Index -> Letter) -> Index -> Letter
-moveFunc from to f idx
-  | idx < min from to || idx > max from to = f idx
-  | idx == to = f from
-  | otherwise = if from > to then f (idx - 1) else f (idx + 1)
+move :: Index -> Index -> Password -> Password
+move from to p =
+  case splitAt from p of
+    (_, []) -> p
+    (left, l : right) ->
+      if to < from
+        then let (start, mid) = splitAt to left in start ++ [l] ++ mid ++ right
+        else let (mid, end) = splitAt (to - from) right in left ++ mid ++ [l] ++ end
 
-letterIndex :: Letter -> Size -> (Index -> Letter) -> Index
-letterIndex l size f = head . filter ((== l) . f) $ [0 .. (size - 1)]
-
-applyOperation :: Operation -> Password -> Password
-applyOperation = applyUpdate . operationFunc
-
-runAllOperations :: String -> [Operation] -> [String]
-runAllOperations p = map toList . scanl (flip applyOperation) (initialPassword p)
+runAllOperations :: String -> [Operation] -> String
+runAllOperations = foldl (flip applyOperation)
 
 parseInput :: Parser [Operation]
 parseInput = parseOperation `sepEndBy1` newline <* eof
@@ -128,7 +121,7 @@ parseNum :: Parser Int
 parseNum = read <$> many1 digit
 
 part1 :: [Operation] -> IO ()
-part1 = putStrLn . last . runAllOperations "abcdefgh"
+part1 = putStrLn . runAllOperations "abcdefgh"
 
 part2 :: [Operation] -> IO ()
-part2 = putStrLn . last . runAllOperations "fbgdceah" . map unscrambleOperation . reverse
+part2 = putStrLn . runAllOperations "fbgdceah" . map unscrambleOperation . reverse
