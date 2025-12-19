@@ -15,7 +15,7 @@ description: The solution for the adventofcode 2015.
 dependencies:
 - base >= 4.7 && < 5
 - parsec
-- repa
+- array
 - cryptohash-md5
 - containers
 - bytestring
