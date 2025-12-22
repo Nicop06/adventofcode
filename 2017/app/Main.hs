@@ -1,6 +1,7 @@
 import Day1
 import Day2
 import Day3
+import Day4
 import System.Environment
 import Text.Parsec.String
 
@@ -8,6 +9,7 @@ runDay :: Int -> IO ()
 runDay 1 = parseAndRun 1 Day1.parseInput [Day1.part1, Day1.part2]
 runDay 2 = parseAndRun 2 Day2.parseInput [Day2.part1, Day2.part2]
 runDay 3 = parseAndRun 3 Day3.parseInput [Day3.part1, Day3.part2]
+runDay 4 = parseAndRun 4 Day4.parseInput [Day4.part1, Day4.part2]
 runDay _ = return ()
 
 parseAndRun :: Int -> Parser a -> [a -> IO ()] -> IO ()
