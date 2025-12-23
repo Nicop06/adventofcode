@@ -1,4 +1,5 @@
 import Day1
+import Day10
 import Day2
 import Day3
 import Day4
@@ -20,14 +21,22 @@ runDay 6 = parseAndRun 6 Day6.parseInput [Day6.part1, Day6.part2]
 runDay 7 = parseAndRun 7 Day7.parseInput [Day7.part1, Day7.part2]
 runDay 8 = parseAndRun 8 Day8.parseInput [Day8.part1, Day8.part2]
 runDay 9 = parseAndRun 9 Day9.parseInput [Day9.part1, Day9.part2]
+runDay 10 = runDayX 10 (\a -> sequence_ [Day10.part1 a, Day10.part2 a])
 runDay _ = return ()
 
 parseAndRun :: Int -> Parser a -> [a -> IO ()] -> IO ()
-parseAndRun day parser solvers =
+parseAndRun day parser solvers = runDayX day (parseAndSolve parser solvers)
+
+runDayX :: Int -> (FilePath -> IO ()) -> IO ()
+runDayX day solver =
   let file = "inputs/day" ++ show day
    in do
         putStrLn $ "=== Day " ++ show day ++ " ==="
-        parseFromFile parser file >>= either print (sequence_ . sequenceA solvers)
+        solver file
+
+parseAndSolve :: Parser a -> [a -> IO ()] -> FilePath -> IO ()
+parseAndSolve parser solvers file =
+  parseFromFile parser file >>= either print (sequence_ . sequenceA solvers)
 
 main :: IO ()
 main = do
