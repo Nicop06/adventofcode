@@ -34,7 +34,7 @@ getRoot nodes = case filter (not . (`elem` allChildren)) $ map getName nodes of
   where
     allChildren = foldl (\l n -> getChildren n ++ l) [] nodes
 
-groupOn :: Eq b => (a -> b) -> [a] -> [[a]]
+groupOn :: (Eq b) => (a -> b) -> [a] -> [[a]]
 groupOn f = groupBy (\x y -> f x == f y)
 
 parseInput :: Parser [Node]

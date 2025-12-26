@@ -1,10 +1,10 @@
 {-# LANGUAGE NumericUnderscores #-}
 
-module Day15 (
-  parseInput,
-  part1,
-  part2,
-)
+module Day15
+  ( parseInput,
+    part1,
+    part2,
+  )
 where
 
 import Control.Arrow ((***))
@@ -36,11 +36,11 @@ numMatching n =
 
 parseInput :: Parser (Int, Int)
 parseInput = (,) <$> parseGeneratorValue "A" <*> parseGeneratorValue "B" <* eof
- where
-  parseGeneratorValue :: String -> Parser Int
-  parseGeneratorValue g =
-    read
-      <$> (string ("Generator " ++ g ++ " starts with ") *> many1 digit <* newline)
+  where
+    parseGeneratorValue :: String -> Parser Int
+    parseGeneratorValue g =
+      read
+        <$> (string ("Generator " ++ g ++ " starts with ") *> many1 digit <* newline)
 
 part1 :: (Int, Int) -> IO ()
 part1 =

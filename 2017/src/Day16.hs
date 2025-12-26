@@ -1,10 +1,10 @@
 {-# LANGUAGE NumericUnderscores #-}
 
-module Day16 (
-  parseInput,
-  part1,
-  part2,
-)
+module Day16
+  ( parseInput,
+    part1,
+    part2,
+  )
 where
 
 import Data.List (elemIndex)
@@ -37,35 +37,35 @@ applyInstruction p (Exchange x y)
 
 repeatInstructions :: Int -> [Instruction] -> [Program]
 repeatInstructions numRepeats instructions = go 0 programs M.empty (cycle instructions)
- where
-  numInstructions = length instructions
-  go :: Int -> [Program] -> Map [Program] Int -> [Instruction] -> [Program]
-  go _ _ _ [] = error "No more instruction to run"
-  go step p m (i : is) = case M.lookup p m of
-    Nothing -> continue
-    Just step' ->
-      if (step - step') `mod` numInstructions /= 0
-        then continue
-        else
-          let r = (numRepeats * numInstructions) `mod` (step - step')
-           in foldr (flip applyInstruction) p (take r $ cycle $ reverse instructions)
-   where
-    continue = go (step + 1) (applyInstruction p i) (M.insert p step m) is
+  where
+    numInstructions = length instructions
+    go :: Int -> [Program] -> Map [Program] Int -> [Instruction] -> [Program]
+    go _ _ _ [] = error "No more instruction to run"
+    go step p m (i : is) = case M.lookup p m of
+      Nothing -> continue
+      Just step' ->
+        if (step - step') `mod` numInstructions /= 0
+          then continue
+          else
+            let r = (numRepeats * numInstructions) `mod` (step - step')
+             in foldr (flip applyInstruction) p (take r $ cycle $ reverse instructions)
+      where
+        continue = go (step + 1) (applyInstruction p i) (M.insert p step m) is
 
 parseInput :: Parser [Instruction]
 parseInput = (parseSpin <|> parseExchange <|> parsePartner) `sepBy1` char ',' <* newline <* eof
- where
-  parseInt :: Parser Int
-  parseInt = read <$> many1 digit
+  where
+    parseInt :: Parser Int
+    parseInt = read <$> many1 digit
 
-  parseSpin :: Parser Instruction
-  parseSpin = (Spin <$ char 's') <*> parseInt
+    parseSpin :: Parser Instruction
+    parseSpin = (Spin <$ char 's') <*> parseInt
 
-  parseExchange :: Parser Instruction
-  parseExchange = (Exchange <$ char 'x') <*> (parseInt <* char '/') <*> parseInt
+    parseExchange :: Parser Instruction
+    parseExchange = (Exchange <$ char 'x') <*> (parseInt <* char '/') <*> parseInt
 
-  parsePartner :: Parser Instruction
-  parsePartner = (Partner <$ char 'p') <*> (alphaNum <* char '/') <*> alphaNum
+    parsePartner :: Parser Instruction
+    parsePartner = (Partner <$ char 'p') <*> (alphaNum <* char '/') <*> alphaNum
 
 part1 :: [Instruction] -> IO ()
 part1 = putStrLn . foldl applyInstruction programs
