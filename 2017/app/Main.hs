@@ -4,6 +4,7 @@ import Day20
 import Day21
 import Day22
 import Day23
+import Day24
 import Day11
 import Day12
 import Day13
@@ -48,6 +49,7 @@ runDay 20 = parseAndRun 20 Day20.parseInput [Day20.part1, Day20.part2]
 runDay 21 = parseAndRun 21 Day21.parseInput [Day21.part1, Day21.part2]
 runDay 22 = parseAndRun 22 Day22.parseInput [Day22.part1, Day22.part2]
 runDay 23 = parseAndRun 23 Day23.parseInput [Day23.part1, Day23.part2]
+runDay 24 = parseAndRun 24 Day24.parseInput [Day24.part1, Day24.part2]
 runDay _ = return ()
 
 parseAndRun :: Int -> Parser a -> [a -> IO ()] -> IO ()
