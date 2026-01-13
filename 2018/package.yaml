@@ -19,6 +19,7 @@ dependencies:
 - hashtables
 - array
 - vector
+- mtl
 
 ghc-options:
 - -Wall

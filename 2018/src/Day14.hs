@@ -5,44 +5,53 @@ module Day14
   )
 where
 
-import Data.Maybe (fromJust)
-import Data.Sequence as S
-import Text.Parsec
-import Text.Parsec.String
+import Data.Sequence as S (Seq, fromList, index, length, (><))
+import Text.Parsec (digit, many1)
+import Text.Parsec.String (Parser)
 import Prelude as P
 
-type GameState = (Int, Int, Seq Int)
+initRecipes :: [Int]
+initRecipes = [3, 7]
 
-initState :: GameState
-initState = (0, 1, fromList [3, 7])
+toDigitList :: Int -> [Int]
+toDigitList = map (read . pure) . show
 
-recipeScores :: Int -> Seq Int
-recipeScores = fromList . map (read . pure) . show
-
-next :: GameState -> GameState
-next (elf1, elf2, recipes) =
-  ( (elf1 + r1 + 1) `mod` S.length recipes',
-    (elf2 + r2 + 1) `mod` S.length recipes',
-    recipes'
-  )
+makeRecipes :: [Int]
+makeRecipes = initRecipes ++ go 0 1 (fromList initRecipes)
   where
-    r1 = fromJust $ recipes !? elf1
-    r2 = fromJust $ recipes !? elf2
-    recipes' = recipes >< recipeScores (r1 + r2)
+    go :: Int -> Int -> Seq Int -> [Int]
+    go elf1 elf2 recipes =
+      let r1 = recipes `index` elf1
+          r2 = recipes `index` elf2
+          score = toDigitList (r1 + r2)
+          len = S.length recipes + P.length score
+       in score
+            ++ go
+              ((elf1 + r1 + 1) `mod` len)
+              ((elf2 + r2 + 1) `mod` len)
+              (recipes >< fromList score)
 
-makeRecipes :: Int -> Int
-makeRecipes numSteps = score (recipes !! (numSteps + 10))
+scoreRecipe :: Int -> Int
+scoreRecipe numSteps = score makeRecipes
   where
-    recipes = iterate next initState
+    score :: [Int] -> Int
+    score = foldl (\n i -> n * 10 + i) 0 . P.take 10 . P.drop numSteps
 
-    score :: (a, b, Seq Int) -> Int
-    score (_, _, l) = foldl (\n i -> n * 10 + i) 0 $ S.take 10 $ S.drop numSteps l
+takeUntilMatch :: [Int] -> [Int] -> [Int]
+takeUntilMatch [] _ = []
+takeUntilMatch (r : rs) pattern
+  | and $ zipWith (==) pattern (r : rs) = []
+  | otherwise = r : takeUntilMatch rs pattern
 
 parseInput :: Parser Int
 parseInput = read <$> many1 digit
 
 part1 :: Int -> IO ()
-part1 = print . makeRecipes . const 9
+part1 = print . scoreRecipe
 
 part2 :: Int -> IO ()
-part2 _ = mapM_ print $ P.take 10 $ iterate next initState
+part2 =
+  print
+    . P.length
+    . takeUntilMatch makeRecipes
+    . toDigitList
