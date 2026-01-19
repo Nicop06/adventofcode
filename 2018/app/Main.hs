@@ -1,6 +1,5 @@
 import Day1
 import Day10
--- import Day21
 -- import Day22
 -- import Day23
 -- import Day24
@@ -16,6 +15,7 @@ import Day18
 import Day19
 import Day2
 import Day20
+import Day21
 import Day3
 import Day4
 import Day5
@@ -47,7 +47,7 @@ runDay 17 = parseAndRun 17 Day17.parseInput [Day17.part1, Day17.part2]
 runDay 18 = parseAndRun 18 Day18.parseInput [Day18.part1, Day18.part2]
 runDay 19 = parseAndRun 19 Day19.parseInput [Day19.part1, Day19.part2]
 runDay 20 = parseAndRun 20 Day20.parseInput [Day20.part1, Day20.part2]
--- runDay 21 = parseAndRun 21 Day21.parseInput [Day21.part1, Day21.part2]
+runDay 21 = parseAndRun 21 Day21.parseInput [Day21.part1, Day21.part2]
 -- runDay 22 = parseAndRun 22 Day22.parseInput [Day22.part1, Day22.part2]
 -- runDay 23 = parseAndRun 23 Day23.parseInput [Day23.part1, Day23.part2]
 -- runDay 24 = parseAndRun 24 Day24.parseInput [Day24.part1, Day24.part2]
