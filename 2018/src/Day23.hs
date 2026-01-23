@@ -5,8 +5,10 @@ module Day23
   )
 where
 
+import Control.Arrow
 import Data.Foldable (maximumBy)
-import Data.Function
+import Data.Ix (range)
+import Data.Ord (comparing)
 import Text.Parsec hiding (getPosition)
 import Text.Parsec.String
 
@@ -22,24 +24,65 @@ data Nanobot = Nanobot
   }
   deriving (Show)
 
+distance :: Position -> Position -> Int
+distance (x, y, z) (x', y', z') = abs (x' - x) + abs (y' - y) + abs (z' - z)
+
 inRange :: Nanobot -> Position -> Bool
-inRange (Nanobot (x, y, z) r) (x', y', z') =
-  abs (x' - x) + abs (y' - y) + abs (z' - z) <= r
+inRange (Nanobot p r) p' = distance p p' <= r
 
-norm :: Position -> Int
-norm (x, y, z) = abs x + abs y + abs z
-
-closestPointTo :: Position -> Nanobot -> Position
-closestPointTo (tx, ty, tz) (Nanobot p@(x, y, z) r) =
-  let d = norm p in (x + (tx - x) * r `div` d, y + (ty - y) * r `div` d, z + (tz - z) * r `div` d)
-
-overlapsWithRegion :: Region -> Nanobot -> Bool
-overlapsWithRegion ((x1, y1, z1), (x2, y2, z2)) b@(Nanobot (x, y, z) _) =
+inRangeOfRegion :: Region -> Nanobot -> Bool
+inRangeOfRegion ((x1, y1, z1), (x2, y2, z2)) b@(Nanobot (x, y, z) _) =
   (x >= x1 && x <= x2 && y >= y1 && y <= y2 && z >= z1 && z <= z2)
     || inRange b (clamp (x1, x2) x, clamp (y1, y2) y, clamp (z1, z2) z)
   where
     clamp :: (Int, Int) -> Int -> Int
     clamp (_min, _max) n = max _min (min _max n)
+
+combine :: (Int, Int) -> (Int, Int) -> (Int, Int) -> Region
+combine (x1, x2) (y1, y2) (z1, z2) = ((x1, y1, z1), (x2, y2, z2))
+
+regionSize :: Region -> Int
+regionSize ((x1, y1, z1), (x2, y2, z2)) = maximum [x2 - x1, y2 - y1, z2 - z1]
+
+divideRegion :: Region -> [Region]
+divideRegion ((x1, y1, z1), (x2, y2, z2)) =
+  let midx = x1 + (x2 - x1) `div` 2
+      midy = y1 + (y2 - y1) `div` 2
+      midz = z1 + (z2 - z1) `div` 2
+   in combine
+        <$> [(x1, midx), (midx + 1, x2)]
+        <*> [(y1, midy), (midy + 1, y2)]
+        <*> [(z1, midz), (midz + 1, z2)]
+
+bestLocation :: [Nanobot] -> Position
+bestLocation bots = go [initRegion]
+  where
+    maxCoord :: Position -> Int
+    maxCoord (x, y, z) = maximum [abs x, abs y, abs z]
+
+    initRegion =
+      let size = maximum (map (maxCoord . getPosition) bots)
+       in ((-size, -size, -size), (size, size, size))
+
+    numInRangeRegion :: Region -> Int
+    numInRangeRegion r = length $ filter (inRangeOfRegion r) bots
+
+    bestRegions :: [Region] -> [Region]
+    bestRegions rs = map fst $ filter ((== bestNum) . snd) regionAndNum
+      where
+        regionAndNum = map (id &&& numInRangeRegion) rs
+        bestNum = maximum (map snd regionAndNum)
+
+    bestPosition :: [Position] -> Position
+    bestPosition = maximumBy (comparing numInRange)
+
+    numInRange :: Position -> Int
+    numInRange p = length $ filter (`inRange` p) bots
+
+    go :: [Region] -> Position
+    go rs
+      | any ((> 10) . regionSize) rs = go (bestRegions $ concatMap divideRegion rs)
+      | otherwise = bestPosition (concatMap range rs)
 
 parseInput :: Parser [Nanobot]
 parseInput = parseNanobot `sepEndBy1` newline <* eof
@@ -68,13 +111,7 @@ part1 nanobots =
       filter (inRange largestNanobotByRadius . getPosition) nanobots
   where
     largestNanobotByRadius :: Nanobot
-    largestNanobotByRadius = maximumBy (compare `on` getRadius) nanobots
+    largestNanobotByRadius = maximumBy (comparing getRadius) nanobots
 
 part2 :: [Nanobot] -> IO ()
-part2 nanobots =
-  print $
-    length $
-      filter (`inRange` (50000000, -50000000, 50000000)) nanobots
-  where
-    largestNanobotByRadius :: Nanobot
-    largestNanobotByRadius = maximumBy (compare `on` getRadius) nanobots
+part2 = print . distance (0, 0, 0) . bestLocation
