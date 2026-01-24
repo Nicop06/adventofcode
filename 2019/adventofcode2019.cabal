@@ -1,0 +1,56 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.37.0.
+--
+-- see: https://github.com/sol/hpack
+
+name:           adventofcode2019
+version:        0.1.0.0
+description:    The solution for the adventofcode 2019.
+homepage:       https://github.com/Nicop06/adventofcode#readme
+bug-reports:    https://github.com/Nicop06/adventofcode/issues
+author:         Nicolas Porcel
+maintainer:     nicolasporcel06@gmail.com
+copyright:      2025 Nicolas Porcel
+license:        BSD3
+build-type:     Simple
+
+source-repository head
+  type: git
+  location: https://github.com/Nicop06/adventofcode
+
+library
+  exposed-modules:
+      Day1
+  other-modules:
+      Paths_adventofcode2019
+  hs-source-dirs:
+      src
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -Wno-type-defaults -XTupleSections
+  build-depends:
+      array
+    , base >=4.7 && <5
+    , containers
+    , hashtables
+    , mtl
+    , parsec
+    , vector
+  default-language: Haskell2010
+
+executable aoc2019
+  main-is: Main.hs
+  other-modules:
+      Paths_adventofcode2019
+  hs-source-dirs:
+      app
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -Wno-type-defaults -XTupleSections -threaded -rtsopts -with-rtsopts=-N -O2
+  build-depends:
+      adventofcode2019
+    , array
+    , base >=4.7 && <5
+    , containers
+    , hashtables
+    , mtl
+    , parsec
+    , vector
+  default-language: Haskell2010
