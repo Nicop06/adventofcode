@@ -20,6 +20,7 @@ dependencies:
 - array
 - vector
 - mtl
+- text
 
 ghc-options:
 - -Wall
