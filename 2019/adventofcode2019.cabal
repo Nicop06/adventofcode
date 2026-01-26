@@ -27,6 +27,7 @@ library
       Day4
       Day5
       Day6
+      Day7
   other-modules:
       Paths_adventofcode2019
   hs-source-dirs:
