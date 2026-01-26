@@ -21,7 +21,7 @@ import Day4
 import Day5
 import Day6
 import Day7
--- import Day8
+import Day8
 -- import Day9
 import System.Environment
 import Text.Parsec.String
@@ -34,7 +34,7 @@ runDay 4 = parseAndRun 4 Day4.parseInput [Day4.part1, Day4.part2]
 runDay 5 = parseAndRun 5 Day5.parseInput [Day5.part1, Day5.part2]
 runDay 6 = parseAndRun 6 Day6.parseInput [Day6.part1, Day6.part2]
 runDay 7 = parseAndRun 7 Day7.parseInput [Day7.part1, Day7.part2]
--- runDay 8 = parseAndRun 8 Day8.parseInput [Day8.part1, Day8.part2]
+runDay 8 = parseAndRun 8 Day8.parseInput [Day8.part1, Day8.part2]
 -- runDay 9 = parseAndRun 9 Day9.parseInput [Day9.part1, Day9.part2]
 -- runDay 10 = parseAndRun 10 Day10.parseInput [Day10.part1, Day10.part2]
 -- runDay 11 = parseAndRun 11 Day11.parseInput [Day11.part1, Day11.part2]
