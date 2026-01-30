@@ -21,6 +21,10 @@ dependencies:
 - vector
 - mtl
 - text
+- linear
+- lens
+- unordered-containers
+- hashable
 
 ghc-options:
 - -Wall
